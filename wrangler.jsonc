@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Obscure name on purpose until the repo goes public (Sun 15 Nov 19:30 AEST).
+  "name": "q7m3-demo",
+  "main": "api/src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "account_id": "e3cb8bffb3a1a6e6009c50fdf0bc6b82",
+  "assets": {
+    "directory": "web/dist",
+    "binding": "ASSETS",
+    // Every request goes through the Worker so the weekend password covers pages and data too.
+    "run_worker_first": true,
+  },
+  "observability": { "enabled": true },
+}

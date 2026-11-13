@@ -1,0 +1,33 @@
+{
+  "name": "fourlights",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "web",
+    "api"
+  ],
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
+    "build": "npm run build -w web",
+    "dev": "npm run build && wrangler dev",
+    "format": "prettier --write . && ruff format pipeline",
+    "lint": "eslint .",
+    "typecheck": "tsc -p api --noEmit && tsc -p web --noEmit",
+    "check": "prettier --check . && eslint . && npm run typecheck && ruff check pipeline && ruff format --check pipeline",
+    "check:real-data": "node scripts/check-real-data.mjs",
+    "deploy": "npm run check && npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "wrangler": "^4.162.0"
+  },
+  "allowScripts": {
+    "workerd@1.20261113.1": true,
+    "esbuild@0.28.2": true
+  }
+}

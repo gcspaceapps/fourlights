@@ -1,0 +1,63 @@
+:root {
+  --sa-blue-yonder: #2e96f5;
+  --sa-neon-blue: #0960e1;
+  --sa-electric-blue: #0042a6;
+  --sa-deep-blue: #07173f;
+  --sa-rocket-red: #e43700;
+  --sa-martian-red: #8e1100;
+  --sa-neon-yellow: #eafe07;
+  --sa-white: #ffffff;
+  --sa-gradient: linear-gradient(135deg, #0042a6 0%, #07173f 100%);
+  --sa-font-heading: 'Fira Sans', 'Overpass', sans-serif;
+  --sa-font-body: 'Overpass', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--sa-gradient);
+  color: var(--sa-white);
+  font-family: var(--sa-font-body);
+  line-height: 1.5;
+}
+
+main {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+h1 {
+  font-family: var(--sa-font-heading);
+  font-weight: 900;
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  margin: 0;
+}
+
+.tagline {
+  font-size: 1.25rem;
+}
+
+.lights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.lights li {
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--sa-blue-yonder);
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.status {
+  color: var(--sa-white);
+  opacity: 0.9;
+}
