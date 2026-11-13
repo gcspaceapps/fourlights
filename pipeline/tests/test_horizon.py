@@ -107,3 +107,22 @@ def test_pds_heights_are_scaled_integers_not_radii() -> None:
     block = r.read(1800, 1810, 1800, 1810)  # near the pole
     assert np.isfinite(block).all()
     assert block.min() > -10_000 and block.max() < 10_000, "heights, not planetary radius"
+
+
+def test_near_field_dome_matches_formula() -> None:
+    # Observer 2 m up on the top of a smooth dome z = -d^2 / (2 * 500 m). Like a small planet,
+    # its horizon is the tangent point, ~45 m out (inside the near field), at
+    # -atan(sqrt(2h * (1/Rc + 1/R_moon))) in every direction.
+    from four_lights import MOON_RADIUS_M
+
+    rc, h = 500.0, 2.0
+    sx, sy = site_xy(-88.5, 75.0)
+    r = flat_raster("dome", sx, sy, 600, 5)
+    xs = r.left + (np.arange(r.width) + 0.5) * r.res_m
+    ys = r.top - (np.arange(r.height) + 0.5) * r.res_m
+    d2 = (xs[None, :] - sx) ** 2 + (ys[:, None] - sy) ** 2
+    r.data = -d2 / (2 * rc)
+    prof = compute_horizon(sx, sy, [Ring(r)], (h,)).profile(h)
+    expect = -np.degrees(np.arctan(np.sqrt(2 * h * (1 / rc + 1 / MOON_RADIUS_M))))
+    assert np.allclose(prof, expect, atol=0.02), (prof.min(), prof.max(), expect)
+    assert prof.std() < 0.01

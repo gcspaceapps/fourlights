@@ -127,6 +127,7 @@ def main(argv: list[str] | None = None) -> None:
             ground_m=ground,
             allow_gaps=True,
             spread=False,
+            near=False,
         ).profile(a.height)[CHECK_SECTORS]
         diff = float(np.abs(eng[seen] - brute[seen]).max())
         worst = max(worst, diff)
@@ -143,18 +144,26 @@ def main(argv: list[str] | None = None) -> None:
                 "engine_deg": [round(float(v), 4) for v in eng],
             }
         )
-    # How much near-pixel spreading moves the real product profile (all rings, hand-off on).
-    with_spread = compute_horizon(pt.x, pt.y, rings, (a.height,)).profile(a.height)
-    no_spread = compute_horizon(pt.x, pt.y, rings, (a.height,), spread=False).profile(a.height)
-    lift = with_spread - no_spread
-    spread_effect = {
-        "max_lift_deg": round(float(lift.max()), 3),
-        "sectors_lifted_over_0_01_deg": int((lift > 0.01).sum()),
-    }
-    print(
-        f"spreading lifts the product profile by up to {lift.max():.3f}° "
-        f"({spread_effect['sectors_lifted_over_0_01_deg']} sectors > 0.01°)"
-    )
+
+    # How the near-field model moves the real product profile (all rings, hand-off on):
+    # product (bilinear resampling near the site) vs flat-topped pixel blocks vs centres only.
+    def run(**kw: bool) -> np.ndarray:
+        return compute_horizon(pt.x, pt.y, rings, (a.height,), **kw).profile(a.height)
+
+    product = run()
+    blocks = run(near=False)
+    centres = run(near=False, spread=False)
+    spread_effect = {}
+    for name, other in (("vs_blocks", blocks), ("vs_centres", centres)):
+        d = product - other
+        spread_effect[name] = {
+            "max_abs_deg": round(float(np.abs(d).max()), 3),
+            "sectors_over_0_05_deg": int((np.abs(d) > 0.05).sum()),
+        }
+        print(
+            f"near-field model, product {name}: max |d| {np.abs(d).max():.3f}°, "
+            f"{int((np.abs(d) > 0.05).sum())} sectors differ by > 0.05°"
+        )
     out = HORIZON_OUT / f"{spec.id}.bruteforce.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(

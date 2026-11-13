@@ -30,6 +30,12 @@ OBSERVER_HEIGHTS_M = (1.0, 2.0, 5.0)
 NO_TERRAIN_DEG = -90.0
 """Sector value before any terrain is seen. A finished profile never contains it."""
 
+NEAR_PX = 81
+"""Within this many pixels of the site, a pixel subtends more than one 0.5° sector
+(atan(0.707 / 81) = 0.5°), so the site's own DEM is resampled finer there."""
+NEAR_SUB = 10
+"""Near-field resampling: bilinear at 1/NEAR_SUB of the pixel size (0.5 m on a 5 m tile)."""
+
 _COVER_CELL_M = 50.0
 """Cell size of the coverage masks used to decide whether a finer ring has data at a point."""
 
@@ -140,6 +146,66 @@ def _bin(
                 np.maximum.at(best[i], k[sel] % SECTORS, el_w[sel])
 
 
+def _bilinear(z: F64, left: float, top: float, res: float, fx: F64, fy: F64) -> F64:
+    """Bilinear interpolation of pixel-centred grid `z` at (fx, fy); NaN where any corner is."""
+    cf = (fx - left) / res - 0.5
+    rf = (top - fy) / res - 0.5
+    c0 = np.floor(cf).astype(np.int64)
+    r0 = np.floor(rf).astype(np.int64)
+    tc = cf - c0
+    tr = rf - r0
+    ok = (c0 >= 0) & (r0 >= 0) & (c0 + 1 < z.shape[1]) & (r0 + 1 < z.shape[0])
+    out = np.full(fx.shape, np.nan)
+    c0, r0, tc, tr = c0[ok], r0[ok], tc[ok], tr[ok]
+    out[ok] = (
+        z[r0, c0] * (1 - tc) * (1 - tr)
+        + z[r0, c0 + 1] * tc * (1 - tr)
+        + z[r0 + 1, c0] * (1 - tc) * tr
+        + z[r0 + 1, c0 + 1] * tc * tr
+    )
+    return out
+
+
+def _near_field(
+    r: Raster,
+    x: float,
+    y: float,
+    frame: LocalFrame,
+    best: F64,
+    heights: tuple[float, ...],
+    spread: bool,
+) -> tuple[float, int]:
+    """Bin the site's own DEM, bilinearly resampled finer, within NEAR_PX pixels of the site.
+
+    Returns (radius_m, points). The caller skips the raw pixels inside that radius.
+    """
+    radius = NEAR_PX * r.res_m
+    win = _window(r, x, y, radius + 2 * r.res_m)
+    if win is None:
+        return 0.0, 0
+    r0, r1, c0, c1 = win
+    z = r.read(r0, r1, c0, c1)
+    left = r.left + c0 * r.res_m
+    top = r.top - r0 * r.res_m
+    s = r.res_m / NEAR_SUB
+    n = int(np.ceil(radius / s))
+    offs = (np.arange(-n, n) + 0.5) * s
+    count = 0
+    for k in range(0, offs.size, 256):
+        fy = (y + offs[k : k + 256])[:, None] + np.zeros_like(offs)[None, :]
+        fx = np.broadcast_to((x + offs)[None, :], fy.shape)
+        d2 = (fx - x) ** 2 + (fy - y) ** 2
+        m = (d2 < radius**2) & (d2 >= s**2)
+        fh = _bilinear(z, left, top, r.res_m, fx[m], fy[m])
+        ok = np.isfinite(fh)
+        px, py, ph = fx[m][ok], fy[m][ok], fh[ok]
+        plat, plon = ps_to_latlon(px, py)
+        e, nn, u = frame.enu(*to_cartesian(plat, plon, ph))
+        _bin(best, heights, azimuth_deg(e, nn), np.hypot(e, nn), u, s, spread)
+        count += int(ok.sum())
+    return radius, count
+
+
 def site_ground(rings: list[Ring], x: float, y: float) -> tuple[float, str]:
     """Ground height at (x, y) from the finest ring with data there."""
     for ring in rings:
@@ -161,12 +227,14 @@ def compute_horizon(
     ground_m: float | None = None,
     allow_gaps: bool = False,
     spread: bool = True,
+    near: bool = True,
 ) -> HorizonResult:
     """Horizon profiles at (x, y) (PS metres) for each observer height.
 
     `cover=False` uses every pixel of every ring within its max_km, and `ground_m` / `allow_gaps`
     let one ring run on its own: both are for the brute-force check, never the product.
     `spread=False` bins pixel centres only (no near-pixel spreading), as the brute force does.
+    `near=False` skips the near-field resampling (brute-force check only).
     """
     ground = site_ground(rings, x, y)[0] if ground_m is None else ground_m
     lat, lon = ps_to_latlon(x, y)
@@ -174,11 +242,18 @@ def compute_horizon(
     best = np.full((len(heights_m), SECTORS), NO_TERRAIN_DEG)
     covers: list[_Coverage] = []
     uses: list[RingUse] = []
+    near_done = not near
 
     for ring in rings:
         r = ring.raster
         use = RingUse(source=r.name, res_m=r.res_m)
         max_m = None if ring.max_km is None else ring.max_km * 1000.0
+        near_r = 0.0
+        if not near_done and np.isfinite(sample(r, x, y)):
+            near_r, near_pts = _near_field(r, x, y, frame, best, heights_m, spread)
+            near_done = True
+            if progress:
+                print(f"  near field {r.name}: {near_pts:,} points to {near_r:.0f} m", flush=True)
         win = _window(r, x, y, max_m)
         if win is not None:
             r0, r1, c0, c1 = win
@@ -191,7 +266,7 @@ def compute_horizon(
                 xs = np.broadcast_to(xs_row[None, :], h.shape)
                 ys = np.broadcast_to(ys, h.shape)
                 d2 = (xs - x) ** 2 + (ys - y) ** 2
-                m = np.isfinite(h) & (d2 >= r.res_m**2)
+                m = np.isfinite(h) & (d2 >= max(r.res_m, near_r) ** 2)
                 if max_m is not None:
                     m &= d2 < max_m**2
                 if cover:
