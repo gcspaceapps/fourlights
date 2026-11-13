@@ -3,7 +3,9 @@
 The engine uses an analytic stereographic inverse, Cartesian vectors and an east-north-up frame.
 This check uses pyproj for the inverse, the spherical forward-azimuth formula for bearing and the
 law of cosines for elevation. Each DEM ring runs on its own over every pixel within its max_km
-(no ring hand-off), and is compared with the engine run the same way (`cover=False`).
+(no ring hand-off), and is compared with the engine run the same way (`cover=False`) with
+near-pixel spreading off (`spread=False`), since the brute force bins pixel centres only.
+It then reports how much spreading changes the real product profile.
 
     python -m four_lights.bruteforce shackleton-rim
 """
@@ -117,7 +119,14 @@ def main(argv: list[str] | None = None) -> None:
             print(f"{ring.raster.name}: no pixels in the check sectors")
             continue
         eng = compute_horizon(
-            pt.x, pt.y, [ring], (a.height,), cover=False, ground_m=ground, allow_gaps=True
+            pt.x,
+            pt.y,
+            [ring],
+            (a.height,),
+            cover=False,
+            ground_m=ground,
+            allow_gaps=True,
+            spread=False,
         ).profile(a.height)[CHECK_SECTORS]
         diff = float(np.abs(eng[seen] - brute[seen]).max())
         worst = max(worst, diff)
@@ -134,6 +143,18 @@ def main(argv: list[str] | None = None) -> None:
                 "engine_deg": [round(float(v), 4) for v in eng],
             }
         )
+    # How much near-pixel spreading moves the real product profile (all rings, hand-off on).
+    with_spread = compute_horizon(pt.x, pt.y, rings, (a.height,)).profile(a.height)
+    no_spread = compute_horizon(pt.x, pt.y, rings, (a.height,), spread=False).profile(a.height)
+    lift = with_spread - no_spread
+    spread_effect = {
+        "max_lift_deg": round(float(lift.max()), 3),
+        "sectors_lifted_over_0_01_deg": int((lift > 0.01).sum()),
+    }
+    print(
+        f"spreading lifts the product profile by up to {lift.max():.3f}° "
+        f"({spread_effect['sectors_lifted_over_0_01_deg']} sectors > 0.01°)"
+    )
     out = HORIZON_OUT / f"{spec.id}.bruteforce.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(
@@ -145,6 +166,7 @@ def main(argv: list[str] | None = None) -> None:
                 "tolerance_deg": TOLERANCE_DEG,
                 "worst_abs_diff_deg": round(worst, 4),
                 "rings": report,
+                "spread_effect": spread_effect,
             },
             indent=1,
         )

@@ -120,11 +120,13 @@ class _Coverage:
         return out
 
 
-def _bin(best: F64, heights: tuple[float, ...], az: F64, horiz: F64, up: F64, res_m: float) -> None:
+def _bin(
+    best: F64, heights: tuple[float, ...], az: F64, horiz: F64, up: F64, res_m: float, spread: bool
+) -> None:
     """Fold points into the per-sector maxima, spreading near pixels over every sector they span."""
     sector = (az / STEP_DEG).astype(np.int64) % SECTORS
     half_w = np.degrees(np.arctan2(res_m * np.sqrt(0.5), horiz))
-    wide = half_w > STEP_DEG / 2
+    wide = (half_w > STEP_DEG / 2) & spread
     for i, h in enumerate(heights):
         el = elevation_deg(horiz, up - h)
         np.maximum.at(best[i], sector, el)
@@ -158,11 +160,13 @@ def compute_horizon(
     progress: bool = False,
     ground_m: float | None = None,
     allow_gaps: bool = False,
+    spread: bool = True,
 ) -> HorizonResult:
     """Horizon profiles at (x, y) (PS metres) for each observer height.
 
     `cover=False` uses every pixel of every ring within its max_km, and `ground_m` / `allow_gaps`
     let one ring run on its own: both are for the brute-force check, never the product.
+    `spread=False` bins pixel centres only (no near-pixel spreading), as the brute force does.
     """
     ground = site_ground(rings, x, y)[0] if ground_m is None else ground_m
     lat, lon = ps_to_latlon(x, y)
@@ -201,7 +205,7 @@ def compute_horizon(
                 plat, plon = ps_to_latlon(px, py)
                 e, n, u = frame.enu(*to_cartesian(plat, plon, ph))
                 horiz = np.hypot(e, n)
-                _bin(best, heights_m, azimuth_deg(e, n), horiz, u, r.res_m)
+                _bin(best, heights_m, azimuth_deg(e, n), horiz, u, r.res_m, spread)
                 use.pixels += int(m.sum())
                 use.max_dist_m = max(use.max_dist_m, float(np.sqrt(d2[m].max())))
         if progress:

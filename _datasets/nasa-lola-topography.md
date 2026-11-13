@@ -38,4 +38,7 @@ The terrain for each site's horizon profile: how high the land stands in every d
 - PDS `.IMG` heights need `SCALING_FACTOR`/`OFFSET` from the `.LBL` (GDAL may not apply them).
 
 ## Loading recipe
-_Written as stage 01 runs._
+- `cd pipeline && make venv && make fetch` downloads into `data/raw/lola/` and checks every file's size and SHA-256 (pinned in `pipeline/src/four_lights/sources.py`). It falls back to `$NASA_CACHE` if a NASA server fails; `FETCH_FLAGS=--cache-first` takes the mirror first (PGDA serves about 0.5 MB/s, so the 3.4 GB mosaic takes about 2 h from source).
+- Open with rasterio: the GeoTIFFs directly, the PDS grids **through their `.LBL`**. All six products have the same projection (`+proj=stere +lat_0=-90 +lon_0=0 +R=1737400`; the PDS labels say `lat_ts=-90` instead of `k=1`, which is the same projection). `FileRaster` checks this by transforming test points.
+- PDS heights: **height = DN × 0.5** (`SCALING_FACTOR`). GDAL reports offset 1737400, the sphere radius. Applying GDAL's scale *and* offset gives planetary radius, not height. We read raw DNs, and a test asserts the result is a height.
+- Rings as used, finest first: the 5 m site tile (whole tile), the 87S 5 m mosaic to 20 km, `LDEM_875S_20M` then `LDEM_85S_20M` to 60 km, `LDEM_75S_60M` to 150 km, then `LDEM_75S_240M` to the edge of its grid. At Shackleton rim, neighbouring rings agree to a median of ±0.06 m where they overlap.
