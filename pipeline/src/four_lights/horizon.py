@@ -156,13 +156,15 @@ def compute_horizon(
     cover: bool = True,
     strip_px: int = 2_000_000,
     progress: bool = False,
+    ground_m: float | None = None,
+    allow_gaps: bool = False,
 ) -> HorizonResult:
     """Horizon profiles at (x, y) (PS metres) for each observer height.
 
-    `cover=False` uses every pixel of every ring within its max_km (used by the brute-force check
-    to compare one ring at a time).
+    `cover=False` uses every pixel of every ring within its max_km, and `ground_m` / `allow_gaps`
+    let one ring run on its own: both are for the brute-force check, never the product.
     """
-    ground, _ = site_ground(rings, x, y)
+    ground = site_ground(rings, x, y)[0] if ground_m is None else ground_m
     lat, lon = ps_to_latlon(x, y)
     frame = LocalFrame.at(float(lat), float(lon), ground)
     best = np.full((len(heights_m), SECTORS), NO_TERRAIN_DEG)
@@ -209,7 +211,7 @@ def compute_horizon(
         if cover:
             covers.append(_Coverage(ring, x, y, strip_px))
 
-    if (best == NO_TERRAIN_DEG).any():
+    if not allow_gaps and (best == NO_TERRAIN_DEG).any():
         missing = int((best == NO_TERRAIN_DEG).sum())
         raise ValueError(f"{missing} sector values saw no terrain")
     return HorizonResult(
