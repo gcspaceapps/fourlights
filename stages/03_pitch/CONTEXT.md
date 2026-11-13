@@ -2,6 +2,8 @@
 
 One job: the pitch script, the demo (video ≤ 30 s or ≤ 7 slides) and the project page text.
 
+**The deck, the talk script, the 30-second video script and the Q&A are made in the separate pitch repo, https://github.com/gcspaceapps/fourlights-pitch (private). `output/project-page.md` (the submission text, credits and disclosures) stays here; `output/pitch.md` links to the finished deck and video.** The Gold Coast session gives each team 3 minutes.
+
 ## Inputs
 Working (this run): `../02_build/output/build-log.md` (what works, the validation numbers), `../02_build/output/media/`, the live demo.
 Reference (every run): `../../_shared/judging.md`, `../../_shared/concept.md` (the user, the decision, the demo moment), `../../_shared/rules.md` (disclosures), `../../_shared/brand.md`, `../../_datasets/_index.md`.
