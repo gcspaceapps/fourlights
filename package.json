@@ -15,7 +15,8 @@
     "typecheck": "tsc -p api --noEmit && tsc -p web --noEmit",
     "check": "prettier --check . && eslint . && npm run typecheck && ruff check pipeline && ruff format --check pipeline",
     "check:real-data": "node scripts/check-real-data.mjs",
-    "deploy": "npm run check && npm run build && wrangler deploy"
+    "deploy": "npm run check && npm run build && wrangler deploy",
+    "fake-data": "node scripts/make-fake-data.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
