@@ -2,7 +2,7 @@
 .PHONY: venv test lint
 
 venv:
-	uv venv .venv && uv pip install -e . pytest
+	uv venv .venv --python 3.14 && uv pip install --python .venv/bin/python -r requirements.lock && uv pip install --python .venv/bin/python --no-deps -e .
 
 test:
 	.venv/bin/pytest
