@@ -318,7 +318,7 @@ async function selectSite(id: string): Promise<void> {
   const heights = current.horizons.map((h) => h.height_m);
   const keep = Number(ui.height.value) || DEFAULT_HEIGHT_M;
   ui.height.replaceChildren(
-    ...heights.map((h) => new Option(`${h} m`, String(h), false, h === keep)),
+    ...heights.map((h) => new Option(String(h), String(h), false, h === keep)),
   );
   render();
 }
@@ -368,8 +368,8 @@ async function init(): Promise<void> {
       (s) => new Option(s.id.startsWith('fake-') ? `${s.name} [fixture]` : s.name, s.id),
     ),
   );
-  ui.days.replaceChildren(...WINDOW_DAYS.map((d) => new Option(`${d} days`, String(d))));
-  ui.planDays.replaceChildren(...WINDOW_DAYS.map((d) => new Option(`${d} days`, String(d))));
+  ui.days.replaceChildren(...WINDOW_DAYS.map((d) => new Option(String(d), String(d))));
+  ui.planDays.replaceChildren(...WINDOW_DAYS.map((d) => new Option(String(d), String(d))));
   ui.plan.value = hash.get('plan') ?? DEFAULT_PLAN;
   ui.planDays.value = hash.get('pdays') ?? String(WINDOW_DAYS[0]);
   const demoSite = sites.some((x) => x.id === DEMO_SITE) ? DEMO_SITE : (sites[0]?.id ?? '');

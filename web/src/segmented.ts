@@ -36,6 +36,8 @@ export function segmented(select: HTMLSelectElement): void {
           b.type = 'button';
           b.dataset.value = o.value;
           b.textContent = o.text;
+          // Bare numbers get the field's name read out with them ("Observer height (m): 5").
+          if (/^[\d.]+$/.test(o.text)) b.setAttribute('aria-label', `${name}: ${o.text}`);
           b.addEventListener('click', () => {
             if (select.value === o.value) return;
             select.value = o.value;

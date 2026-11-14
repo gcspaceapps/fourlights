@@ -363,12 +363,14 @@ a:hover {
 
 .segmented {
   display: inline-flex;
+  align-self: flex-start;
   border: 1px solid var(--border);
   border-radius: 0.375rem;
   overflow: hidden;
 }
 
 .segmented button {
+  min-width: 2.75rem;
   min-height: calc(2.5rem - 2px);
   padding: 0 0.8rem;
   border: none;

@@ -110,7 +110,9 @@ test.describe('button groups', () => {
   }) => {
     await open(page, '#site=peak-near-shackleton&date=2028-04-22');
     const group = (name: string) => page.getByRole('group', { name });
-    await group('Observer height').getByRole('button', { name: '5 m' }).click();
+    await group('Observer height (m)')
+      .getByRole('button', { name: 'Observer height (m): 5' })
+      .click();
     await expect(page.locator('#height')).toHaveValue('5');
     await expect(page.locator('#chart')).toContainText('observer 5 m');
     await group('Centre on').getByRole('button', { name: 'South (pole)' }).click();
@@ -127,10 +129,9 @@ test.describe('button groups', () => {
     expect(page.url()).toContain('c=180');
     // A keyboard shortcut moves the same control, and the buttons follow.
     await page.keyboard.press('h');
-    await expect(group('Observer height').getByRole('button', { name: '1 m' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expect(
+      group('Observer height (m)').getByRole('button', { name: 'Observer height (m): 1' }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('the planner window buttons change the grid', async ({ page }) => {
@@ -138,7 +139,7 @@ test.describe('button groups', () => {
     await page
       .locator('#controls, .controls')
       .first()
-      .getByRole('button', { name: '30 days' })
+      .getByRole('button', { name: 'Mission window (days): 30' })
       .click();
     await expect(page.locator('#plan-days')).toHaveValue('30');
     await expect(answer(page)).toContainText('30-day window');
