@@ -15,7 +15,7 @@ app.use('*', async (c, next) => {
   return basicAuth({ username: 'fourlights', password, realm: 'Four Lights' })(c, next);
 });
 
-app.get('/api/health', (c) => c.json({ ok: true, built: new Date().toISOString() }));
+app.get('/api/health', (c) => c.json({ ok: true, time: new Date().toISOString() }));
 
 app.all('*', (c) => c.env.ASSETS.fetch(c.req.raw));
 

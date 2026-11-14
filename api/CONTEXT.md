@@ -3,7 +3,7 @@
 **What lives here:** the one Cloudflare Worker (Hono, TypeScript strict), `src/index.ts`. Config is `../wrangler.jsonc` at the repo root (obscure Worker name, served at fourlights.gcsa.space with workers.dev off, `account_id` pinned, static assets from `web/dist`).
 
 **Entry points:**
-- `GET /api/health` → `{ok, built}`
+- `GET /api/health` → `{ok, time}` (the Worker's clock, to show it is answering)
 - everything else → the static assets (`web/dist`, including `/data/...` JSON)
 - **Weekend password gate:** while the Worker secret `SITE_PASSWORD` is set, every request (pages, data, API) needs HTTP Basic Auth, user `fourlights`. `run_worker_first: true` makes the assets go through it too. **To open the site** (late Sunday, before the private-window link checks): `npx wrangler secret delete SITE_PASSWORD`. No code change or redeploy needed. Locally, `wrangler dev` has no password unless `.dev.vars` sets one.
 
