@@ -325,14 +325,18 @@ sequenceDiagram
         <dl>
           <dt>Unit tests</dt>
           <dd>
-            34 for the front end and Worker and 36 for the pipeline, run before every commit and
-            deploy. Most of the code that computes or draws is above 95% line coverage.
+            107 for the front end and Worker and 49 for the pipeline, run before every commit and
+            deploy. The code that computes or draws is the best covered: the light rules 96% of
+            lines, the chart and the battery model 99%, the globe's maths 97%, the pipeline's
+            geometry 100% and its horizon engine 86%. The page wiring is exercised by the end-to-end
+            tests instead.
           </dd>
           <dt>End-to-end tests</dt>
           <dd>
-            29 Playwright tests drive the real page in Chrome against a local Worker: the demo
-            scenario, every control and shortcut, the data pages, and the password gate on a second
-            Worker instance.
+            40 Playwright tests drive the real page in Chrome against a local Worker: the demo
+            scenario and the cost of a slip, every control and shortcut, the data pages, a shared
+            project in two browsers, the files QGIS reads, and the password gate on a second Worker
+            instance.
           </dd>
           <dt>A regression test for the demo itself</dt>
           <dd>

@@ -11,11 +11,13 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 
 ## What it does
 - **Sun-Path Chart:** stand at a site and look around: a 360° skyline from NASA's LOLA terrain, with the Sun's and Earth's paths traced over it and a time slider.
-- **Slip Planner:** sites × landing dates, each cell showing **usable days** (hours with the Sun up and Earth in view, over the mission window). Slip the date and see which sites still work.
+- **Slip Planner:** sites × landing dates, each cell showing **usable days** (hours with the Sun up and Earth in view, over the mission window). Slip the landing and the plan stays pinned: the answer says what the slip cost ("lost 4, gained 1, 2 still work") and why each cell passes or fails.
 - **Pointing numbers:** the Sun's and Earth's azimuth and elevation at any hour, the terrain height in that direction and the clearance, with a CSV download of the whole mission window, for aiming solar panels and antennas.
 - **Canberra Link:** the Comms light also needs a Deep Space Network station (Goldstone, Canberra or Madrid) that can see the Moon, and names the one carrying the link.
-- **3D map:** a Moon you can turn and zoom (three.js) with NASA LRO imagery and LOLA elevation, our own LOLA hillshade of the pole, and the 12 sites coloured and shaped for the planned landing.
+- **3D map:** a Moon you can turn and zoom (three.js), opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured and shaped for the landing shown. Choose a site anywhere and the Moon turns to it. You can add sites of your own as notes.
 - **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.
+- **Share Project:** name a project and get a link: everyone who opens it sees the same site, date, slip, window and added sites live, and can follow each other's tab and view. No accounts; a project is found only by its ID.
+- **Drive it from an AI assistant (MCP):** each shared project has an MCP address, so Claude, ChatGPT or any MCP client can read the project, rank sites from the published numbers and change what everyone sees. The Share dialog gives the address and the steps.
 - **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
 - **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
 - **Three views:** Mission (terse, shortcuts in sight), Explore (the default) and Learn (teaching panels with NASA photographs and charts drawn from the site's own data, a glossary and things to try), for planners, the public and classrooms.
@@ -33,9 +35,10 @@ npm install          # also switches on the repo's git hooks
 npm run dev          # builds web/, then serves page + data + API on http://localhost:8787
 npm run check        # formatting, lint, type check, unit tests, ruff
 npm run coverage     # unit-test coverage for the app and the pipeline (tables, plus HTML in coverage/)
-npm run test:e2e     # end-to-end tests in Chrome (about 30 s; not part of check)
+npm run test:e2e     # end-to-end tests in Chrome (about a minute and a half; not part of check)
 npm run test:e2e:watch   # the same, in a visible Chrome window, slowed down so you can follow
 npm run test:e2e:ui      # Playwright's test window: pick tests, step through, replay each action
+npm run review-pdf   # a PDF of every view, tab and state with captions, from a running local copy
 ```
 The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
 

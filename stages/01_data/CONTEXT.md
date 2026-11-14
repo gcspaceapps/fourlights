@@ -61,6 +61,7 @@ Source of truth: `../../_shared/stack.md`. TypeScript types: `web/src/types.ts`.
 3. Cross-check one site by hand before scaling up: the horizon vs a known lit peak, the brute-force ray cast, and a QGIS look (screenshot to `../02_build/output/media/`).
 4. Scale to all 12 sites, split across cores with multiprocessing, reading big DEMs in windows (4 cores, 14 GB). If it runs far over 20 minutes, do the 6 PGDA sites first.
 5. Log **every run** in `output/data-manifest.md`: time (AEST), machine, command, inputs, output files and sizes, run time.
+6. After a run that changes a site's horizon or `planner.json`, rebuild the QGIS pack so its layers match the app: `make -C pipeline qgis-pack`, check it with `qgis-verify` (`../../pipeline/CONTEXT.md`, "The QGIS pack"), and commit `web/public/qgis/` with the data.
 
 ## Adding a site
 One command at the repo root: `./ops/data add <id> "<Name>" <lat> <lon_e>` (kebab-case id; planetocentric latitude from −90 to −80; east longitude in (−180, 180]). It appends the site to `pipeline/sites.extra.json` (tracked; the only hand-editable input, and the way to remove a site again), then runs the same horizon → ephemerides → publish steps as the curated 12 and refreshes `planner.json`. The site is the given point, snapped to its pixel centre in the finest DEM that covers it; `source` is `Added point (lat, lon)` and `approx` is set as for any other site. North of 80°S is refused because the outer ring (`LDEM_75S_240M`) ends at 75°S.
@@ -68,12 +69,13 @@ One command at the repo root: `./ops/data add <id> "<Name>" <lat> <lon_e>` (keba
 Then, before it ships:
 1. Look at the skyline plot (`../02_build/output/media/skyline-<id>.png`) and the site in `./ops/dev`.
 2. `cd pipeline && .venv/bin/python -m four_lights.site_review <id>` for its review (needs the `cf` CLI logged in to the account in `wrangler.jsonc`; the page works without a review), and `python -m four_lights.sites_table` to add it to `../../_shared/sites.md`.
-3. Update what counts 12 sites: `e2e/app.spec.ts`, `e2e/api.spec.ts`, and the wording in `web/`, the README and `../03_pitch/output/`.
+3. Update what counts 12 sites: `e2e/app.spec.ts`, `e2e/api.spec.ts`, and the wording in `web/`, the README and `../03_pitch/output/`, and rebuild the QGIS pack (its project expects 12 site bookmarks; `pipeline/src/four_lights/qgis_project.py`).
 4. `npm run check`, then commit `web/public/data/`, `pipeline/sites.extra.json` and `output/data-manifest.md` together.
 
 ## Outputs
 - `web/public/data/sites.json`, `web/public/data/sites/<id>.json`, `web/public/data/validation/...`
 - `output/data-manifest.md`
+- `web/public/qgis/`: the QGIS pack (layers QGIS reads from the site, a GeoPackage and the project file), from `pipeline/qgis-pack.sh`
 - Loading recipes filled in on the `../../_datasets/` cards; status moved to `loaded`
 
 ## Human check

@@ -21,6 +21,7 @@ This repo stands on its own. Everything a task needs is in it; don't read or ref
 | start or rerun the precompute | `stages/01_data/CONTEXT.md`; run it with `./ops/data` |
 | add a landing site | `stages/01_data/CONTEXT.md`, "Adding a site" |
 | shared projects (Share Project, live sync, the MCP server); **also any new feature with page state, a setting, a tab or a site property: decide whether it is shared** | `_shared/shared-projects.md`, "Keeping the project state up to date" |
+| rebuild the QGIS pack (`/qgis`: layers QGIS reads from the site, the project file) | `pipeline/CONTEXT.md`, "The QGIS pack"; `make -C pipeline qgis-pack`, then `qgis-verify`. Rebuild after any run that changes `planner.json` or a horizon, or if the site's address changes |
 | add a dataset | copy `_templates/dataset-card.md` into `_datasets/`, add a line to `_index.md` and the README credits |
 | build or fix the app | `stages/02_build/CONTEXT.md` (starter prompts there), then `web/CONTEXT.md` / `api/CONTEXT.md` |
 | write the pitch or project page | `stages/03_pitch/CONTEXT.md` |
@@ -29,7 +30,7 @@ This repo stands on its own. Everything a task needs is in it; don't read or ref
 
 ## How we work (headlines; full text in `_shared/how-we-work.md`)
 - Cloudflare first: one Worker (Hono, TypeScript strict) plus static assets; deploy small and often; the live URL never breaks.
-- Static per-site JSON; no database unless GridScore (stretch 4) happens. The one stateful piece is a shared project: a Durable Object per project, found only by its uuid (`_shared/shared-projects.md`).
+- Static per-site JSON; no database unless GridScore (stretch 4) happens. The one stateful piece is a shared project: a Durable Object per project, found only by its uuid (`_shared/shared-projects.md`). One R2 bucket holds three rasters too big to be static files, for QGIS (`pipeline/CONTEXT.md`).
 - A tested, reproducible Python/GDAL precompute on our own machines, every layer checked in QGIS; judges only ever see real NASA data.
 - AI inside the product: Cloudflare Workers AI first (cheap or free, same account); we build with Claude Code. ICM everywhere; production-quality code.
 
