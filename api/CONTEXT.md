@@ -11,6 +11,8 @@
 - everything else → the static assets (`web/dist`, including `/data/...` JSON)
 - **Weekend password gate:** while the Worker secret `SITE_PASSWORD` is set, every request (pages, data, API) needs HTTP Basic Auth, user `fourlights`. `run_worker_first: true` makes the assets go through it too. **To open the site** (late Sunday, before the private-window link checks): `npx wrangler secret delete SITE_PASSWORD`. No code change or redeploy needed. Locally, `wrangler dev` has no password unless `.dev.vars` sets one.
 
+**Changing the project state:** the checklist (state, validators, page wiring, MCP tools, tests, docs, and when a Durable Object migration in `wrangler.jsonc` is needed) is in `../_shared/shared-projects.md`, "Keeping the project state up to date". Adding a key is safe for existing projects (defaults are merged on load); renaming or removing one is not.
+
 **Run / test / deploy:** `npm run dev` (builds web, then `wrangler dev` on http://localhost:8787). Deploy per the deploy rule in `../_shared/how-we-work.md`: Steve or Matt, from an up-to-date clean `main`, `npm run deploy`. A second agent session: `npx wrangler versions upload` (the preview URL is password-gated too).
 
 **Locally:** `wrangler dev` also needs a Cloudflare login for the Workers AI binding; the Durable Object itself runs locally.

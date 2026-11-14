@@ -20,7 +20,7 @@ This repo stands on its own. Everything a task needs is in it; don't read or ref
 |---|---|
 | start or rerun the precompute | `stages/01_data/CONTEXT.md`; run it with `./ops/data` |
 | add a landing site | `stages/01_data/CONTEXT.md`, "Adding a site" |
-| shared projects (Share Project, live sync, the MCP groundwork) | `_shared/shared-projects.md` |
+| shared projects (Share Project, live sync, the MCP server); **also any new feature with page state, a setting, a tab or a site property: decide whether it is shared** | `_shared/shared-projects.md`, "Keeping the project state up to date" |
 | add a dataset | copy `_templates/dataset-card.md` into `_datasets/`, add a line to `_index.md` and the README credits |
 | build or fix the app | `stages/02_build/CONTEXT.md` (starter prompts there), then `web/CONTEXT.md` / `api/CONTEXT.md` |
 | write the pitch or project page | `stages/03_pitch/CONTEXT.md` |
@@ -41,5 +41,6 @@ This repo stands on its own. Everything a task needs is in it; don't read or ref
 - Secrets never go in git: `.dev.vars` locally, `wrangler secret put` for the Worker. Any paid AI API key has a spend cap.
 - Public repo (private until Sun 19:30 AEST): no personal contact details, no customer or client data, nothing from commercial client projects, no exact home or station locations. Never post the demo URL publicly before Sun 19:30.
 - Every dataset used has a `_datasets/` card, a README credits line and an entry on the app's data-sources page (`web/sources.html`) before it ships.
+- A feature that adds page state, a setting, a tab or a site property updates the shared project (state, page wiring, MCP tool, tests, docs) or says in its build-log row why it is not shared: checklist in `_shared/shared-projects.md`.
 - Keep `stages/02_build/output/build-log.md` current: one line per block, written as you go.
 - Steve is the main builder. Matt is evenings only, from 17:30 Sat and Sun: plan nothing for him before then; hand him self-contained tasks through the build log's "Next".

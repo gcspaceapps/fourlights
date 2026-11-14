@@ -51,5 +51,20 @@ Tell an AI agent to use the Four Lights MCP and give it a project uuid; it then 
 - Same trust model as the REST route: the uuid is the key. Tools can read and change that one project and nothing else.
 - REST equivalents, for scripts: `GET /api/projects/<uuid>` and `POST /api/projects/<uuid>/commands`.
 
+## Keeping the project state up to date (read this before adding a feature)
+A shared project only stays useful if everything a person can change on the page that matters to the group is either in the project's state or deliberately left out. **Every new feature that adds page state, a setting, a tab or a site property must make this decision, and record it in its build-log row ("shared: data / view / not shared, because ...").**
+
+Decide first: is it **data** (what the project *is*; always shared), **view** (where a person is *looking*; shared only while following), or **local** (theme, scroll, open panels, anything private; never shared, and say so under Rules)?
+
+Then, for data or view, change all of these together:
+1. `api/src/project-state.ts`: add the key to `DataState` or `ViewState`, its default to `DEFAULT_DATA` / `DEFAULT_VIEW`, and a validator in `DATA_RULES` / `VIEW_RULES`. Both rule tables are typed over every key, so the compiler flags a missing one. Nothing arrives unvalidated: the uuid holder may be an agent.
+2. `web/src/main.ts`, "shared project" block: read it in `collectData()` / `collectView()`, and put someone else's change on the page in `applyData()` / `applyView()`. Applying must set `applying` so it does not echo back; no handler needs a hook, because the page diffs against `lastData` / `lastView`.
+3. A new **site property** (not just a new setting): `ProjectSite`, `makeSite`, `cleanSites` and `fromProject()` in `main.ts`, plus the `addSite` command and the `add_site` tool.
+4. `api/src/mcp.ts`: let the agent read it (`get_project` returns the state) and change it (extend `set_selection` / `set_view`, or add a tool). Tool text must say whether it reaches everyone (data) or followers only (view). Update the tool table above.
+5. Tests: the rules in `api/tests/project.test.ts` (valid, invalid, no-op), the tool in `api/tests/mcp.test.ts`, and, if a person can change it on the page, a two-browser case in `e2e/share.spec.ts`.
+6. Docs: the Rules section and wire protocol above, the tool table, the "Where it lives" table if a file is new, and the route/tool lines in `api/CONTEXT.md` and `web/CONTEXT.md`.
+
+**Existing projects keep their old shape.** The Durable Object merges what it stored over `DEFAULT_DATA` / `DEFAULT_VIEW` when it loads, so adding a key is safe: old projects get the default. Renaming, removing or changing the meaning of a key is not: existing uuids are in people's links. Keep the old key working, or write a conversion in `project.ts`'s load step with a test. A new stored shape that cannot be merged needs a Durable Object **migration** in `wrangler.jsonc` (the current tag is `v1`; a new SQLite class or a renamed or deleted class needs a new tag). Never edit a migration that has been deployed.
+
 ## Not done
 No rename or delete of a project, no read-only links, no history, no per-person cursors or names. Edits made while a person is offline are replaced by the project's state when they reconnect (an add or remove is queued and replayed).
