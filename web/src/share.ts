@@ -25,6 +25,16 @@ const el = <T extends HTMLElement>(id: string): T => {
   return e as T;
 };
 
+/** The MCP server's address bound to one project, so an assistant need not be told the ID. */
+export function mcpAddress(id: string): string {
+  return `${location.origin}/mcp/${id}`;
+}
+
+/** The Claude Code command that adds this project's MCP server. */
+export function mcpCommand(id: string): string {
+  return `claude mcp add --transport http fourlights ${mcpAddress(id)}`;
+}
+
 export function projectLink(id: string): string {
   return `${location.origin}${location.pathname}#project=${id}`;
 }
@@ -88,6 +98,8 @@ export function setupShare(deps: ShareDeps): ShareUi {
         : '· reconnecting… your changes will sync when it is back';
     el('share-id').textContent = project.id;
     el<HTMLInputElement>('share-link').value = projectLink(project.id);
+    el<HTMLInputElement>('share-mcp-url').value = mcpAddress(project.id);
+    el('share-mcp-cmd').textContent = mcpCommand(project.id);
   };
 
   /** Open a project if it exists; if not, say so here instead of reloading into nothing. */
@@ -157,6 +169,15 @@ export function setupShare(deps: ShareDeps): ShareUi {
   el('share-copy-link').addEventListener(
     'click',
     (e) => project && copy(projectLink(project.id), e.currentTarget as HTMLElement),
+  );
+
+  el('share-copy-mcp').addEventListener(
+    'click',
+    (e) => project && copy(mcpAddress(project.id), e.currentTarget as HTMLElement),
+  );
+  el('share-copy-cmd').addEventListener(
+    'click',
+    (e) => project && copy(mcpCommand(project.id), e.currentTarget as HTMLElement),
   );
 
   const follow = el<HTMLInputElement>('share-follow');

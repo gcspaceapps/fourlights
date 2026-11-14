@@ -738,6 +738,11 @@
             anyone who has the ID can see and change the project, and nobody can find it without it.
             Share it only with people you want in.
           </p>
+          <p class="share-note">
+            A shared project can also be driven by an AI assistant such as Claude or ChatGPT,
+            through our MCP server: once the project exists, this dialog gives you its address and
+            the steps.
+          </p>
           <p class="share-error" id="share-error" role="alert" hidden></p>
           <button type="submit" id="share-create-btn">Create shared project</button>
         </form>
@@ -757,6 +762,55 @@
             <input id="share-link" readonly aria-label="Link to this project" />
             <button type="button" id="share-copy-link">Copy link</button>
           </div>
+          <details class="share-mcp" id="share-mcp">
+            <summary>Drive this project from an AI assistant (Claude, ChatGPT and others)</summary>
+            <p>
+              Four Lights has an <strong>MCP server</strong>: the standard way for an AI assistant
+              to use a tool. Connect an assistant to this project and you can ask it in plain
+              English ("which sites still work if we slip a week?") or tell it what to show ("put
+              Haworth up for 2 May with a 14-day window"). It answers from our published numbers,
+              and anything it changes shows at once for everyone who has the project open.
+            </p>
+            <h3>1. Copy this project's MCP address</h3>
+            <div class="share-row">
+              <input id="share-mcp-url" readonly aria-label="MCP address for this project" />
+              <button type="button" id="share-copy-mcp">Copy address</button>
+            </div>
+            <h3>2. Add it to your assistant</h3>
+            <ul>
+              <li>
+                <strong>Claude or ChatGPT (app or web):</strong> in the settings, add a custom
+                connector (a custom MCP server), where your plan allows it, and paste the address.
+                It needs no sign-in.
+              </li>
+              <li>
+                <strong>Claude Code:</strong> run this in a terminal.
+                <div class="share-row">
+                  <code id="share-mcp-cmd"></code>
+                  <button type="button" id="share-copy-cmd">Copy command</button>
+                </div>
+              </li>
+              <li>
+                <strong>Any other MCP client:</strong> choose "Streamable HTTP" and give it the
+                address.
+              </li>
+            </ul>
+            <h3>3. Ask</h3>
+            <p>
+              Start with "Use Four Lights." Then, for example: "Rank the sites for a landing on 22
+              April." "What happens to Connecting Ridge if we slip three days?" "Show everyone the
+              map." "Add a site called Camp Alpha at 88.5°S, 12°E." It can read the project, list
+              and rank sites, summarise one site on one date, change the site, date, slip, window
+              and observer height, switch tabs and views, and add or remove the project's own sites.
+            </p>
+            <p class="share-note">
+              <strong>The address contains this project's ID</strong>, so treat it like the link:
+              any assistant that has it can change the project. While this site asks for a password,
+              an assistant has to send it too (HTTP Basic, user <code>fourlights</code>): Claude
+              Code can, with <code>--header</code>; connectors in the Claude and ChatGPT apps
+              cannot, so they work once the password is off.
+            </p>
+          </details>
           <label class="share-follow">
             <input type="checkbox" id="share-follow" checked />
             <span>

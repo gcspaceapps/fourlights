@@ -2056,6 +2056,32 @@ html[data-nodata='true'] .needs-data > :not(.nodata-note, h2, h3) {
   font-size: var(--fs-sm);
 }
 
+.share-mcp {
+  margin: 1rem 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+}
+
+.share-mcp summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.share-mcp ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.share-mcp li {
+  margin-bottom: 0.4rem;
+}
+
+.share-mcp p {
+  margin: 0.5rem 0;
+}
+
 .share-note {
   color: var(--muted);
   font-size: var(--fs-sm);

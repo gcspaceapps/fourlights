@@ -119,6 +119,30 @@ test('the Moon turns for everyone following', async ({ browser, baseURL }) => {
   await expect(b.locator('#globe-layer')).toHaveValue('lola');
 });
 
+test('the dialog gives the MCP address for an AI assistant, and the address answers', async ({
+  browser,
+  baseURL,
+}) => {
+  const { a, id } = await twoOnAProject(browser, baseURL ?? '');
+  await a.locator('#share-open').click();
+  await a.locator('#share-mcp summary').click();
+  await expect(a.locator('#share-mcp-url')).toHaveValue(`${baseURL}/mcp/${id}`);
+  await expect(a.locator('#share-mcp-cmd')).toHaveText(
+    `claude mcp add --transport http fourlights ${baseURL}/mcp/${id}`,
+  );
+  // The address on the page is a working MCP server bound to this project.
+  const res = await a.request.post(`${baseURL}/mcp/${id}`, {
+    data: {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'tools/call',
+      params: { name: 'get_project', arguments: {} },
+    },
+  });
+  expect(res.ok()).toBe(true);
+  expect(JSON.stringify(await res.json())).toContain('Landing review');
+});
+
 test('a project is found only by its ID', async ({ page, baseURL }) => {
   const none = await page.request.get(
     `${baseURL}/api/projects/00000000-0000-4000-8000-000000000000`,
