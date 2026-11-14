@@ -46,7 +46,7 @@ make validate        # Connecting Ridge 2024-2026 against Barker et al. 2021
 - Unit tests with known answers: a peak away from the pole appears at true north, a bare sphere gives the textbook horizon dip, a one-pixel spike between sector centres is still seen, a smooth dome gives its analytic horizon.
 - GRASS `r.horizon` on the 5 m tile finds the same peaks, within about 0.1°.
 - JPL Horizons and NAIF SPICE give the same Sun and Earth directions to a millionth of a degree, and Earth's azimuth matches each site's longitude.
-- Against Barker et al. (2021) at Connecting Ridge, our longest night matches; our average illumination is higher than theirs. Details and the honest comparison are in the [build log](stages/02_build/output/build-log.md).
+- Against Barker et al. (2021) at Connecting Ridge, our longest night matches their range at 1 m and 5 m. Our average illumination is a few points higher, and at 1 m it varies by 9 points between pixels 20 m apart. Details and the honest comparison are in the [build log](stages/02_build/output/build-log.md).
 
 ## Data sources and credits
 - **LOLA south-pole elevation models** (NASA GSFC PGDA and PDS): 5 m site DEMs and 87°S mosaic, https://pgda.gsfc.nasa.gov/products/78 , https://pgda.gsfc.nasa.gov/products/81 ; polar gridded DEMs, https://imbrium.mit.edu/DATA/LOLA_GDR/POLAR/ . Barker et al. (2021), PSS 203, 105119. NASA open data.

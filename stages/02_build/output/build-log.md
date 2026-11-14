@@ -2,7 +2,7 @@
 
 ## Now / Next / Blocked
 - **Now:** S6 done: the demo runs end to end on real data only (fixtures removed), live at fourlights.gcsa.space (password from Steve), opening on the demo scenario
-- **Next (Steve):** the S7 illumination gap with Barker (neighbourhood test running); a screen recording of the demo moment (Steve, by hand); decide whether the 6 Artemis-region site points should move (see 11:40 row); next stretch: Survive the Night
+- **Next (Steve):** a screen recording of the demo moment (Steve, by hand); decide whether the 6 Artemis-region site points should move (see 11:40 row); next stretch: Survive the Night
 - **Next (Matt, from 17:30):** read this log, start M2 (published numbers table, by 20:30); ~18:45 Stellarium view (or telescope if clear); 20:30 cold run of the demo from the README
 - **Blocked:** none
 
@@ -16,6 +16,15 @@
 | 1 m | disc | 81.6% | 205.0 d | 12.0 d |
 | 5 m | centre | 90.9% | 205.1 d | 4.9 d (within) |
 | 5 m | disc | 91.0% | 232.4 d | 4.0 d (within) |
+
+**S7 follow-up: 9 points 20 m apart around the Connecting Ridge point** (`python -m four_lights.validate_spread`)
+
+| Height | Our 9 points: average illumination | Barker 2021 | Our 9 points: longest dark | Barker 2021 |
+|---|---|---|---|---|
+| 1 m | 73.8–83.2% (mean 78.5%) | 67–71% | 13.5–21.2 d | 13–22 d |
+| 5 m | 89.9–91.2% (mean 90.7%) | 83–89% | 4.5–8.0 d | 4–8 d |
+
+Reading: longest dark matches Barker's range at both heights. Average illumination at 1 m swings by 9 points between pixels 20 m apart, so a single pixel can't be compared with their region figure; our lowest point (73.8%) is 3 points above their range and our mean 7.5 above. Theirs is the 1st percentile of 100 DEM clones (deliberately pessimistic), ours the best-estimate DEM, so sitting somewhat above is expected. Say: "longest night consistent with Barker; illumination a few points higher, as expected for a best-estimate DEM against their 1st-percentile figure". Don't say the illumination matches.
 
 ## Log (AEST, one line per block)
 | Time | Who | What changed | Blocked |
@@ -38,3 +47,4 @@
 | 11:28 Sat | Steve + agent | S6 done, 8.5 h before the 20:00 deadline. Fixtures deleted (`npm run check:real-data` passes and now runs in `npm run deploy`). Demo scenario chosen from a scan of every date (`python -m four_lights.scenario`), Steve's pick: **planned 19 Apr 2028, slip 3 days**. Connecting Ridge, de Gerlache rim and Peak near Cabeus B go green → red, Peak near Shackleton stays green (7.0 usable days), Shackleton rim turns green. The app opens on it. Power thresholds checked against 8,688 real site-windows and kept (70% sunlit, 48 h dark): windows are nearly all-or-nothing, and the two tests agree. Written into `_shared/concept.md`. Screenshots: `media/demo-1-planned-19apr.png`, `demo-2-slipped-22apr.png`, `demo-3-chart-peak-near-shackleton.png`. Cloudflare: staying on Wrangler for the weekend; the cf + Vite move is parked on branch `cf-vite` (untested) | none |
 | 11:40 Sat | Steve + agent | Sweep. (1) Skylines of the two odd sites: de Gerlache Rim 2 and Nobile Rim 1 really are on slopes (horizon to +19° on one side), because 5 of the 6 Artemis-region points land on the edge of the 2 km search circle. Tried "highest point in the whole region" instead: no better (3 of 6 land on the region edge; de Gerlache Rim 2 collapses onto the existing de Gerlache rim site). Rule kept as documented; a decision for Steve/Matt. (2) README and the three code maps brought up to date (run, deploy, rebuild-the-data, "How we know it's right"). (3) Front-end tests added (`npm test`, part of `npm run check`): the light rules on known answers, and the demo scenario on the real files, so a change that breaks the demo fails the build. (4) `/api/health` field renamed `time` (it was never a build time) | none |
 | 11:36 Sat | Steve + agent | **Canberra Link (stretch 1) done**, a day early. `pipeline/src/four_lights/dsn.py`: Moon elevation from DSS-14/43/63 with SPICE (NAIF station kernels, predicted Earth orientation), hourly, 10° mask, published as a `stations` bitmask in every site file. Checked against JPL Horizons for all three stations: agree to < 0.001° (now a test). Comms = Earth ≥ 1° above terrain AND a station sees the Moon; the Comms card names the station ("link via Madrid (DSN)"). A station qualifies 98.6% of the time, gaps ≤ 1 h; demo scenario unchanged. Site files now 466 kB each | none |
+| 11:43 Sat | Steve + agent | S7 gap largely explained: recomputing Connecting Ridge at 9 points 20 m apart gives 73.8–83.2% illumination at 1 m (the published point is near the top of that spread) and longest dark 13.5–21.2 d, against Barker's 67–71% and 13–22 d. Pixel-to-pixel spread at 1 m is as big as the gap. Table and wording under Results | none |
