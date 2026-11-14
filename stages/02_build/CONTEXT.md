@@ -7,6 +7,9 @@ Working (this run): `web/`, `api/`, `web/public/data/` (from 01_data), `output/b
 Reference (every run): `../../_shared/concept.md` (lights, window, usable days, scope-cut order), `../../_shared/how-we-work.md` (deploy rule), `../../_shared/brand.md`, `../../_shared/stack.md` (data contract).
 Do NOT load: `data/raw/`, the DEMs, `stages/03_pitch/`, `stages/04_submit/`.
 
+## Status (Sat 14 Nov, afternoon)
+Steps 1 to 3 are done: the app runs on real data only and is deployed; the fixtures are gone. Step 4 is done for screenshots; the screen recording is Steve's to make. The starter prompts below are kept as the record of how each block was started; don't rerun them. Current state and next steps: `output/build-log.md`.
+
 ## Process
 1. End to end first on fake data (data in → lights computed → visual out); ugly is fine. Fake files are scaffolding only.
 2. Swap in the real data from 01_data; delete every fake file (`npm run check:real-data` fails if one remains in `web/public/data/`).

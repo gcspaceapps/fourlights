@@ -88,7 +88,7 @@ export interface SiteData {
   times: TimeGrid;
   sun: BodyTrack;
   earth: BodyTrack;
-  /** Canberra Link only: one station bitmask per time step (Moon at >= 10° elevation). */
+  /** Product files: one DSN station bitmask per time step (Moon at >= 10° elevation). */
   stations?: number[];
   meta: SiteMeta;
 }

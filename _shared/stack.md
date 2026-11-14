@@ -42,7 +42,9 @@ PostGIS doesn't ship IAU codes: SRIDs 930100/930135 are added to `spatial_ref_sy
 - **Validation data stays out of the product files** (same shape, never loaded by the UI):
   - `web/public/data/validation/connecting-ridge.json`: 2024-01-01 to 2026-01-01, hourly, horizons at 1 m and 5 m
   - `web/public/data/validation/photo-2026-11-14/<id>.json`: all 12 sites, 14 Nov 2026 08:00–12:00 UTC at 1-minute steps (`step_min: 1`)
-- With Canberra Link: a `stations` array per site file, one bitmask per hour (bit 0 Goldstone DSS-14, bit 1 Canberra DSS-43, bit 2 Madrid DSS-63) for the Moon at ≥ 10°.
+- Every product site file also has a `stations` array (Canberra Link, done): one bitmask per hour (bit 0 Goldstone DSS-14, bit 1 Canberra DSS-43, bit 2 Madrid DSS-63), set when that station has the Moon at ≥ 10°. Validation files don't have it.
+- **Other published files** (not part of the per-site contract): `web/public/data/reviews.json` (`{model, provider, generated_utc, note, sites: {<id>: {text, facts}}}`: the AI-written site reviews with the facts each was checked against; `python -m four_lights.site_review`); `web/public/map/south-pole-hillshade.jpg` (420 km square on the pole, 1000 px, from `LDEM_75S_240M`; `make map`); `web/public/img/*.jpg` (three NASA photographs, card `_datasets/nasa-image-library.md`).
+- **How the app reads it:** the Sun is a 0.53° disc (radius 0.2666°): the share in view is computed from `sun.el` minus the terrain in the Sun's sector, taking the terrain as level across the disc. Earth is taken at its centre. The rules live in `web/src/lights.ts` and are mirrored in `pipeline/src/four_lights/scenario.py`.
 
 ## Machines
 Two Linux machines with 4 cores and 14 GB (Steve's), plus Matt's MacBook Pro from 17:30. Read big DEMs in windows, never whole. The offline mirror is wherever `$NASA_CACHE` points.

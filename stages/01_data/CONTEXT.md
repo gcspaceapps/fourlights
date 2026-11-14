@@ -33,7 +33,7 @@ Source of truth: `../../_shared/stack.md`. TypeScript types: `web/src/types.ts`.
 | `horizons` | `[{height_m, step_deg: 0.5, elev_deg: [720]}]` | one per observer height (1, 2, 5 m); `elev_deg[i]` is the **highest** terrain anywhere in the sector starting at `i × 0.5°` |
 | `times` | `{start_utc, step_min, n}` | the time grid; every series has length `n`; `step_min` 60 (product, validation) or 1 (photo window) |
 | `sun`, `earth` | `{az: [n], el: [n]}` | apparent az/el of the body's centre from the site (no terrain) |
-| `stations` | `[n]` ints, optional | Canberra Link only: bit 0 Goldstone DSS-14, bit 1 Canberra DSS-43, bit 2 Madrid DSS-63; set when that station sees the Moon at ≥ 10° |
+| `stations` | `[n]` ints | product files only: bit 0 Goldstone DSS-14, bit 1 Canberra DSS-43, bit 2 Madrid DSS-63; set when that station sees the Moon at ≥ 10° (`dsn.py`, SPICE, checked against Horizons) |
 | `meta.dem_rings` | `[{source, res_m, max_km}]` | the DEM rings actually used, finest first |
 | `meta.ephem` | `"Horizons DE441"` \| `"SPICE DE440s"` | (`"fake"` in fixtures only) |
 | `meta.frame` | `"MOON_ME"` | |
@@ -41,7 +41,7 @@ Source of truth: `../../_shared/stack.md`. TypeScript types: `web/src/types.ts`.
 
 **Ranges:** product files 2028-01-01T00:00Z, hourly, `n` = 17,544. `validation/connecting-ridge.json`: 2024-01-01 to 2026-01-01, hourly, horizons at 1 m and 5 m. `validation/photo-2026-11-14/<id>.json`: 08:00–12:00 UTC at 1-minute steps. Validation files have the same shape and are never loaded by the UI.
 
-**Lookup:** the terrain under a body at azimuth `az` is `elev_deg[Math.floor(az / 0.5) % 720]`. A light is on when the body's `el` is above that (Comms: at least 1° above).
+**Lookup:** the terrain under a body at azimuth `az` is `elev_deg[Math.floor(az / 0.5) % 720]`. Earth and Comms use Earth's centre against that (Comms: at least 1° above, and a station bit set). The Sun is a disc of radius 0.2666°: the share in view is 0 when its centre is a radius below the terrain, 1 when a radius above (`discFraction` in `web/src/lights.ts`).
 
 **Fixtures:** `npm run fake-data` writes `fake-a`, `fake-b`, `fake-c` (90 days from 2028-01-01) with a built-in scenario: planned landing 2028-01-21, 7-day window, a 3-day slip; A stays green, B and C lose Power. Scaffolding for UI work only: they were removed from the published data in S6, and `npm run check:real-data` (run by `npm run deploy`) fails while any are present.
 

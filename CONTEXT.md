@@ -8,6 +8,8 @@
 | `04_submit` | every field in, on time | project page, pitch | `stages/04_submit/output/submission.md` | the other person checks the submitted page in a private window | **22:00 Sun: submitted** (official close 11:59pm) |
 
 ## Saturday 14 Nov
+**The tables below are the plan as written before the start. What actually happened, and when, is in `stages/02_build/output/build-log.md`:** by mid-afternoon Saturday the minimum demo, stretch goals 1, 2, 6 and 7, a site map and three audience views were live. Reserved for Matt: the 3D view, QGIS checks, PostGIS/GridScore and the MCP interface.
+
 | Time | Owner | Block | Done when |
 |---|---|---|---|
 | 09:00–10:00 | Steve | **B0:** bootstrap this repo | repo created (private), skeleton live, first build-log line |
