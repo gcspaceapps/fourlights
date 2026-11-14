@@ -34,7 +34,7 @@ The terrain for each site's horizon profile: how high the land stands in every d
 ## Known flaws
 - A 16 km tile is far too small for a polar horizon on its own: peaks 50–150+ km away block a Sun 1–2° up. We stack DEMs fine to coarse (trap 8 in `stages/01_data/CONTEXT.md`).
 - About 90% of 5 m pixels are interpolated between LOLA tracks (PGDA); fine stripes along the track direction show in hillshades. Harmless for horizon angles over km distances.
-- Site07's tile has no georeferencing in its header; its point cloud gives the position.
+- Site07's tile was thought to lack georeferencing. The copy we downloaded has it (origin 22 000, −12 000 m, 5 m pixels), and it matches the tile's own LOLA point cloud to within 10 m. The pipeline checks this on every run.
 - PDS `.IMG` heights need `SCALING_FACTOR`/`OFFSET` from the `.LBL` (GDAL may not apply them).
 
 ## Loading recipe
