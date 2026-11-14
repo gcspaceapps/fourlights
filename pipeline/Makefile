@@ -1,6 +1,6 @@
 # Four Lights precompute. Data targets log their runs in stages/01_data/output/data-manifest.md.
 # SITE defaults to Shackleton rim; FETCH_FLAGS=--cache-first takes files from $NASA_CACHE first.
-.PHONY: venv test lint fetch horizon bruteforce grass
+.PHONY: venv test lint fetch fetch-spice fetch-usgs horizon bruteforce grass ephem publish regions
 
 PY := .venv/bin/python
 SITE ?= shackleton-rim
@@ -27,3 +27,18 @@ bruteforce: fetch
 
 grass: fetch
 	$(PY) -m four_lights.grass_check $(SITE)
+
+fetch-spice:
+	$(PY) -m four_lights.fetch --spice $(FETCH_FLAGS)
+
+fetch-usgs:
+	$(PY) -m four_lights.fetch --usgs $(FETCH_FLAGS)
+
+regions: fetch-usgs
+	$(PY) -m four_lights.regions
+
+ephem: fetch-spice
+	$(PY) -m four_lights.run_ephem $(SITE)
+
+publish:
+	$(PY) -m four_lights.publish $(SITE)

@@ -20,7 +20,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from four_lights.paths import RAW
-from four_lights.sources import FILES, SPICE_FILES, RawFile, needed
+from four_lights.sources import FILES, SPICE_FILES, USGS_FILES, RawFile, needed
 
 
 def sha256(path: Path) -> str:
@@ -87,7 +87,10 @@ def _from_url(f: RawFile, dest: Path) -> bool:
     dest.with_name(dest.name + ".sha256").write_text(f.sha256 + "\n")
     _mark(dest, "nasa", f.url)
     rate = got / max(1e-3, time.monotonic() - t0) / 1e6
-    print(f"  verified {f.rel}: {got / 1e6:.0f} MB from NASA at {rate:.2f} MB/s", flush=True)
+    print(
+        f"  verified {f.rel}: {got / 1e6:.0f} MB from the original source at {rate:.2f} MB/s",
+        flush=True,
+    )
     return True
 
 
@@ -118,7 +121,7 @@ def fetch(files: list[RawFile], cache_first: bool, refresh: bool = False) -> dic
     """
     got: dict[str, str] = {}
     for f in sorted(files, key=lambda f: f.size) if refresh else files:
-        dest = RAW / f.raw_subdir / f.rel.removeprefix("spice/")
+        dest = RAW / f.raw_subdir / f.raw_rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         present = _ok(dest, f)
         if present and refresh and source_of(dest) != "nasa":
@@ -146,11 +149,14 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--site", help="PGDA site tile to include, e.g. Site04")
     p.add_argument("--all", action="store_true", help="every LOLA file in sources.FILES")
     p.add_argument("--spice", action="store_true", help="the SPICE kernels")
+    p.add_argument("--usgs", action="store_true", help="the USGS Artemis region grids")
     p.add_argument("--cache-first", action="store_true")
     p.add_argument("--refresh", action="store_true", help="re-download from NASA and verify")
     a = p.parse_args(argv)
     if a.spice:
         files = list(SPICE_FILES.values())
+    elif a.usgs:
+        files = list(USGS_FILES.values())
     else:
         files = list(FILES.values()) if a.all else needed(a.site)
     for rel, how in fetch(files, a.cache_first, a.refresh).items():

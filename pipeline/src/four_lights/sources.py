@@ -22,7 +22,16 @@ class RawFile:
     @property
     def raw_subdir(self) -> str:
         """Folder under data/raw/ (the mirror keeps the same relative path under $NASA_CACHE)."""
-        return "spice" if self.rel.startswith("spice/") else "lola"
+        if self.rel.startswith("spice/"):
+            return "spice"
+        if self.rel.startswith("usgs-artemis-regions/"):
+            return "usgs"
+        return "lola"
+
+    @property
+    def raw_rel(self) -> str:
+        """Path under data/raw/<raw_subdir>/."""
+        return self.rel.removeprefix("spice/").removeprefix("usgs-artemis-regions/")
 
 
 def _f(rel: str, url: str, size: int, sha: str) -> RawFile:
@@ -167,6 +176,61 @@ SPICE_FILES: dict[str, RawFile] = {
         ),
     ]
 }
+
+USGS_FILES: dict[str, RawFile] = {
+    f.rel: f
+    for f in [
+        _f(
+            "usgs-artemis-regions/de_Gerlache_Rim_2.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__93%2Fc6%2Fea%2F93c6eaa0b0697514eda80bca42e48cc373d5527b",
+            106659620,
+            "9ec55befa0b608e26e4c18604f0582c053897a21fea6932bd416b5983d7c18d2",
+        ),
+        _f(
+            "usgs-artemis-regions/Haworth.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__7a%2Fa3%2F43%2F7aa343dd62d839c501a1659790901df18736d7ae",
+            236716311,
+            "ebd740b33db7c690d028af1081a465ac8df4fb3e696576c2b6c0e8a1b1ec84aa",
+        ),
+        _f(
+            "usgs-artemis-regions/Nobile_Rim_2.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__07%2Fc3%2F43%2F07c343dcca010ad6e53fdf757872cabc87208074",
+            105884592,
+            "bd7ee9bff06acd8daaeb4ec507bbae442efa1292c9d278479070ee18a460230a",
+        ),
+        _f(
+            "usgs-artemis-regions/Nobile_Rim_1.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__e7%2F0c%2F31%2Fe70c317a0b609c1afbd7e10f2079bbf1afe0dbe7",
+            105869520,
+            "ac0cb77357e4ee91fb3e2b9fc3dd26d004b4bc536fa41d724f81ad8a42922358",
+        ),
+        _f(
+            "usgs-artemis-regions/Peak_Near_Cabeus_B.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__73%2Fd7%2Ff7%2F73d7f74a7e6723e93abfe1a2523d119683a098d1",
+            106486798,
+            "f6e63bb12125790d973293fa3cbaeb7cdf4aa73d4fc414ee0f3d0c97a2ce94af",
+        ),
+        _f(
+            "usgs-artemis-regions/Malapert_Massif.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__d0%2Fc8%2Fe4%2Fd0c8e45fe2b5980de80757572a89093e74805a8d",
+            117379779,
+            "17d731e8f7c2890bc2ed877a14d71dd31d5a9596c7e67c4a00062d34cfd7a297",
+        ),
+        _f(
+            "usgs-artemis-regions/Slater_Plain.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__0f%2F79%2F65%2F0f796551f55cc23011cdffb19496d4409794e019",
+            105733298,
+            "34376982167df6394fdceb65433f0d77fb80ac703cb63b64e3b6069a76c9d08c",
+        ),
+        _f(
+            "usgs-artemis-regions/Mons_Mouton.zip",
+            "https://www.sciencebase.gov/catalog/file/get/671a6fa8d34efed5620f89f8?f=__disk__d5%2Ffb%2Fa8%2Fd5fba8aa1285f6255df0c5bc5fdb8a7fc6d841d1",
+            67768699,
+            "e3748729354f0bcc564354288822d4cce2401a9396f896954b8214abbf1ff415",
+        ),
+    ]
+}
+"""USGS LGRS grids for the Artemis candidate regions (ScienceBase, doi:10.5066/P1MEQ6UK)."""
 
 MOSAIC_87S = "lola-87s-5mpp/ldem_87s_5mpp.tif"
 POLAR_RINGS = [
