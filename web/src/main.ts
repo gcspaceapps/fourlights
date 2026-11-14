@@ -7,7 +7,7 @@ import {
   type PowerPreset,
 } from './battery';
 import { renderChart } from './chart';
-import { infoTip, lightIcon, upgradeInfoTips, type LightName } from './icons';
+import { infoTip, lightIcon, upgradeIcons, upgradeInfoTips, type LightName } from './icons';
 import { renderMap } from './map';
 import { answerText, renderPlanner } from './planner';
 import { loadReviews, loadSite, loadSites } from './data';
@@ -718,6 +718,7 @@ const SHORTCUTS: Shortcut[] = [
 ];
 
 setupViews();
+upgradeIcons();
 upgradeInfoTips();
 setupShortcuts(SHORTCUTS, $('shortcuts') as HTMLDialogElement);
 setupAsk();

@@ -21,39 +21,60 @@
   <body>
     <main>
       <header>
-        <button type="button" class="theme-switch" id="theme" role="switch" aria-checked="true">
-          <span class="theme-icon" aria-hidden="true">☀</span>
-          <span class="track" aria-hidden="true"><span class="knob"></span></span>
-          <span class="theme-icon" aria-hidden="true">☾</span>
-          <span class="visually-hidden">Dark mode</span>
-        </button>
-        <div class="view-switch" role="radiogroup" aria-label="Who is this view for?">
-          <label
-            ><input type="radio" name="view" value="mission" aria-describedby="tip-mission" /><span
-              >Mission</span
-            ><span class="tip" role="tooltip" id="tip-mission"
-              >For mission planners: just the tools and the numbers, no explanations, with the
-              keyboard shortcuts in sight.</span
-            ></label
-          >
-          <label
-            ><input type="radio" name="view" value="explore" aria-describedby="tip-explore" /><span
-              >Explore</span
-            ><span class="tip" role="tooltip" id="tip-explore"
-              >For everyone: the tools with short captions, photographs and a written summary of
-              each site.</span
-            ></label
-          >
-          <label
-            ><input type="radio" name="view" value="learn" aria-describedby="tip-learn" /><span
-              >Learn</span
-            ><span class="tip" role="tooltip" id="tip-learn"
-              >For students and teachers: everything in Explore, plus why the south pole is
-              different, how to read the chart, a glossary and things to try.</span
-            ></label
-          >
+        <div class="title-row">
+          <h1>Four Lights</h1>
+          <div class="header-tools">
+            <button
+              type="button"
+              class="keys-hint"
+              data-open-shortcuts
+              aria-label="Keyboard shortcuts (Control slash)"
+            >
+              <span class="theme-icon" data-icon="keyboard" aria-hidden="true"></span>
+              <kbd>Ctrl</kbd> <kbd>/</kbd>
+            </button>
+            <div class="view-switch" role="radiogroup" aria-label="Who is this view for?">
+              <label
+                ><input
+                  type="radio"
+                  name="view"
+                  value="mission"
+                  aria-describedby="tip-mission"
+                /><span>Mission</span
+                ><span class="tip" role="tooltip" id="tip-mission"
+                  >For mission planners: just the tools and the numbers, no explanations, with the
+                  keyboard shortcuts in sight.</span
+                ></label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="view"
+                  value="explore"
+                  aria-describedby="tip-explore"
+                /><span>Explore</span
+                ><span class="tip" role="tooltip" id="tip-explore"
+                  >For everyone: the tools with short captions, photographs and a written summary of
+                  each site.</span
+                ></label
+              >
+              <label
+                ><input type="radio" name="view" value="learn" aria-describedby="tip-learn" /><span
+                  >Learn</span
+                ><span class="tip" role="tooltip" id="tip-learn"
+                  >For students and teachers: everything in Explore, plus why the south pole is
+                  different, how to read the chart, a glossary and things to try.</span
+                ></label
+              >
+            </div>
+            <button type="button" class="theme-switch" id="theme" role="switch" aria-checked="true">
+              <span class="theme-icon" data-icon="sun" aria-hidden="true"></span>
+              <span class="track" aria-hidden="true"><span class="knob"></span></span>
+              <span class="theme-icon" data-icon="moon" aria-hidden="true"></span>
+              <span class="visually-hidden">Dark mode</span>
+            </button>
+          </div>
         </div>
-        <h1>Four Lights</h1>
         <p class="tagline">
           Which lunar south-pole landing site still works when your launch slips?
         </p>

@@ -6,6 +6,9 @@ import panelOn from '@phosphor-icons/core/assets/fill/solar-panel-fill.svg?raw';
 import sunOn from '@phosphor-icons/core/assets/fill/sun-fill.svg?raw';
 import earthOff from '@phosphor-icons/core/assets/regular/globe-hemisphere-west.svg?raw';
 import infoIcon from '@phosphor-icons/core/assets/regular/info.svg?raw';
+import keyboardIcon from '@phosphor-icons/core/assets/regular/keyboard.svg?raw';
+import moonIcon from '@phosphor-icons/core/assets/regular/moon.svg?raw';
+import sunIcon from '@phosphor-icons/core/assets/regular/sun.svg?raw';
 import panelOff from '@phosphor-icons/core/assets/regular/solar-panel.svg?raw';
 import sunOff from '@phosphor-icons/core/assets/regular/sun-horizon.svg?raw';
 import broadcastOff from '@phosphor-icons/core/assets/regular/wifi-slash.svg?raw';
@@ -57,5 +60,15 @@ export function upgradeInfoTips(root: ParentNode = document): void {
     const text = el.dataset.info;
     if (!text || el.querySelector(':scope > .info')) continue;
     el.appendChild(infoTip(text));
+  }
+}
+
+const UI_ICONS: Record<string, string> = { keyboard: keyboardIcon, moon: moonIcon, sun: sunIcon };
+
+/** Fill every `data-icon="name"` placeholder in the page with its icon. */
+export function upgradeIcons(root: ParentNode = document): void {
+  for (const el of root.querySelectorAll<HTMLElement>('[data-icon]')) {
+    const raw = UI_ICONS[el.dataset.icon ?? ''];
+    if (raw && !el.firstChild) el.appendChild(svg(raw, 'ui-icon'));
   }
 }
