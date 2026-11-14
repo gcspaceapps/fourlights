@@ -379,6 +379,9 @@ async function init(): Promise<void> {
   ui.date.value = hash.get('date') ?? ymd(slipped);
   ui.days.value = hash.get('days') ?? String(WINDOW_DAYS[0]);
   ui.centre.value = hash.get('c') ?? '0';
+  // A range input starts with max = 100 and would clamp a later time from a shared link;
+  // render() sets the real maximum for the window.
+  ui.time.max = '100000';
   ui.time.value = hash.get('t') ?? '0';
   if (hash.get('h')) ui.height.replaceChildren(new Option('', hash.get('h') ?? ''));
 

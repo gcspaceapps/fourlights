@@ -69,6 +69,18 @@ test.describe('Sun-Path Chart', () => {
     await expect(label).toContainText('2028-04-23 06:00 UTC (day 2 of 7)');
   });
 
+  test('a shared link keeps its time, and a hidden body is faded but still named', async ({
+    page,
+  }) => {
+    await open(page, '#site=peak-near-shackleton&date=2028-04-22&days=14&h=1&t=300');
+    await expect(page.locator('#time')).toHaveValue('300');
+    await expect(page.locator('#time-label')).toContainText('2028-05-04 12:00 UTC (day 13 of 14)');
+    const earth = page.locator('#lights li[data-light="earth"]');
+    await expect(earth).toContainText('off');
+    await expect(page.locator('#chart circle.marker.earth')).toHaveClass(/hidden/);
+    await expect(page.locator('#chart text.label.earth')).toHaveText('Earth (hidden)');
+  });
+
   test('the Comms light names a Deep Space Network station', async ({ page }) => {
     await open(page, '#site=peak-near-shackleton&date=2028-04-22&t=36');
     await expect(page.locator('#lights li[data-light="comms"]')).toContainText(

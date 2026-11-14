@@ -591,19 +591,19 @@ input[type='date']:hover {
   fill: var(--earth);
 }
 
-.marker.hidden {
-  fill-opacity: 0.35;
-  stroke: currentcolor;
-  stroke-dasharray: 3 3;
-}
-
-.label.hidden {
-  fill-opacity: 0.7;
+/* A body behind the terrain: the dot is faded; its label stays fully legible. */
+circle.marker.hidden {
+  fill-opacity: 0.4;
 }
 
 .label {
   font: 600 14px var(--font);
-  stroke: none;
+  /* A halo in the sky colour keeps the name readable over the terrain and the tracks. */
+  paint-order: stroke;
+  stroke: var(--sky);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  stroke-dasharray: none;
 }
 
 .key {
