@@ -16,6 +16,10 @@
   "durable_objects": { "bindings": [{ "name": "PROJECTS", "class_name": "Project" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Project"] }],
   "observability": { "enabled": true },
+  // The QGIS pack's three 20 m rasters (30 to 65 MB each; a static asset cannot be over 25 MiB),
+  // served at /qgis/r2/<key> behind the same password gate. The bucket is private; its files are
+  // uploaded by hand when they change (pipeline/CONTEXT.md).
+  "r2_buckets": [{ "binding": "QGIS_BUCKET", "bucket_name": "q7m3-qgis-poc" }],
   // Workers AI: only /api/ask uses it, to turn a typed question into planner settings.
   "ai": { "binding": "AI" },
   // The demo lives on our own domain. Every request, pages and data, goes through the Worker's

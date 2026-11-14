@@ -28,6 +28,8 @@ status: loaded
 ## What it gives us
 The terrain for each site's horizon profile: how high the land stands in every direction, which decides when the Sun and Earth rise and set locally.
 
+The QGIS pack (`/qgis`, `pipeline/qgis-pack.sh`) also serves LOLA terrain directly as map layers: height and hillshade from `LDEM_75S_240M` (the 420 km square around the pole, at 420 m), 1000 m contours from the same grid, and three 20 m layers from `LDEM_875S_20M` (height, hillshade, slope). Heights there are above a 1737.4 km sphere.
+
 ## Pairs with
 `nasa-jpl-horizons` (Sun/Earth az/el, same ME frame family), `usgs-artemis-regions` (site centres), `ours-moon-imaging` (lit peaks).
 

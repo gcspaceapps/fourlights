@@ -1,6 +1,6 @@
 # Four Lights precompute. Data targets log their runs in stages/01_data/output/data-manifest.md.
 # SITE defaults to Shackleton rim; FETCH_FLAGS=--cache-first takes files from $NASA_CACHE first.
-.PHONY: venv test lint fetch fetch-spice fetch-usgs horizon bruteforce grass ephem publish regions sites validate qgis map coverage
+.PHONY: venv test lint fetch fetch-spice fetch-usgs horizon bruteforce grass ephem publish regions sites validate qgis qgis-pack qgis-verify map coverage
 
 PY := .venv/bin/python
 SITE ?= shackleton-rim
@@ -60,6 +60,21 @@ validate:
 # QGIS check layers (site points, centres, DEM ring circles) -> data/derived/qgis/
 qgis:
 	$(PY) -m four_lights.qgis_layers
+
+# The QGIS pack: the app's layers as files QGIS reads straight from the site, and the project
+# that opens them -> ../web/public/qgis/ (deployed with the site). Needs `make sites map qgis`
+# done on this machine, GDAL's tools and QGIS (see qgis-pack.sh). The project file has the
+# site's address written into it: rebuild with another QGIS_URL to test against a local copy.
+QGIS_URL ?= https://fourlights.gcsa.space/qgis
+qgis-pack:
+	BASE_URL=$(QGIS_URL) PY=$(PY) ./qgis-pack.sh
+
+# Open the built project the way QGIS would, from the address it was built for (which must be
+# serving it), fail if any layer does not load, and draw each theme to ../test-results/qgis-check/.
+# With the password gate on: GDAL_HTTP_USERPWD='fourlights:<password>' make qgis-verify
+qgis-verify:
+	PYTHONPATH=src:/usr/share/qgis/python QT_QPA_PLATFORM=offscreen /usr/bin/python3 \
+	  src/four_lights/qgis_project.py verify ../web/public/qgis/four-lights.qgs ../test-results/qgis-check
 
 # The web map's terrain shading: a 420 km square on the pole from LDEM_75S_240M (hillshade only
 # needs relative heights, so GDAL's radius offset is harmless here).

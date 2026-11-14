@@ -8,6 +8,8 @@
 
 **Third page:** `how.html` (served at `/how`, entry `src/how.ts`): the solutions-architecture page, with Mermaid diagrams (the `mermaid` package loads only there). Keep its numbers (test counts, sizes) in step with reality. `learn.ts` draws the Learn view's two data charts from the loaded site file.
 
+**Fourth page:** `qgis.html` (served at `/qgis`, entry `src/qgis.ts`): how to open Four Lights in QGIS: where to get QGIS and which version we checked, the project file to download, what is in it, the offline GeoPackage, and a table of every layer's address (built from the page's own address). The files it points at are in `public/qgis/`, written by `../pipeline/qgis-pack.sh` (not by hand), and the two pictures in `public/img/qgis-*.jpg` are QGIS's own drawings from `make qgis-verify`. Linked from the footer of every page and from the data-sources download list.
+
 **Second page:** `sources.html` (served at `/sources`, entry `src/sources.ts`): the data-sources page, written from the `_datasets/` cards. When a card changes, change this page too. Both pages are listed in `vite.config.ts`.
 
 **Views:** `data-view` on `<html>` is `mission`, `explore` or `learn` (switch in the header, `V` key, `v=` in the URL, remembered per browser). Mark content with class `v-explore` (hidden in Mission), `v-learn` (Learn only) or `v-mission` (Mission only); the rules are in `style.css`. Teaching text lives in `index.html` and must stay factual and sourced from the same data.

@@ -486,6 +486,36 @@ test.describe('how we built it', () => {
   });
 });
 
+test.describe('Open in QGIS', () => {
+  test('the guide links the project and lists every layer at this address', async ({
+    page,
+    baseURL,
+  }) => {
+    await open(page);
+    await page.getByRole('link', { name: 'Open in QGIS' }).click();
+    await expect(page).toHaveURL(/\/qgis$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Open in QGIS');
+    await expect(page.getByRole('link', { name: 'qgis.org/download' })).toHaveAttribute(
+      'href',
+      'https://qgis.org/download/',
+    );
+    await expect(page.getByRole('link', { name: 'four-lights.qgs' })).toHaveAttribute(
+      'href',
+      '/qgis/four-lights.qgs',
+    );
+    await expect(page.locator('#qgis-files tr')).toHaveCount(13);
+    await expect(page.locator('#qgis-files')).toContainText(`${baseURL}/qgis/sites.fgb`);
+    await expect(page.locator('#qgis-files')).toContainText(`${baseURL}/qgis/r2/slope-20m.cog.tif`);
+    // Both pictures are QGIS's own drawings of the layers, and they load.
+    for (const img of await page.locator('.qgis-shot img').all()) {
+      await img.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0))
+        .toBe(true);
+    }
+  });
+});
+
 test.describe('Learn view pictures', () => {
   test('shows NASA photographs and two charts drawn from the site data', async ({ page }) => {
     await open(page, '#v=learn');

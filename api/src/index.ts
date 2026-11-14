@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
 import { serveTile } from './etiles';
+import { fromBucket, sliceAsset } from './ranges';
 import type { Project } from './project';
 import { mcpPost, type McpDeps } from './mcp';
 import { MAX_MESSAGE_BYTES } from './project-state';
@@ -14,6 +15,8 @@ type Env = {
   SITE_PASSWORD?: string;
   /** One Durable Object per shared project, named by its uuid (project.ts). */
   PROJECTS: DurableObjectNamespace<Project>;
+  /** The QGIS pack's three 20 m rasters, too big to be static assets (ranges.ts). */
+  QGIS_BUCKET?: R2Bucket;
 };
 
 export { Project } from './project';
@@ -179,6 +182,14 @@ app.get('/mcp/:id?', (c) => c.body(null, 405, { Allow: 'POST' }));
 
 app.get('/etiles/:layer/:z/:row/:col', (c) =>
   serveTile(c.req.raw, c.req.param(), (p) => c.executionCtx.waitUntil(p)),
+);
+
+// ── The QGIS pack: files QGIS reads a few thousand bytes at a time (ranges.ts). ──
+app.on(['GET', 'HEAD'], '/qgis/r2/:key{.+}', (c) =>
+  fromBucket(c.req.raw, c.env.QGIS_BUCKET, c.req.param('key')),
+);
+app.on(['GET', 'HEAD'], '/qgis/*', async (c) =>
+  sliceAsset(c.req.raw, await c.env.ASSETS.fetch(c.req.raw)),
 );
 
 app.all('*', (c) => c.env.ASSETS.fetch(c.req.raw));

@@ -27,3 +27,6 @@ coverage/
 
 # Built by `npm run review-pdf`: large, and out of date after any UI change
 stages/03_pitch/output/four-lights-review.pdf
+
+# The QGIS pack is deployed with the site, rasters included (built by pipeline/qgis-pack.sh)
+!web/public/qgis/*.tif

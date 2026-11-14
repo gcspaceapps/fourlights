@@ -25,6 +25,26 @@ test.describe('open Worker', () => {
     expect(site.stations).toHaveLength(17_544);
   });
 
+  test('the QGIS pack answers range requests on the real Worker', async ({ request }) => {
+    // GDAL reads a file's first bytes, then jumps about: every file must give a 206 for a range.
+    const head = await request.get('/qgis/sites.fgb', { headers: { Range: 'bytes=0-7' } });
+    expect(head.status()).toBe(206);
+    expect(head.headers()['content-range']).toMatch(/^bytes 0-7\/\d+$/);
+    expect((await head.body()).subarray(0, 3).toString('latin1')).toBe('fgb'); // FlatGeobuf magic
+    const tiff = await request.get('/qgis/dem.cog.tif', { headers: { Range: 'bytes=0-3' } });
+    expect(tiff.status()).toBe(206);
+    expect((await tiff.body()).subarray(0, 2).toString('latin1')).toBe('II'); // little-endian TIFF
+    // The project is XML and points at an address under /qgis/.
+    const project = await (await request.get('/qgis/four-lights.qgs')).text();
+    expect(project).toContain('<qgis');
+    expect(project).toMatch(/\/vsicurl\/https?:\/\/[^/"]+\/qgis\/sites\.fgb/);
+    expect((await request.get('/qgis/nope.fgb')).status()).toBe(404);
+    // A range does not change how the rest of the site is served.
+    expect(
+      (await request.get('/data/sites.json', { headers: { Range: 'bytes=0-3' } })).status(),
+    ).toBe(200);
+  });
+
   test('/etiles answers 404 outside the grid and serves a tile with a week-long cache', async ({
     request,
   }) => {

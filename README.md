@@ -22,6 +22,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 - **Keyboard shortcuts:** `]` and `[` slip the date, left and right arrows switch tab, `,` and `.` move the time, `J`/`K` change site; `Ctrl` `/` (or `?`) lists them all.
 - **How we built it** (`/how`): the solutions architecture, with diagrams: the design decisions and their trade-offs, the pipeline, the horizon engine, serving at the edge, and how each layer is independently checked.
 - **Data sources page** (`/sources`): every dataset, what the app uses it for, what we did to it, how we checked it, its limits, licence and citation, plus links to download our derived files.
+- **Open in QGIS** (`/qgis`): the same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file, an offline GeoPackage, and where to get QGIS. No map server and no database: static FlatGeobuf and Cloud Optimized GeoTIFF files read by HTTP range requests.
 - **Where it comes from:** an info button beside each view, light and number says which NASA dataset or which of our own definitions is behind it.
 - 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
 

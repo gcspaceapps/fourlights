@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Open in QGIS · Four Lights</title>
+    <meta
+      name="description"
+      content="Open the Four Lights sites, verdicts, skylines and terrain in QGIS: where to get QGIS, the project file to download, what is in it and how it is served."
+    />
+    <link rel="icon" type="image/svg+xml" href="/img/team-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="sources">
+      <header>
+        <div class="title-row">
+          <h1>
+            <a class="logo-home" href="/" aria-label="Four Lights, home"
+              ><img class="logo" src="/img/team-logo.svg" alt="" width="48" height="48" /></a
+            >Open in QGIS
+          </h1>
+          <div class="header-tools">
+            <a class="back" href="/sources">Data sources</a>
+            <a class="back" href="/">← Back to Four Lights</a>
+          </div>
+        </div>
+        <p class="tagline">The same sites, verdicts, skylines and terrain, as map layers.</p>
+        <p class="intro">
+          QGIS is a free, open-source mapping program used by people who work with geographic data.
+          If you use it, you can open everything Four Lights shows as real map layers, put your own
+          data beside ours, measure, restyle and print. One small project file is all you download:
+          the layers themselves are read from this site as you pan and zoom.
+        </p>
+      </header>
+
+      <nav aria-label="On this page" class="toc">
+        <a href="#get">Get QGIS</a>
+        <a href="#open">Open the project</a>
+        <a href="#inside">What is in it</a>
+        <a href="#offline">Sample file for offline use</a>
+        <a href="#own">Add one layer to your own project</a>
+        <a href="#how">How it is served</a>
+        <a href="#trouble">If something does not load</a>
+      </nav>
+
+      <section aria-labelledby="get">
+        <h2 id="get">1. Get QGIS</h2>
+        <p>
+          Download it from
+          <a href="https://qgis.org/download/" target="_blank" rel="noopener">qgis.org/download</a>.
+          It is free and runs on Windows, macOS and Linux.
+        </p>
+        <dl>
+          <dt>Version we made and checked this with</dt>
+          <dd>QGIS 4.2 (with GDAL 3.12, the library QGIS uses to read files).</dd>
+          <dt>Other versions</dt>
+          <dd>
+            Any QGIS 4 should open the project. QGIS 3 has not been tested: it will warn that the
+            project was saved by a newer version, and may not show everything as intended. The layer
+            files themselves are standard formats that recent QGIS 3 releases also read, so there
+            you can still add them one at a time (see <a href="#own">below</a>).
+          </dd>
+          <dt>Nothing else to install</dt>
+          <dd>No plugins, no account, no database.</dd>
+        </dl>
+      </section>
+
+      <section aria-labelledby="open">
+        <h2 id="open">2. Open the project</h2>
+        <ol>
+          <li>
+            Download
+            <a href="/qgis/four-lights.qgs" download><strong>four-lights.qgs</strong></a> (the QGIS
+            project, under half a megabyte).
+          </li>
+          <li>Open it in QGIS: double-click the file, or in QGIS choose Project → Open.</li>
+          <li>
+            Wait a few seconds while the layers load from this site. You need to be online: the
+            project holds the styles and the addresses, not the data.
+          </li>
+        </ol>
+        <p>
+          It opens on the south pole with the 12 sites coloured and shaped as in the app's Slip
+          Planner for the demo scenario: a landing planned for 19 April 2028 that slips three days.
+        </p>
+        <figure class="qgis-shot">
+          <img
+            src="/img/qgis-after-the-slip.jpg"
+            width="900"
+            height="900"
+            loading="lazy"
+            alt="A map of the Moon's south pole coloured by height, with the twelve landing sites marked and labelled with their usable days"
+          />
+          <figcaption>
+            The project as it opens: the "After the slip" map theme. Drawn by QGIS from the layers
+            on this site.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section aria-labelledby="inside">
+        <h2 id="inside">3. What is in it</h2>
+        <div
+          class="table-scroll"
+          tabindex="0"
+          aria-label="What is in the project (scrolls sideways)"
+        >
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">In QGIS</th>
+                <th scope="col">What it shows</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Map themes (the eye button above the layer list)</th>
+                <td>
+                  "1 After the slip" and "2 Planned landing": the 12 sites with the app's verdict
+                  and usable days for each date. "3 Time slider", "4 Terrain 20 m and slope" and "5
+                  Pipeline checks" switch to the other sets of layers.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Time slider (View → Panels → Temporal Controller, then play)</th>
+                <td>
+                  The "Landing day" layer has one point per site and landing day for 2028 and 2029
+                  (8,700 points), so the verdicts change as the date moves.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  Spatial bookmarks (View → Show Spatial Bookmarks, group "Sites")
+                </th>
+                <td>
+                  Jump to any site. Zoomed in past 1:400,000 each site shows its 360° skyline drawn
+                  around it (further out means higher terrain; the dashed circle is a level horizon)
+                  and a line towards the Earth.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Map tips (View → Show Map Tips, then hover a site)</th>
+                <td>
+                  Both dates' verdicts, the Sun in view, the longest dark spell, the ground height
+                  and how the site's point was chosen.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Terrain group</th>
+                <td>
+                  Height coloured over a hillshade, 1000 m contours, and three 20 m layers of the
+                  150 km around the pole: height, hillshade and slope (under 5° clear, then 5 to 10,
+                  10 to 15, over 15°).
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Regions</th>
+                <td>The outlines of the 8 USGS Artemis navigation grids we use.</td>
+              </tr>
+              <tr>
+                <th scope="row">Project → Layouts → "Four Lights A4"</th>
+                <td>A page ready to print: the slip map, a legend, a scale bar and the credits.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="qgis-shot">
+          <img
+            src="/img/qgis-skyline-shackleton-rim.jpg"
+            width="700"
+            height="700"
+            loading="lazy"
+            alt="A close view of Shackleton rim with an irregular yellow outline around the site marker, a dashed circle and a line pointing up"
+          />
+          <figcaption>
+            Shackleton rim close up: the yellow shape is its skyline (further from the site means
+            higher terrain in that direction), the dashed circle is a level horizon, and the line
+            points towards the Earth.
+          </figcaption>
+        </figure>
+        <p>
+          Nothing is worked out again for QGIS: the verdicts and usable days are the app's own
+          numbers, and the skylines are the ones the app uses. All layers are in the Moon south
+          polar stereographic system (IAU_2015:30135). Heights are above a sphere of radius 1737.4
+          km.
+        </p>
+      </section>
+
+      <section aria-labelledby="offline">
+        <h2 id="offline">Sample file for offline use</h2>
+        <p>
+          <a href="/qgis/four-lights.gpkg" download><strong>four-lights.gpkg</strong></a> (3.8 MB)
+          is every vector layer in one GeoPackage: sites, the day-by-day planner, skylines, Earth
+          directions, regions, contours and the pipeline's check layers. Drag it onto QGIS, or use
+          Layer → Add Layer → Add Vector Layer. It comes without the project's styles, and it works
+          with no connection. GeoPackage is an open standard, so other GIS software reads it too.
+        </p>
+      </section>
+
+      <section aria-labelledby="own">
+        <h2 id="own">Add one layer to your own project</h2>
+        <p>
+          Each layer is a plain file at a fixed address, so you can add just the ones you want to a
+          project of your own. In QGIS: Layer → Add Layer → Add Vector Layer (or Add Raster Layer),
+          set the source type to "Protocol: HTTP(S), cloud, etc." and paste the address.
+        </p>
+        <div class="table-scroll" tabindex="0" aria-label="The layer files (scrolls sideways)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Layer</th>
+                <th scope="col">Address</th>
+                <th scope="col">Format</th>
+              </tr>
+            </thead>
+            <tbody id="qgis-files"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="how">
+        <h2 id="how">How it is served</h2>
+        <p>
+          There is no map server and no database behind this. The vector layers are FlatGeobuf files
+          and the rasters are Cloud Optimized GeoTIFFs: both are laid out so a program can fetch
+          just the part it needs. QGIS asks for a few thousand bytes at a time, and our Cloudflare
+          Worker answers those requests from static files. The three 20 m rasters are 30 to 65 MB
+          each, too big to be static files, so they sit in Cloudflare R2 storage and are read the
+          same way. Looking at one 5 km square of the 61 MB hillshade downloads about 0.4 MB.
+        </p>
+        <p>
+          Terrain: NASA LRO LOLA elevation models. Regions: USGS Artemis navigation grids. Sun and
+          Earth directions: NASA JPL Horizons. Details and citations are on the
+          <a href="/sources">data sources</a> page; the pipeline is described in
+          <a href="/how">how we built it</a>.
+        </p>
+      </section>
+
+      <section aria-labelledby="trouble">
+        <h2 id="trouble">If something does not load</h2>
+        <dl>
+          <dt>Every layer is marked unavailable</dt>
+          <dd>
+            QGIS could not reach this site. Check the connection, then Project → Open again. On a
+            network that blocks or rewrites downloads, use the offline GeoPackage instead.
+          </dd>
+          <dt>QGIS says the project was saved by a newer version</dt>
+          <dd>
+            You are on QGIS 3. Try it anyway, or add the layers one at a time from the table above.
+          </dd>
+          <dt>The map is empty after opening</dt>
+          <dd>Choose a map theme with the eye button above the layer list, or zoom to a layer.</dd>
+        </dl>
+      </section>
+
+      <footer>
+        <p>
+          <a href="/">← Back to Four Lights</a> · <a href="/sources">Data sources</a> ·
+          <a href="/how">How we built it</a>
+        </p>
+      </footer>
+    </main>
+    <script type="module" src="/src/qgis.ts"></script>
+  </body>
+</html>

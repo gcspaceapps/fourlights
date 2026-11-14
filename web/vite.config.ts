@@ -4,7 +4,10 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    // Three pages: the app, the data-sources page (/sources) and how we built it (/how).
-    rollupOptions: { input: { main: 'index.html', sources: 'sources.html', how: 'how.html' } },
+    // Four pages: the app, the data-sources page (/sources), how we built it (/how) and the QGIS
+    // guide (/qgis; the layer files it points at are static files under /qgis/).
+    rollupOptions: {
+      input: { main: 'index.html', sources: 'sources.html', how: 'how.html', qgis: 'qgis.html' },
+    },
   },
 });
