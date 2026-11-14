@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
 import { serveTile } from './etiles';
 import type { Project } from './project';
+import { mcpPost, type McpDeps } from './mcp';
 import { MAX_MESSAGE_BYTES } from './project-state';
 import { ASK_MODEL, MAX_QUESTION_CHARS, parseIntent, systemPrompt, type SiteName } from './intent';
 
@@ -136,6 +137,45 @@ app.get('/api/projects/:id/ws', (c) => {
   if (!UUID.test(id)) return c.json({ ok: false, error: 'Not a project id.' }, 400);
   return c.env.PROJECTS.getByName(id).fetch(c.req.raw);
 });
+
+// ── MCP: an AI agent drives a project through the same Durable Object (mcp.ts). ──
+/** Published JSON is the same for every request, so each isolate keeps what it has read. */
+const dataCache = new Map<string, Promise<unknown>>();
+
+function mcpDeps(c: { env: Env; req: { url: string } }, defaultProject?: string): McpDeps {
+  return {
+    defaultProject,
+    snapshot: (id) => c.env.PROJECTS.getByName(id).snapshot(),
+    command: (id, cmd) => c.env.PROJECTS.getByName(id).command(cmd),
+    data: (path) => {
+      let hit = dataCache.get(path);
+      if (!hit) {
+        hit = c.env.ASSETS.fetch(new Request(new URL(path, c.req.url))).then((r) => {
+          if (!r.ok) throw new Error(`${path}: ${r.status}`);
+          return r.json();
+        });
+        dataCache.set(path, hit);
+        hit.catch(() => dataCache.delete(path));
+      }
+      return hit;
+    },
+  };
+}
+
+app.post('/mcp/:id?', async (c) => {
+  const text = await c.req.text();
+  if (text.length > MAX_MESSAGE_BYTES) return c.json({ error: 'Too large.' }, 413);
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return c.json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Not JSON.' } }, 400);
+  }
+  const out = await mcpPost(body, mcpDeps(c, c.req.param('id')));
+  return out.json === undefined ? c.body(null, 202) : c.json(out.json, out.status as 200);
+});
+// Stateless server: there is no server-to-client stream to open.
+app.get('/mcp/:id?', (c) => c.body(null, 405, { Allow: 'POST' }));
 
 app.get('/etiles/:layer/:z/:row/:col', (c) =>
   serveTile(c.req.raw, c.req.param(), (p) => c.executionCtx.waitUntil(p)),
