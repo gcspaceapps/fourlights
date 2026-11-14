@@ -175,7 +175,7 @@ async function capture(browser, shot) {
   if (shot.dialog) {
     slices.push(await page.screenshot(jpeg));
   } else {
-    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    const height = await page.evaluate('document.documentElement.scrollHeight');
     for (let y = 0, max = FIRST_SLICE; y < height; y += max, max = NEXT_SLICE) {
       // A little over one slice is shrunk to fit rather than spilling a sliver onto a new page.
       const left = height - y;

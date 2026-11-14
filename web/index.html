@@ -275,15 +275,39 @@
         </h2>
         <div class="globe-layout">
           <figure class="globe">
-            <div
-              class="globe-stage"
-              id="globe-view"
-              role="img"
-              aria-label="3D view of the Moon with the 12 candidate landing sites marked near its south pole. Use the site list for the same information with keyboard controls."
-            ></div>
+            <div class="globe-frame">
+              <div
+                class="globe-stage"
+                id="globe-view"
+                role="img"
+                aria-label="3D view of the Moon with the 12 candidate landing sites marked near its south pole. Use the site list for the same information with keyboard controls."
+              ></div>
+              <div class="globe-over globe-over-layers" id="globe-controls">
+                <label
+                  >Layer
+                  <select id="globe-layer">
+                    <option value="wac" selected>Imagery (WAC)</option>
+                    <option value="lola">Elevation (LOLA)</option>
+                    <option value="hillshade">Polar shading</option>
+                  </select></label
+                >
+                <label class="check"
+                  ><input type="checkbox" id="globe-grid" checked /> Grid lines</label
+                >
+              </div>
+              <div class="globe-over globe-over-view" role="group" aria-label="View">
+                <button type="button" id="globe-moon">Whole Moon</button>
+                <button type="button" id="globe-pole">South pole</button>
+              </div>
+              <div class="globe-over globe-over-zoom" role="group" aria-label="Zoom">
+                <button type="button" id="globe-zoom-in" aria-label="Zoom in">+</button>
+                <button type="button" id="globe-zoom-out" aria-label="Zoom out">−</button>
+              </div>
+            </div>
             <div class="globe-tip" id="globe-tip" hidden></div>
             <p class="globe-fallback" id="globe-fallback" role="status" hidden></p>
             <p class="globe-readout" id="globe-readout">Cursor: move over the Moon</p>
+            <p class="globe-layer-note v-explore" id="globe-layer-note" aria-live="polite"></p>
             <figcaption id="map-desc" class="v-explore">
               Drag to turn the Moon, scroll or pinch to zoom, right-drag (or Ctrl-drag) to tilt.
               Each site is coloured and shaped for the planned landing in the Slip Planner: click a
@@ -293,25 +317,7 @@
             </figcaption>
           </figure>
           <div class="globe-side">
-            <div class="globe-controls" id="globe-controls">
-              <label
-                >Layer
-                <select id="globe-layer">
-                  <option value="wac" selected>Imagery (WAC)</option>
-                  <option value="lola">Elevation (LOLA)</option>
-                  <option value="hillshade">Polar shading</option>
-                </select></label
-              >
-              <label class="check"
-                ><input type="checkbox" id="globe-grid" checked /> Latitude and longitude
-                lines</label
-              >
-              <div class="globe-buttons" role="group" aria-label="View">
-                <button type="button" id="globe-zoom-in" aria-label="Zoom in">+</button>
-                <button type="button" id="globe-zoom-out" aria-label="Zoom out">−</button>
-                <button type="button" id="globe-moon">Whole Moon</button>
-                <button type="button" id="globe-pole">South pole</button>
-              </div>
+            <div class="globe-controls">
               <button type="button" id="globe-add" aria-pressed="false">
                 Add a site on the map
               </button>

@@ -10,6 +10,13 @@ import type { SiteSummary } from './types';
 const WORDS = { green: 'works', amber: 'marginal', red: 'no power' } as const;
 const SYMBOLS = { green: '●', amber: '▲', red: '✕', none: '○' } as const;
 const LAYERS: LayerId[] = ['wac', 'lola', 'hillshade'];
+/** What each layer is, shown under the map for the one in use. */
+const LAYER_NOTES: Record<LayerId, string> = {
+  wac: 'Imagery (WAC): real photographs from the Wide Angle Camera on NASA’s Lunar Reconnaissance Orbiter, joined into one picture of the whole Moon. Near the pole the Sun is always low, so much of the ground is in shadow, and the picture is stretched and streaky in the last few degrees.',
+  lola: 'Elevation (LOLA): height measured by the laser altimeter on NASA’s Lunar Reconnaissance Orbiter, coloured by height and shaded. The colours are NASA’s: deep crater floors are violet. Good for the shape of the land, less sharp than the imagery.',
+  hillshade:
+    'Polar shading: not a photograph. We made it from NASA’s laser-measured elevation model of the pole (240 m per pixel) by lighting the terrain evenly from several directions, so every ridge and crater shows, including floors that never see the Sun. It covers the area about 420 km across around the pole and is the clearest view of the sites.',
+};
 
 export interface MapTab {
   /** The planner's answer changed: recolour the markers and the list. */
@@ -55,6 +62,7 @@ export function setupMap(
   const fallback = byId(root, 'globe-fallback');
   const layer = byId<HTMLSelectElement>(root, 'globe-layer');
   const grid = byId<HTMLInputElement>(root, 'globe-grid');
+  const layerNote = byId(root, 'globe-layer-note');
   const list = byId(root, 'globe-sites');
   const addBtn = byId<HTMLButtonElement>(root, 'globe-add');
   const form = byId<HTMLFormElement>(root, 'globe-add-form');
@@ -282,7 +290,12 @@ export function setupMap(
     readout.textContent = 'Cursor: move over the Moon';
   }
 
+  const showLayerNote = (): void => {
+    layerNote.textContent = LAYER_NOTES[layerNow()];
+  };
+  showLayerNote();
   layer.addEventListener('change', () => {
+    showLayerNote();
     globe?.setLayer(layerNow());
     hooks.onLook();
   });
