@@ -276,6 +276,20 @@ section > p {
   margin-bottom: 0.4rem;
 }
 
+.learn .more {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  color: var(--text);
+}
+
 .learn-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));

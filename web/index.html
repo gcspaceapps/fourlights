@@ -100,6 +100,25 @@
             </p>
           </div>
         </div>
+        <p class="more">
+          Learn more:
+          <a href="https://science.nasa.gov/moon/" target="_blank" rel="noopener">NASA: the Moon</a>
+          ·
+          <a
+            href="https://science.nasa.gov/moon/moon-water-and-ices/"
+            target="_blank"
+            rel="noopener"
+            >water and ice on the Moon</a
+          >
+          ·
+          <a href="https://www.nasa.gov/humans-in-space/artemis/" target="_blank" rel="noopener"
+            >the Artemis missions</a
+          >
+          ·
+          <a href="https://science.nasa.gov/mission/lro/" target="_blank" rel="noopener"
+            >Lunar Reconnaissance Orbiter</a
+          >, whose laser altimeter measured the terrain used here
+        </p>
       </section>
 
       <section aria-labelledby="planner-title">
@@ -265,6 +284,23 @@
               dish stations (in California, Spain and Australia) facing the Moon?
             </li>
           </ul>
+          <p class="more">
+            Learn more:
+            <a
+              href="https://www.nasa.gov/communicating-with-missions/dsn/"
+              target="_blank"
+              rel="noopener"
+              >the Deep Space Network</a
+            >
+            ·
+            <a href="https://eyes.nasa.gov/dsn/dsn.html" target="_blank" rel="noopener"
+              >DSN Now: which dish is talking to which spacecraft, live</a
+            >
+            ·
+            <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener"
+              >JPL Horizons</a
+            >, where the Sun and Earth positions come from
+          </p>
         </div>
         <p class="window" id="window"></p>
 
@@ -332,6 +368,80 @@
           <p class="review-note" id="review-note"></p>
         </div>
         <dl id="site-info"></dl>
+      </section>
+
+      <section class="learn v-learn" aria-labelledby="learn-ai">
+        <h2 id="learn-ai">Where AI is used on this page, and where it isn't</h2>
+        <div class="learn-grid">
+          <div>
+            <h3>Not for the answers</h3>
+            <p>
+              The skylines, the Sun and Earth positions, the four lights and the planner are
+              ordinary calculation on NASA data. The same inputs always give the same answer, and
+              you can check each step. No AI model is involved.
+            </p>
+          </div>
+          <div>
+            <h3>For writing the site reviews</h3>
+            <p>
+              A language model works by predicting which words are likely to come next. That makes
+              it good at writing a clear sentence and bad at guaranteeing the sentence is true. So
+              we give it only a table of facts we computed for the site, and a separate program
+              checks every number in what it writes. Drafts that fail are thrown away.
+            </p>
+          </div>
+          <div>
+            <h3>For understanding your question</h3>
+            <p>
+              When you type a question, the model's only job is to pull out four settings: a date, a
+              slip in days, a mission length and a site. The server checks each one is allowed, and
+              then the planner does the calculating. The model never sees the data.
+            </p>
+          </div>
+        </div>
+        <h3>It did get something wrong</h3>
+        <p>
+          While building this, one review said a site's terrain data was "approximate" when it was
+          not. Every number in the paragraph was right, so the number check passed it. We added a
+          second check for that word, and on the next run it rejected six drafts. The lesson: a
+          model's mistakes can be in the words between the numbers, and you only catch what you
+          think to check for.
+        </p>
+        <h3>Try it</h3>
+        <ul>
+          <li>
+            Ask the question box something unrelated, such as "what is the capital of France?" It
+            should refuse, because that is not a date, a slip, a window or a site.
+          </li>
+          <li>
+            Ask "we are delayed a week". Notice that it keeps your current date and adds seven days:
+            the model supplied the 7, and the planner did the rest.
+          </li>
+          <li>
+            Read a site review beside the figures under "About this site". Can you find anything the
+            review says that the figures do not support?
+          </li>
+        </ul>
+        <h3>To discuss</h3>
+        <ul>
+          <li>Why let a model write the summary but not calculate the sunlight?</li>
+          <li>What else could go wrong in a written summary that a number check would miss?</li>
+          <li>Would you trust a landing decision made by a language model? What would it take?</li>
+        </ul>
+        <p class="more">
+          The model is Llama 3.3 (70 billion parameters), an openly published model from Meta, run
+          on Cloudflare Workers AI. Learn more:
+          <a
+            href="https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/"
+            target="_blank"
+            rel="noopener"
+            >about this model</a
+          >
+          ·
+          <a href="https://developers.cloudflare.com/workers-ai/" target="_blank" rel="noopener"
+            >Workers AI</a
+          >
+        </p>
       </section>
 
       <section class="learn v-learn" aria-labelledby="learn-try">
