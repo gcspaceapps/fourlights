@@ -14,6 +14,13 @@ async function open(page: Page, hash = ''): Promise<void> {
   await expect(answer(page)).toContainText('sites work');
 }
 
+/** Switch to a tab by its label and wait until it is the selected one. */
+async function showTab(page: Page, name: string): Promise<void> {
+  const tab = page.getByRole('tab', { name, exact: true });
+  await tab.click();
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
+}
+
 test.describe('the demo scenario', () => {
   test('opens on 19 April 2028 with six sites working', async ({ page }) => {
     await open(page);
@@ -49,8 +56,13 @@ test.describe('the demo scenario', () => {
     await open(page, '#plan=2028-04-22');
     await cell(page, 'Slater Plain').locator('button').click();
     await expect(page.locator('#site')).toHaveValue('slater-plain');
-    await expect(page.locator('#date')).toHaveValue('2028-04-22');
+    await expect(page.locator('#plan')).toHaveValue('2028-04-22');
+    await expect(page.getByRole('tab', { name: 'Sun-Path Chart' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     await expect(page.locator('#chart path.track.sun')).toBeVisible();
+    await showTab(page, 'About this site');
     await expect(page.locator('#site-info')).toContainText('LDEM');
     expect(page.url()).toContain('site=slater-plain');
   });
@@ -58,7 +70,7 @@ test.describe('the demo scenario', () => {
 
 test.describe('Sun-Path Chart', () => {
   test('shows four lights with icons, and the time slider moves the clock', async ({ page }) => {
-    await open(page, '#site=peak-near-shackleton&date=2028-04-22');
+    await open(page, '#site=peak-near-shackleton&date=2028-04-22&tab=sun-path-chart');
     const lights = page.locator('#lights li');
     await expect(lights).toHaveCount(4);
     await expect(lights.locator('svg.light-icon')).toHaveCount(4);
@@ -84,7 +96,7 @@ test.describe('Sun-Path Chart', () => {
   test('the pointing table gives the raw numbers, and the window downloads as CSV', async ({
     page,
   }) => {
-    await open(page, '#site=connecting-ridge&date=2028-04-22&t=100');
+    await open(page, '#site=connecting-ridge&date=2028-04-22&t=100&tab=sun-path-chart');
     const row = (body: string) =>
       page.locator('#pointing tbody tr', { hasText: body }).locator('td');
     await expect(page.locator('#pointing thead th')).toHaveText([
@@ -118,7 +130,7 @@ test.describe('Sun-Path Chart', () => {
   });
 
   test('a bigger battery survives a night that a small one does not', async ({ page }) => {
-    await open(page, '#site=connecting-ridge&date=2028-04-22');
+    await open(page, '#site=connecting-ridge&date=2028-04-22&tab=survive-the-night');
     const summary = page.locator('#battery-summary');
     await expect(summary).toContainText('Does not survive');
     await page.locator('#customise summary').click();
@@ -130,7 +142,7 @@ test.describe('Sun-Path Chart', () => {
   });
 
   test('each power system shows a credited NASA photograph', async ({ page }) => {
-    await open(page);
+    await open(page, '#tab=survive-the-night');
     await expect(page.locator('#preset-img')).toHaveAttribute('src', /surveyor-3\.jpg$/);
     await expect(page.locator('#preset-credit')).toContainText('NASA');
     await page.getByRole('button', { name: 'Crewed lander' }).click();
@@ -149,7 +161,7 @@ test.describe('button groups', () => {
   test('window, height and centre are buttons that drive the chart and the URL', async ({
     page,
   }) => {
-    await open(page, '#site=peak-near-shackleton&date=2028-04-22');
+    await open(page, '#site=peak-near-shackleton&date=2028-04-22&tab=sun-path-chart');
     const group = (name: string) => page.getByRole('group', { name });
     await group('Observer height (m)')
       .getByRole('button', { name: 'Observer height (m): 5' })
@@ -178,8 +190,7 @@ test.describe('button groups', () => {
   test('the planner window buttons change the grid', async ({ page }) => {
     await open(page);
     await page
-      .locator('#controls, .controls')
-      .first()
+      .getByRole('group', { name: 'Mission window (days)' })
       .getByRole('button', { name: 'Mission window (days): 30' })
       .click();
     await expect(page.locator('#plan-days')).toHaveValue('30');
@@ -197,10 +208,13 @@ test.describe('views, theme and help', () => {
     await expect(page.locator('.keys-strip')).toBeVisible();
     expect(page.url()).toContain('v=mission');
     await page.getByText('Learn', { exact: true }).click();
+    // Each teaching panel is its own tab, and only exists in the Learn view.
+    await showTab(page, 'Where AI is used');
     await expect(page.locator('#learn-ai')).toBeVisible();
+    await showTab(page, 'Start here');
     await expect(page.locator('#learn-start')).toBeVisible();
     await page.reload();
-    await expect(page.locator('#learn-ai')).toBeVisible(); // remembered
+    await expect(page.locator('#learn-start')).toBeVisible(); // remembered
   });
 
   test('the theme switch forces light and dark', async ({ page }) => {
@@ -423,11 +437,13 @@ test.describe('how we built it', () => {
 test.describe('Learn view pictures', () => {
   test('shows NASA photographs and two charts drawn from the site data', async ({ page }) => {
     await open(page, '#v=learn');
-    for (const file of [
-      'south-pole-clementine.jpg',
-      'earthrise-apollo-8.jpg',
-      'dss-43-canberra.jpg',
-    ]) {
+    // The pictures sit in the tab they explain.
+    for (const [tab, file] of [
+      ['Start here', 'south-pole-clementine.jpg'],
+      ['Start here', 'earthrise-apollo-8.jpg'],
+      ['Sun-Path Chart', 'dss-43-canberra.jpg'],
+    ] as const) {
+      await showTab(page, tab);
       const img = page.locator(`img[src$="${file}"]`);
       await img.scrollIntoViewIfNeeded();
       await expect(img).toBeVisible();
@@ -435,6 +451,7 @@ test.describe('Learn view pictures', () => {
         .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0))
         .toBe(true);
     }
+    await showTab(page, 'Start here');
     await expect(page.locator('#learn-sun path.sun-line')).toHaveCount(1);
     await expect(page.locator('#learn-earth path.earth-line')).toHaveCount(1);
     await expect(page.locator('#learn-earth path.terrain-line')).toHaveCount(1);
