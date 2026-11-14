@@ -1273,9 +1273,30 @@ section > .window {
 }
 
 .globe-buttons {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.35rem;
+}
+
+/* Three layer names don't fit the side column on one line, so they stack */
+.globe-controls .segmented {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
+
+.globe-controls .segmented button {
+  border-left: none;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+
+.globe-controls .segmented button:first-child {
+  border-top: none;
+}
+
+.globe-controls .segmented button[aria-pressed='true'] {
+  box-shadow: inset 3px 0 0 var(--sun);
 }
 
 .globe-legend {
@@ -1420,6 +1441,18 @@ section > .window {
   gap: 0.2rem;
 }
 
+.globe-add input {
+  font: inherit;
+  font-size: var(--fs-base);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.4rem 0.6rem;
+  min-height: 2.5rem;
+  width: 100%;
+}
+
 .selected-bar {
   display: flex;
   flex-wrap: wrap;
@@ -1440,6 +1473,23 @@ section > .window {
 .selected-bar select {
   font-weight: 600;
   color: var(--accent);
+}
+
+/* The mission-window buttons sit on the bar's one line, labelled like their neighbours */
+.selected-bar .field {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.selected-bar .field-label {
+  font-weight: 400;
+  font-size: inherit;
+  color: var(--text);
+}
+
+.selected-bar .segmented {
+  align-self: center;
 }
 
 .planner tr.selected th,
