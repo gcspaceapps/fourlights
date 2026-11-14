@@ -2,15 +2,30 @@
 
 Every centre is recomputed from the raw files: PGDA tiles from their GeoTIFF bounds (Site07's tile
 is checked against its own point cloud), Artemis regions from the USGS 1 km grids.
+
+Further sites are listed in pipeline/sites.extra.json, each a point given as latitude and east
+longitude (`python -m four_lights.add_site` adds one).
 """
 
 from __future__ import annotations
 
+import json
+import re
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 
 from four_lights.dem import Raster, bounds, sample
+from four_lights.geometry import latlon_to_ps
+from four_lights.paths import REPO
+
+EXTRA_SITES = REPO / "pipeline" / "sites.extra.json"
+"""Sites added after the curated 12: `[{"id", "name", "lat", "lon_e"}]`."""
+EXTRA_SOURCE = "Added point (lat, lon)"
+MAX_LAT_DEG = -80.0
+"""The outer DEM ring (LDEM_75S_240M) ends at 75°S; north of 80°S a site's far field toward Earth
+would run off the terrain data."""
 
 REGION_RADIUS_M = 8000.0
 """Artemis regions (about 20 km square): the site is the highest summit within this distance of
@@ -35,6 +50,8 @@ class SiteSpec:
     """A published point to use as-is (PS metres), instead of the highest-pixel rule."""
     region: str | None = None
     """USGS Artemis region zip name (e.g. 'Haworth'); its 1 km grid centre is the centre."""
+    lat_lon: tuple[float, float] | None = None
+    """A point given as (latitude, east longitude) in degrees; used as-is, snapped to its pixel."""
 
 
 ARTEMIS = "Artemis region (USGS grid)"
@@ -65,6 +82,43 @@ SITES: dict[str, SiteSpec] = {
         SiteSpec("slater-plain", "Slater Plain", ARTEMIS, region="Slater_Plain"),
     ]
 }
+
+
+def check_extra(entry: dict, taken: set[str]) -> SiteSpec:
+    """One sites.extra.json entry as a SiteSpec; raises ValueError saying what is wrong."""
+    sid, name = entry.get("id"), entry.get("name")
+    if not isinstance(sid, str) or not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", sid):
+        raise ValueError(f"site id {sid!r} must be kebab-case (a-z, 0-9, hyphens)")
+    if sid.startswith("fake-"):
+        raise ValueError(f"site id {sid!r}: 'fake-' is kept for fixtures")
+    if sid in taken:
+        raise ValueError(f"site id {sid!r} is already used")
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError(f"{sid}: needs a name")
+    try:
+        lat, lon = float(entry["lat"]), float(entry["lon_e"])
+    except (KeyError, TypeError, ValueError):
+        raise ValueError(f"{sid}: needs numeric lat and lon_e") from None
+    if not -90.0 <= lat <= MAX_LAT_DEG:
+        raise ValueError(f"{sid}: latitude {lat} must be between -90 and {MAX_LAT_DEG:g}")
+    if not -180.0 < lon <= 180.0:
+        raise ValueError(f"{sid}: east longitude {lon} must be in (-180, 180]")
+    return SiteSpec(sid, name.strip(), EXTRA_SOURCE, lat_lon=(lat, lon))
+
+
+def load_extra(path: Path = EXTRA_SITES, taken: set[str] | None = None) -> list[SiteSpec]:
+    """The sites in sites.extra.json (none if the file is missing)."""
+    if not path.exists():
+        return []
+    seen = set(taken or ())
+    out: list[SiteSpec] = []
+    for entry in json.loads(path.read_text()):
+        out.append(check_extra(entry, seen))
+        seen.add(out[-1].id)
+    return out
+
+
+SITES.update({s.id: s for s in load_extra(taken=set(SITES))})
 
 
 @dataclass(frozen=True)
@@ -152,7 +206,25 @@ def highest_summit(
 def site_point(
     spec: SiteSpec, tile: Raster | None, finer_first: list[Raster] | None = None
 ) -> SitePoint:
-    """The site's pixel. Region sites need `finer_first`: the DEMs, finest first."""
+    """The site's pixel. Region and lat/lon sites need `finer_first`: the DEMs, finest first."""
+    if spec.lat_lon is not None:
+        lat, lon = spec.lat_lon
+        px, py = latlon_to_ps(np.radians(lat), np.radians(lon))
+        x, y = float(px), float(py)
+        for r in finer_first or []:
+            if np.isfinite(sample(r, x, y)):
+                # Snap to the containing pixel's centre, so the observer stands on a DEM sample.
+                sx = r.left + (np.floor((x - r.left) / r.res_m) + 0.5) * r.res_m
+                sy = r.top - (np.floor((r.top - y) / r.res_m) + 0.5) * r.res_m
+                return SitePoint(
+                    float(sx),
+                    float(sy),
+                    x,
+                    y,
+                    f"the given point {lat:g}°, {lon:g}°E, snapped to its {r.res_m:g} m pixel "
+                    f"centre ({r.name}); ({x / 1000:.2f}, {y / 1000:.2f}) km",
+                )
+        raise ValueError(f"{spec.id}: no DEM has data at {lat}°, {lon}°E")
     if spec.region is not None:
         from four_lights.paths import RAW
         from four_lights.regions import region_centre
