@@ -44,6 +44,11 @@ git pull --rebase && npm run deploy   # check, refuse fixture data, build, wrang
 ```
 The Cloudflare `account_id` and the custom domain are pinned in `wrangler.jsonc`.
 
+Production deploys are Steve's, from an up-to-date, clean `main`. Everyone else works on a branch and shares a preview instead (a preview is never promoted):
+```sh
+npm run check && npm run build && npx wrangler versions upload   # prints a preview URL
+```
+
 ## The data pipeline
 `pipeline/` downloads the raw NASA files into `data/raw/` (gitignored), computes a horizon profile for each site (720 sectors of 0.5°, from 5 m terrain out to hundreds of km, in 3D Moon-fixed geometry), pulls hourly Sun and Earth positions from JPL Horizons, and writes small JSON files to `web/public/data/`. The browser computes the four lights from those. Every run is logged in [`stages/01_data/output/data-manifest.md`](stages/01_data/output/data-manifest.md); the data contract is in [`_shared/stack.md`](_shared/stack.md).
 
