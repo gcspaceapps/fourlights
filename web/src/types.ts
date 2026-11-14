@@ -25,6 +25,8 @@ export interface SiteSummary {
   point_rule: string;
   /** True when no 5 m terrain lies under the site; the UI labels it. */
   approx: boolean;
+  /** Added by the visitor in this browser: a name and a position, no computed data yet. */
+  user?: boolean;
 }
 
 /** The whole of `/data/sites.json`. */

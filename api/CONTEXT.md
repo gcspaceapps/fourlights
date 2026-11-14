@@ -5,6 +5,7 @@
 **Entry points:**
 - `GET /api/health` → `{ok, time}` (the Worker's clock, to show it is answering)
 - `POST /api/ask` `{q}` → `{ok, intent: {date, slip_days, window_days, site}}`: Workers AI (binding `AI`, model in `src/intent.ts`) turns a typed question (≤ 200 characters) into planner settings. The reply is validated field by field in `src/intent.ts` (tested in `web/tests/`); the model never answers the question. 400 for empty or long input, 422 if nothing usable, 503 if the model fails
+- `GET /etiles/<wac|lola>/<z>/<row>/<col>` → a NASA Moon Trek tile for the 3D map (`src/etiles.ts`, cards `_datasets/nasa-lro-*`). 404 outside the grid (WAC z0 to 8, LOLA z0 to 5; 2^(z+1) columns by 2^z rows), 502 if NASA fails. Cloudflare Cache API in front (URL-only key, behind the password gate; per data centre, custom domain only), one shared fetch per tile at a time, `Cache-Control: public, max-age=604800`. No R2: a cold data centre re-fetches from NASA
 - everything else → the static assets (`web/dist`, including `/data/...` JSON)
 - **Weekend password gate:** while the Worker secret `SITE_PASSWORD` is set, every request (pages, data, API) needs HTTP Basic Auth, user `fourlights`. `run_worker_first: true` makes the assets go through it too. **To open the site** (late Sunday, before the private-window link checks): `npx wrangler secret delete SITE_PASSWORD`. No code change or redeploy needed. Locally, `wrangler dev` has no password unless `.dev.vars` sets one.
 

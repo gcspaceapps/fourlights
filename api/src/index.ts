@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
+import { serveTile } from './etiles';
 import { ASK_MODEL, MAX_QUESTION_CHARS, parseIntent, systemPrompt, type SiteName } from './intent';
 
 type Env = {
@@ -60,6 +61,10 @@ app.post('/api/ask', async (c) => {
     );
   }
 });
+
+app.get('/etiles/:layer/:z/:row/:col', (c) =>
+  serveTile(c.req.raw, c.req.param(), (p) => c.executionCtx.waitUntil(p)),
+);
 
 app.all('*', (c) => c.env.ASSETS.fetch(c.req.raw));
 

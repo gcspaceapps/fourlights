@@ -5,10 +5,9 @@ import { PRESETS, renderBattery, simulateBattery } from '../src/battery';
 import { renderChart } from '../src/chart';
 import { infoTip, lightIcon, upgradeIcons, upgradeInfoTips } from '../src/icons';
 import { profileFor } from '../src/lights';
-import { renderMap } from '../src/map';
 import { segmented, syncSegmented } from '../src/segmented';
 import { key, setupShortcuts, type Shortcut } from '../src/shortcuts';
-import type { SiteData, SiteSummary } from '../src/types';
+import type { SiteData } from '../src/types';
 
 const NS = 'http://www.w3.org/2000/svg';
 const svg = (): SVGSVGElement => document.createElementNS(NS, 'svg');
@@ -90,55 +89,6 @@ describe('battery strip', () => {
     const flat = simulateBattery(s, profileFor(s, 2), 0, 48, { ...preset, batteryWh: 100 });
     renderBattery(el, flat, 5);
     expect(el.querySelector('polygon.soc')?.getAttribute('class')).toContain('flat');
-  });
-});
-
-describe('site map', () => {
-  const sites: SiteSummary[] = [
-    {
-      id: 'a',
-      name: 'Alpha',
-      lat: -89,
-      lon_e: 0,
-      ps_x_m: 0,
-      ps_y_m: 30_000,
-      source: '',
-      point_rule: '',
-      approx: false,
-    },
-    {
-      id: 'b',
-      name: 'Beta',
-      lat: -88,
-      lon_e: 90,
-      ps_x_m: 60_000,
-      ps_y_m: 0,
-      source: '',
-      point_rule: '',
-      approx: false,
-    },
-  ];
-
-  it('places a marker per site, coloured by verdict, and opens the chosen site', () => {
-    const el = svg();
-    const opened: string[] = [];
-    renderMap(el, sites, [{ id: 'a', name: 'Alpha', verdict: 'green', usableDays: 6.5 }], (id) =>
-      opened.push(id),
-    );
-    const markers = el.querySelectorAll('g.site');
-    expect(markers).toHaveLength(2);
-    expect(markers[0]?.getAttribute('class')).toContain('green');
-    expect(markers[1]?.getAttribute('class')).toContain('none'); // no result for Beta
-    expect(markers[0]?.getAttribute('aria-label')).toContain('Alpha: works, 6.5 usable days');
-    // Pole at the centre of a 1000 px, 420 km map: 30 km north is 71 px up.
-    expect(Number(markers[0]?.querySelector('circle')?.getAttribute('cx'))).toBeCloseTo(500);
-    expect(Number(markers[0]?.querySelector('circle')?.getAttribute('cy'))).toBeCloseTo(
-      500 - 30_000 / 420,
-      0,
-    );
-    (markers[1] as unknown as HTMLElement).dispatchEvent(new Event('click'));
-    markers[0]?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-    expect(opened).toEqual(['b', 'a']);
   });
 });
 

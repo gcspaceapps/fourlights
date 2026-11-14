@@ -1191,94 +1191,278 @@ section > .window {
   color: var(--nogo-fg);
 }
 
-/* Map */
-.map {
-  margin: 0;
-  max-width: 44rem;
+/* Map: the 3D Moon */
+.globe-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 17rem;
+  gap: 1rem;
+  align-items: start;
 }
 
-.map svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--sky);
-}
-
-.map figcaption {
-  font-size: var(--fs-sm);
-  color: var(--muted);
-  margin-top: 0.5rem;
-}
-
-.relief {
-  filter: brightness(0.55) contrast(1.1);
-}
-
-:root[data-theme='light'] .relief {
-  filter: none;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) .relief {
-    filter: none;
+@media (max-width: 52rem) {
+  .globe-layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.lat {
-  fill: none;
-  stroke: var(--text);
-  stroke-opacity: 0.55;
-  stroke-dasharray: 5 7;
+.globe {
+  margin: 0;
+  position: relative;
 }
 
-.pole {
-  stroke: var(--text);
-  stroke-width: 2;
+.globe-stage {
+  height: min(70vh, 40rem);
+  min-height: 18rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #02030a;
+  overflow: hidden;
+  cursor: grab;
 }
 
-.map-note {
-  fill: var(--text);
-  font: 14px var(--mono);
-  paint-order: stroke;
-  stroke: var(--sky);
-  stroke-width: 4px;
+.globe-tip {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  max-width: 18rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: var(--fs-sm);
 }
 
-.site {
+.globe-tip[hidden] {
+  display: none;
+}
+
+.globe-fallback {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.globe-fallback[hidden] {
+  display: none;
+}
+
+.globe-readout {
+  margin: 0.35rem 0 0;
+  font: var(--fs-sm) var(--mono);
+  color: var(--muted);
+}
+
+.globe figcaption {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.globe-controls {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.globe-controls label.check {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.globe-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.globe-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  font-size: var(--fs-sm);
+}
+
+.globe-legend .green .sym,
+.globe-site.green .sym {
+  color: var(--go-fg);
+}
+
+.globe-legend .amber .sym,
+.globe-site.amber .sym {
+  color: var(--warn-fg);
+}
+
+.globe-legend .red .sym,
+.globe-site.red .sym {
+  color: var(--nogo-fg);
+}
+
+.globe-legend .none .sym,
+.globe-site.none .sym {
+  color: var(--muted);
+}
+
+.globe-list-title {
+  margin: 0.9rem 0 0.35rem;
+  font-size: var(--fs-sm);
+}
+
+.globe-sites {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--fs-sm);
+}
+
+.globe-site {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
+}
+
+.globe-site.hot {
+  background: var(--surface);
+}
+
+.globe-site.selected {
+  border-left-color: var(--accent);
+  background: var(--surface);
+}
+
+.globe-fly,
+.globe-open {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.globe-fly {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.4rem;
+}
+
+.globe-fly .sym {
+  width: 1rem;
+  text-align: center;
+}
+
+.globe-fly .name {
+  font-weight: 600;
+}
+
+.globe-site.selected .name {
+  color: var(--accent);
+}
+
+.globe-fly .note {
+  flex-basis: 100%;
+  padding-left: 1.4rem;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+.globe-open {
+  color: var(--accent);
+  text-decoration: underline;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+.globe-fly:hover .name,
+.globe-open:hover {
+  text-decoration: underline;
+}
+
+.globe-fly:focus-visible,
+.globe-open:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.globe-add {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+}
+
+.globe-add[hidden] {
+  display: none;
+}
+
+.globe-add p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.globe-add label {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.selected-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  margin: 1rem 0 0.25rem;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.selected-bar label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+}
+
+.selected-bar select {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.planner tr.selected th,
+.planner tr.selected td {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.planner tr.selected th[scope='row'] {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.planner .row-select {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
 }
 
-.site circle {
-  stroke: var(--sky);
-  stroke-width: 3;
-  fill: var(--muted);
-}
-
-.site.green circle {
-  fill: var(--go-fg);
-}
-
-.site.amber circle {
-  fill: var(--warn-fg);
-}
-
-.site.red circle {
-  fill: var(--nogo-fg);
-}
-
-.site text {
-  fill: var(--text);
-  font: 600 15px var(--font);
-  paint-order: stroke;
-  stroke: var(--sky);
-  stroke-width: 5px;
-}
-
-.site:focus-visible circle,
-.site:hover circle {
-  stroke: var(--accent);
+.planner .row-select:hover {
+  text-decoration: underline;
 }
 
 /* Site info */
@@ -1521,4 +1705,35 @@ footer p {
   .site-info dd {
     margin-bottom: 0.5rem;
   }
+}
+
+/* A site we have no data for yet (added by the visitor): its tabs say so instead of a chart. */
+.nodata-note {
+  display: none;
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  max-width: var(--measure);
+}
+
+html[data-nodata='true'] .needs-data > .nodata-note {
+  display: block;
+}
+
+html[data-nodata='true'] .needs-data > :not(.nodata-note, h2, h3) {
+  display: none;
+}
+
+.planner tr.user th[scope='row'] {
+  font-style: italic;
+}
+
+.planner td.none {
+  color: var(--muted);
+}
+
+.globe-x {
+  text-decoration: none;
+  font-size: var(--fs-sm);
 }

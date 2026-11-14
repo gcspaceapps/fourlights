@@ -93,6 +93,18 @@
         </p>
       </header>
 
+      <div class="selected-bar">
+        <label
+          >Selected site
+          <select id="site"></select
+        ></label>
+        <label>Landing (UTC) <input type="date" id="plan" required /></label>
+        <label
+          >Mission window (days)
+          <select id="plan-days"></select
+        ></label>
+        <span id="selected-note" aria-live="polite"></span>
+      </div>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
 
       <section class="learn v-learn" data-tab="Start here" aria-labelledby="learn-start">
@@ -217,11 +229,6 @@
             Choose a cell to see why.
           </p>
           <div class="controls">
-            <label>Planned landing (UTC) <input type="date" id="plan" /></label>
-            <label
-              >Mission window (days)
-              <select id="plan-days"></select
-            ></label>
             <div class="slip-buttons" role="group" aria-label="Move the planned landing">
               <button type="button" id="slip-back">− 1 day</button>
               <button type="button" id="slip-on">Slip + 1 day</button>
@@ -255,24 +262,96 @@
         </section>
       </div>
 
-      <section data-tab="Map" aria-labelledby="map-title">
+      <section data-tab="Map" aria-labelledby="map-title" id="map-tab">
         <h2
           id="map-title"
-          data-info="Terrain shading made by us with GDAL from NASA's LOLA polar elevation model LDEM_75S_240M (PDS). Site positions come from NASA Goddard's 5 m site models and the USGS grids for the Artemis candidate regions."
+          data-info="A 3D Moon you can turn and zoom. Imagery and elevation colours are NASA's LRO WAC mosaic and LOLA colour-shaded elevation from NASA Moon Trek, served through our own tile route. The polar shading is made by us with GDAL from NASA's LOLA elevation model LDEM_75S_240M (PDS). Site positions come from NASA Goddard's 5 m site models and the USGS grids for the Artemis candidate regions."
         >
           Map: where the sites are
         </h2>
-        <figure class="map">
-          <svg id="map" role="group" aria-labelledby="map-desc"></svg>
-          <figcaption id="map-desc" class="v-explore">
-            The Moon's south pole, 420 km across, the pole marked with a cross, shaded from NASA's
-            LOLA elevation model (LDEM_75S_240M). Each site is coloured for the planned landing in
-            the Slip Planner; choose one to open its Sun-Path Chart. Earth is toward the top.
-          </figcaption>
-        </figure>
+        <div class="globe-layout">
+          <figure class="globe">
+            <div
+              class="globe-stage"
+              id="globe-view"
+              role="img"
+              aria-label="3D view of the Moon with the 12 candidate landing sites marked near its south pole. Use the site list for the same information with keyboard controls."
+            ></div>
+            <div class="globe-tip" id="globe-tip" hidden></div>
+            <p class="globe-fallback" id="globe-fallback" role="status" hidden></p>
+            <p class="globe-readout" id="globe-readout">Cursor: move over the Moon</p>
+            <figcaption id="map-desc" class="v-explore">
+              Drag to turn the Moon, scroll or pinch to zoom, right-drag (or Ctrl-drag) to tilt.
+              Each site is coloured and shaped for the planned landing in the Slip Planner: click a
+              marker to select that site (it stays highlighted in every tab); Open chart in the list
+              goes to its Sun-Path Chart. Earth is toward 0°E. The dashed circles are 84°, 86° and
+              88°S, and the cross is the pole.
+            </figcaption>
+          </figure>
+          <div class="globe-side">
+            <div class="globe-controls" id="globe-controls">
+              <label
+                >Layer
+                <select id="globe-layer">
+                  <option value="wac" selected>Imagery (WAC)</option>
+                  <option value="lola">Elevation (LOLA)</option>
+                  <option value="hillshade">Polar shading</option>
+                </select></label
+              >
+              <label class="check"
+                ><input type="checkbox" id="globe-grid" checked /> Latitude and longitude
+                lines</label
+              >
+              <div class="globe-buttons" role="group" aria-label="View">
+                <button type="button" id="globe-zoom-in" aria-label="Zoom in">+</button>
+                <button type="button" id="globe-zoom-out" aria-label="Zoom out">−</button>
+                <button type="button" id="globe-moon">Whole Moon</button>
+                <button type="button" id="globe-pole">South pole</button>
+              </div>
+              <button type="button" id="globe-add" aria-pressed="false">
+                Add a site on the map
+              </button>
+              <form class="globe-add" id="globe-add-form" hidden>
+                <p id="globe-add-help">
+                  Click the Moon to place it, or type a position. Your sites are notes on this map,
+                  kept in this browser only: no lights are computed for them.
+                </p>
+                <label>Name <input id="globe-add-name" required maxlength="40" /></label>
+                <label
+                  >Latitude (°, south is negative)
+                  <input id="globe-add-lat" type="number" step="any" min="-90" max="90" required />
+                </label>
+                <label
+                  >Longitude (°E)
+                  <input
+                    id="globe-add-lon"
+                    type="number"
+                    step="any"
+                    min="-180"
+                    max="180"
+                    required
+                  />
+                </label>
+                <div class="globe-buttons">
+                  <button type="submit">Save site</button>
+                  <button type="button" id="globe-add-cancel">Cancel</button>
+                </div>
+              </form>
+            </div>
+            <ul class="globe-legend" aria-label="Legend">
+              <li class="green"><span class="sym" aria-hidden="true">●</span> works</li>
+              <li class="amber"><span class="sym" aria-hidden="true">▲</span> marginal</li>
+              <li class="red"><span class="sym" aria-hidden="true">✕</span> no power</li>
+              <li class="none"><span class="sym" aria-hidden="true">○</span> no result</li>
+            </ul>
+            <h3 class="globe-list-title" id="globe-list-title">Sites</h3>
+            <ul class="globe-sites" id="globe-sites" aria-labelledby="globe-list-title"></ul>
+          </div>
+        </div>
       </section>
 
-      <section data-tab="Sun-Path Chart" aria-labelledby="chart-title">
+      <section class="needs-data" data-tab="Sun-Path Chart" aria-labelledby="chart-title">
+        <p class="nodata-note" role="status"></p>
         <h2
           id="chart-title"
           data-info="Skyline: the highest terrain in each half-degree of direction, computed by us from NASA LOLA elevation models, 5 m per pixel at the site out to 240 m per pixel about 650 km away. Sun and Earth: the apparent positions of their centres from NASA JPL Horizons (ephemeris DE441), every hour, checked against NASA NAIF SPICE."
@@ -280,15 +359,6 @@
           Sun-Path Chart
         </h2>
         <form class="controls" id="controls">
-          <label
-            >Site
-            <select id="site"></select
-          ></label>
-          <label>Landing (UTC) <input type="date" id="date" required /></label>
-          <label
-            >Mission window (days)
-            <select id="days"></select
-          ></label>
           <label
             >Observer height (m)
             <select id="height"></select
@@ -413,7 +483,8 @@
         <p class="window" id="window"></p>
       </section>
 
-      <section data-tab="Survive the Night" aria-labelledby="battery-title">
+      <section class="needs-data" data-tab="Survive the Night" aria-labelledby="battery-title">
+        <p class="nodata-note" role="status"></p>
         <h3
           id="battery-title"
           data-info="A simple hour-by-hour energy balance of our own, driven by the Sun light above: in sunlight the array runs the day load and charges the battery with the surplus; in the dark the battery runs the survival load. It starts full at landing. No thermal model, no panel pointing, no battery ageing."
@@ -466,7 +537,8 @@
         <p class="window" id="battery-summary" aria-live="polite"></p>
       </section>
 
-      <section class="site-info" data-tab="About this site" aria-labelledby="site-title">
+      <section class="site-info needs-data" data-tab="About this site" aria-labelledby="site-title">
+        <p class="nodata-note" role="status"></p>
         <h2
           id="site-title"
           data-info="Position, ground height and terrain come from the NASA LOLA files named below; the site point follows the rule shown. The whole-period figures are computed in your browser from the same data as the chart."

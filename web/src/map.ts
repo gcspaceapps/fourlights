@@ -1,92 +1,307 @@
-// South-pole map: where the 12 sites are, on LOLA terrain shading, coloured by whether each
-// works for the planned landing. The image is a hillshade of NASA's LDEM_75S_240M, a 420 km
-// square centred on the pole in south polar stereographic (made by `make map` in pipeline/).
+// The Map tab: a 3D Moon (three.js) with the 12 sites on it, a layer switcher, a graticule toggle,
+// a legend and a site list. The list is also the keyboard and screen-reader path: the canvas itself
+// is a picture. three.js and the tiles load only when the tab is first shown, and the WebGL
+// context is given back when the tab is left (see globe/globe.ts).
+import type { Globe, GlobeSite, LayerId } from './globe/globe';
 import type { PlannedResult } from './planner';
 import type { SiteSummary } from './types';
 
-const NS = 'http://www.w3.org/2000/svg';
-/** Half-width of the map, metres; the image is 1000 px across. */
-const HALF_M = 210_000;
-const PX = 1000;
-const MOON_RADIUS_M = 1_737_400;
-/** Sites whose label goes to the left of the marker, to keep crowded labels apart. */
-const LABEL_LEFT = new Set([
-  'connecting-ridge',
-  'de-gerlache-rim-2',
-  'malapert-massif',
-  'mons-mouton',
-]);
 const WORDS = { green: 'works', amber: 'marginal', red: 'no power' } as const;
+const SYMBOLS = { green: '●', amber: '▲', red: '✕', none: '○' } as const;
+const LAYERS: LayerId[] = ['wac', 'lola', 'hillshade'];
 
-const px = (m: number): number => ((m + HALF_M) / (2 * HALF_M)) * PX;
-const py = (m: number): number => ((HALF_M - m) / (2 * HALF_M)) * PX;
-
-function el(tag: string, attrs: Record<string, string | number>, text?: string): SVGElement {
-  const e = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
-  if (text !== undefined) e.textContent = text;
-  return e;
+export interface MapTab {
+  /** The planner's answer changed: recolour the markers and the list. */
+  setData(sites: SiteSummary[], results: PlannedResult[]): void;
+  /** The tab was shown or left. */
+  /** The selected site changed (from anywhere): highlight it. */
+  setSelected(id: string | null): void;
+  setActive(on: boolean): void;
 }
 
-export function renderMap(
-  svg: SVGSVGElement,
-  sites: SiteSummary[],
-  results: PlannedResult[],
-  onOpen: (siteId: string) => void,
-): void {
-  svg.replaceChildren();
-  svg.setAttribute('viewBox', `0 0 ${PX} ${PX}`);
-  svg.appendChild(
-    el('image', { href: '/map/south-pole-hillshade.jpg', width: PX, height: PX, class: 'relief' }),
-  );
-  // Latitude circles and the pole.
-  for (const lat of [-88, -86, -84]) {
-    const rho = 2 * MOON_RADIUS_M * Math.tan(((90 + lat) / 2) * (Math.PI / 180));
-    svg.appendChild(
-      el('circle', { cx: px(0), cy: py(0), r: (rho / (2 * HALF_M)) * PX, class: 'lat' }),
-    );
-    svg.appendChild(el('text', { x: px(0) + 4, y: py(-rho) - 4, class: 'map-note' }, `${-lat}°S`));
-  }
-  svg.appendChild(
-    el('path', { d: `M${px(0) - 7},${py(0)}h14M${px(0)},${py(0) - 7}v14`, class: 'pole' }),
-  );
-  svg.appendChild(
-    el(
-      'text',
-      { x: PX / 2, y: 22, class: 'map-note', 'text-anchor': 'middle' },
-      '↑ 0°E: toward Earth',
-    ),
-  );
+const byId = <T extends HTMLElement>(root: HTMLElement, id: string): T => {
+  const el = root.querySelector<T>(`#${id}`);
+  if (!el) throw new Error(`map: #${id} missing`);
+  return el;
+};
 
-  const byId = new Map(results.map((r) => [r.id, r]));
-  for (const s of sites) {
-    const r = byId.get(s.id);
-    const v = r?.verdict ?? null;
-    const x = px(s.ps_x_m);
-    const y = py(s.ps_y_m);
-    const g = el('g', { class: `site ${v ?? 'none'}`, tabindex: 0, role: 'button' });
-    const label =
-      r && v ? `${s.name}: ${WORDS[v]}, ${r.usableDays.toFixed(1)} usable days` : s.name;
-    g.setAttribute('aria-label', `${label}. Open the chart.`);
-    g.appendChild(el('title', {}, label));
-    g.appendChild(el('circle', { cx: x, cy: y, r: 9 }));
-    // Labels sit to the right, or to the left near the right edge.
-    const left = x > PX - 190 || LABEL_LEFT.has(s.id);
-    g.appendChild(
-      el(
-        'text',
-        { x: left ? x - 16 : x + 16, y: y + 5, 'text-anchor': left ? 'end' : 'start' },
-        s.name,
-      ),
-    );
-    g.addEventListener('click', () => onOpen(s.id));
-    g.addEventListener('keydown', (e) => {
-      const k = (e as KeyboardEvent).key;
-      if (k === 'Enter' || k === ' ') {
-        e.preventDefault();
-        onOpen(s.id);
-      }
+export function siteText(s: SiteSummary, r: PlannedResult | undefined): string {
+  return r?.verdict
+    ? `${s.name}: ${WORDS[r.verdict]}, ${r.usableDays.toFixed(1)} usable days`
+    : s.name;
+}
+
+export function setupMap(
+  root: HTMLElement,
+  onOpen: (siteId: string) => void,
+  onSelect: (siteId: string) => void,
+  onAdd: (name: string, lat: number, lon: number) => void,
+  onRemove: (siteId: string) => void,
+): MapTab {
+  const view = byId(root, 'globe-view');
+  const tip = byId(root, 'globe-tip');
+  const readout = byId(root, 'globe-readout');
+  const fallback = byId(root, 'globe-fallback');
+  const layer = byId<HTMLSelectElement>(root, 'globe-layer');
+  const grid = byId<HTMLInputElement>(root, 'globe-grid');
+  const list = byId(root, 'globe-sites');
+  const addBtn = byId<HTMLButtonElement>(root, 'globe-add');
+  const form = byId<HTMLFormElement>(root, 'globe-add-form');
+  const fName = byId<HTMLInputElement>(root, 'globe-add-name');
+  const fLat = byId<HTMLInputElement>(root, 'globe-add-lat');
+  const fLon = byId<HTMLInputElement>(root, 'globe-add-lon');
+  /** A spot picked but not saved yet, drawn as a pin while the form is open. */
+  let pending: { lat: number; lon: number } | null = null;
+
+  let sites: SiteSummary[] = [];
+  let results: PlannedResult[] = [];
+  let globe: Globe | null = null;
+  let active = false;
+  /** Once the user picks a layer themselves, flying to a site stops switching it. */
+  let userPicked = false;
+  let token = 0;
+  let selected: string | null = null;
+
+  // The browser restores form state on reload, so read it rather than assume the defaults.
+  const layerNow = (): LayerId =>
+    LAYERS.includes(layer.value as LayerId) ? (layer.value as LayerId) : 'wac';
+
+  const pendingSite = (): GlobeSite[] =>
+    pending
+      ? [
+          {
+            id: 'pending',
+            name: fName.value.trim() || 'New site',
+            lat: pending.lat,
+            lon: pending.lon,
+            verdict: null,
+            text: 'New site (not saved yet)',
+          },
+        ]
+      : [];
+
+  const globeSites = (): GlobeSite[] => [
+    ...pendingSite(),
+    ...sites.map((s) => {
+      const r = results.find((x) => x.id === s.id);
+      return {
+        id: s.id,
+        name: s.name,
+        lat: s.lat,
+        lon: s.lon_e,
+        verdict: r?.verdict ?? null,
+        text: s.user ? `${s.name}: your site, no data yet` : siteText(s, r),
+      };
+    }),
+  ];
+
+  const setLayer = (id: LayerId, fromUser: boolean): void => {
+    if (fromUser) userPicked = true;
+    if (layer.value !== id) {
+      layer.value = id;
+      layer.dispatchEvent(new Event('change'));
+    }
+  };
+
+  const fly = (id: string): void => {
+    const s = sites.find((x) => x.id === id);
+    // Near the pole the hillshade is the sharpest picture we have, so show it unless the user chose.
+    if (s && s.lat < -83 && !userPicked) setLayer('hillshade', false);
+    onSelect(id);
+    globe?.flyToSite(id);
+  };
+
+  function drawList(): void {
+    const rows = sites.map((s) => {
+      const r = results.find((x) => x.id === s.id);
+      const v = r?.verdict ?? null;
+      const word = v ? WORDS[v] : s.user ? 'your site, no data yet' : 'no result';
+      return {
+        id: s.id,
+        name: s.name,
+        v,
+        note: v && r ? `${word}, ${r.usableDays.toFixed(1)} d` : word,
+        label: s.user ? `${s.name}: your site, no data yet` : siteText(s, r),
+        mine: !!s.user,
+      };
     });
-    svg.appendChild(g);
+    list.replaceChildren(
+      ...rows.map((row) => {
+        const li = document.createElement('li');
+        li.className = `globe-site ${row.v ?? 'none'}${row.mine ? ' mine' : ''}`;
+        li.dataset.site = row.id;
+        li.classList.toggle('selected', row.id === selected);
+        const go = document.createElement('button');
+        go.type = 'button';
+        go.className = 'globe-fly';
+        go.setAttribute('aria-label', `Fly to ${row.label}`);
+        if (row.id === selected) go.setAttribute('aria-current', 'true');
+        const sym = document.createElement('span');
+        sym.className = 'sym';
+        sym.setAttribute('aria-hidden', 'true');
+        sym.textContent = SYMBOLS[row.v ?? 'none'];
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = row.name;
+        const note = document.createElement('span');
+        note.className = 'note';
+        note.textContent = row.note;
+        go.append(sym, name, note);
+        go.addEventListener('click', () => fly(row.id));
+        const act = document.createElement('button');
+        act.type = 'button';
+        act.className = 'globe-open';
+        act.textContent = 'Open chart';
+        act.setAttribute('aria-label', `Open the chart for ${row.name}`);
+        act.addEventListener('click', () => onOpen(row.id));
+        const extra: HTMLButtonElement[] = [];
+        if (row.mine) {
+          const x = document.createElement('button');
+          x.type = 'button';
+          x.className = 'globe-open globe-x';
+          x.textContent = '×';
+          x.title = `Remove ${row.name}`;
+          x.setAttribute('aria-label', `Remove ${row.name}`);
+          x.addEventListener('click', () => onRemove(row.id));
+          extra.push(x);
+        }
+        for (const b of [go, act, ...extra]) {
+          b.addEventListener('pointerenter', () => globe?.highlight(row.id));
+          b.addEventListener('pointerleave', () => globe?.highlight(null));
+          b.addEventListener('focus', () => globe?.highlight(row.id));
+          b.addEventListener('blur', () => globe?.highlight(null));
+        }
+        li.append(go, act, ...extra);
+        return li;
+      }),
+    );
   }
+
+  // ── Add a site: click the Moon (or type a position), name it, save it in this browser ──
+  const pinMoved = (): void => globe?.setSites(globeSites());
+  const closeForm = (): void => {
+    form.hidden = true;
+    pending = null;
+    addBtn.setAttribute('aria-pressed', 'false');
+    globe?.setPicking(false);
+    pinMoved();
+  };
+  addBtn.addEventListener('click', () => {
+    if (!form.hidden) return closeForm();
+    form.hidden = false;
+    addBtn.setAttribute('aria-pressed', 'true');
+    globe?.setPicking(true);
+    fName.focus();
+  });
+  byId(root, 'globe-add-cancel').addEventListener('click', closeForm);
+  const typed = (): void => {
+    const lat = parseFloat(fLat.value);
+    const lon = parseFloat(fLon.value);
+    pending = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
+    pinMoved();
+  };
+  for (const f of [fLat, fLon, fName]) f.addEventListener('input', typed);
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const lat = parseFloat(fLat.value);
+    const lon = parseFloat(fLon.value);
+    const name = fName.value.trim();
+    if (!name || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    fName.value = fLat.value = fLon.value = '';
+    closeForm();
+    onAdd(name, lat, lon);
+  });
+
+  async function start(): Promise<void> {
+    const mine = ++token;
+    let mod: typeof import('./globe/globe');
+    try {
+      mod = await import('./globe/globe');
+    } catch {
+      fallback.hidden = false;
+      fallback.textContent = 'The 3D map could not load. The site list still works.';
+      return;
+    }
+    if (mine !== token || !active) return;
+    try {
+      globe = new mod.Globe({
+        container: view,
+        tip,
+        readout,
+        layer: layerNow(),
+        grid: grid.checked,
+        // A click on a marker only selects the site: the user can already see it, and zooms or
+        // turns the Moon themselves. The list's site buttons are the ones that fly.
+        onOpen: onSelect,
+        onPick: (lat, lon) => {
+          fLat.value = lat.toFixed(4);
+          fLon.value = lon.toFixed(4);
+          typed();
+          fName.focus();
+        },
+        onHover: (id) => {
+          for (const li of list.children)
+            li.classList.toggle('hot', (li as HTMLElement).dataset.site === id);
+        },
+      });
+    } catch {
+      globe = null;
+      fallback.hidden = false;
+      fallback.textContent =
+        'The 3D map needs WebGL, which this browser or device does not offer. The site list below still works: open any site’s chart from it.';
+      return;
+    }
+    fallback.hidden = true;
+    globe.setSites(globeSites());
+    globe.setSelected(selected);
+    globe.setPicking(!form.hidden);
+  }
+
+  function stop(): void {
+    token++;
+    globe?.destroy();
+    globe = null;
+    readout.textContent = 'Cursor: move over the Moon';
+  }
+
+  layer.addEventListener('change', () => globe?.setLayer(layerNow()));
+  // A click on one of the layer buttons is the user's own choice; our own setLayer is not.
+  byId(root, 'globe-controls').addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('.segmented button')) userPicked = true;
+  });
+  grid.addEventListener('change', () => globe?.setGrid(grid.checked));
+  byId(root, 'globe-zoom-in').addEventListener('click', () => globe?.zoomBy(0.5));
+  byId(root, 'globe-zoom-out').addEventListener('click', () => globe?.zoomBy(2));
+  byId(root, 'globe-moon').addEventListener('click', () => globe?.goTo('moon'));
+  byId(root, 'globe-pole').addEventListener('click', () => globe?.goTo('pole'));
+
+  // Colours change with the theme.
+  new MutationObserver(() => globe?.refreshTheme()).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  });
+
+  return {
+    setData(s, r) {
+      sites = s;
+      results = r;
+      drawList();
+      globe?.setSites(globeSites());
+    },
+    setSelected(id) {
+      selected = id;
+      for (const li of list.children) {
+        const on = (li as HTMLElement).dataset.site === id;
+        li.classList.toggle('selected', on);
+        li.querySelector('.globe-fly')?.toggleAttribute('aria-current', on);
+      }
+      globe?.setSelected(id);
+    },
+    setActive(on) {
+      if (on === active) return;
+      active = on;
+      if (on) void start();
+      else stop();
+    },
+  };
 }

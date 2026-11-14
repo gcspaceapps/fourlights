@@ -25,6 +25,22 @@ test.describe('open Worker', () => {
     expect(site.stations).toHaveLength(17_544);
   });
 
+  test('/etiles answers 404 outside the grid and serves a tile with a week-long cache', async ({
+    request,
+  }) => {
+    for (const p of [
+      '/etiles/wac/9/0/0',
+      '/etiles/lola/6/0/0',
+      '/etiles/wac/0/1/0',
+      '/etiles/x/0/0/0',
+    ]) {
+      expect((await request.get(p)).status(), p).toBe(404);
+    }
+    const ok = await request.get('/etiles/lola/0/0/0');
+    expect(ok.status()).toBe(200);
+    expect(ok.headers()['cache-control']).toBe('public, max-age=604800');
+  });
+
   test('/api/ask rejects empty and over-long questions without calling the model', async ({
     request,
   }) => {
@@ -42,6 +58,7 @@ test.describe('password gate', () => {
       '/data/sites/haworth.json',
       '/api/health',
       '/map/south-pole-hillshade.jpg',
+      '/etiles/wac/0/0/0',
     ]) {
       expect((await request.get(GATED + path)).status(), path).toBe(401);
     }

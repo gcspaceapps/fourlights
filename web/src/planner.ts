@@ -24,6 +24,8 @@ export interface PlannerOptions {
   planned: Date;
   windowDays: number;
   onOpen: (siteId: string, date: string, windowDays: number) => void;
+  /** The site's name was chosen: make it the selected site. */
+  onSelect?: (siteId: string) => void;
   /** Called once every site has loaded, with each site's result for the planned date. */
   onAnswer?: (results: PlannedResult[]) => void;
 }
@@ -124,9 +126,23 @@ export function renderPlanner(o: PlannerOptions): void {
   };
   for (const s of sites) {
     const tr = body.insertRow();
+    tr.dataset.site = s.id;
     const th = document.createElement('th');
     th.scope = 'row';
-    th.textContent = s.id.startsWith('fake-') ? `${s.name} [fixture]` : s.name;
+    const label = s.id.startsWith('fake-')
+      ? `${s.name} [fixture]`
+      : s.user
+        ? `${s.name} (yours)`
+        : s.name;
+    if (o.onSelect) {
+      const pick = document.createElement('button');
+      pick.type = 'button';
+      pick.className = 'row-select';
+      pick.textContent = label;
+      pick.title = 'Select this site';
+      pick.addEventListener('click', () => o.onSelect?.(s.id));
+      th.appendChild(pick);
+    } else th.textContent = label;
     if (s.approx) th.title = 'approximate: no 5 m terrain under this site';
     tr.appendChild(th);
     const cells = dates.map((_, k) => {
@@ -135,6 +151,18 @@ export function renderPlanner(o: PlannerOptions): void {
       td.textContent = '…';
       return td;
     });
+    if (s.user) {
+      // Added by the visitor: no data yet, so nothing to fetch. If it is published later it
+      // arrives through sites.json like any other site.
+      tr.classList.add('user');
+      for (const td of cells) {
+        td.className = 'none';
+        td.textContent = '–';
+        td.title = 'No data yet for this site';
+      }
+      done();
+      continue;
+    }
     void summaryFor(s.id).then(
       (summary) => {
         dates.forEach((d, k) => {

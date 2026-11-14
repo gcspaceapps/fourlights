@@ -14,7 +14,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 - **Slip Planner:** sites × landing dates, each cell showing **usable days** (hours with the Sun up and Earth in view, over the mission window). Slip the date and see which sites still work.
 - **Pointing numbers:** the Sun's and Earth's azimuth and elevation at any hour, the terrain height in that direction and the clearance, with a CSV download of the whole mission window, for aiming solar panels and antennas.
 - **Canberra Link:** the Comms light also needs a Deep Space Network station (Goldstone, Canberra or Madrid) that can see the Moon, and names the one carrying the link.
-- **Site map:** the 12 sites on LOLA terrain shading of the pole, coloured for the planned landing.
+- **3D map:** a Moon you can turn and zoom (three.js) with NASA LRO imagery and LOLA elevation, our own LOLA hillshade of the pole, and the 12 sites coloured and shaped for the planned landing.
 - **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.
 - **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
 - **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
@@ -70,6 +70,7 @@ make validate        # Connecting Ridge 2024-2026 against Barker et al. 2021
 
 ## Data sources and credits
 - **LOLA south-pole elevation models** (NASA GSFC PGDA and PDS): 5 m site DEMs and 87°S mosaic, https://pgda.gsfc.nasa.gov/products/78 , https://pgda.gsfc.nasa.gov/products/81 ; polar gridded DEMs, https://imbrium.mit.edu/DATA/LOLA_GDR/POLAR/ . Barker et al. (2021), PSS 203, 105119. NASA open data.
+- **LRO WAC global mosaic** and **LOLA colour-shaded elevation** (NASA GSFC / Arizona State University / MIT, via NASA Moon Trek, https://trek.nasa.gov/moon/): the 3D Moon in the Map tab, served through our own tile route. NASA open data.
 - **JPL Horizons** (NASA JPL Solar System Dynamics): Sun and Earth positions from each site, https://ssd.jpl.nasa.gov/horizons/ . NASA open data.
 - **NAIF SPICE kernels** (NASA JPL): DE440s, Moon frames, DSN stations, https://naif.jpl.nasa.gov/ . NASA open data.
 - **Artemis candidate regions** (USGS, for NASA): LGRS navigational grids, https://doi.org/10.5066/P1MEQ6UK . Public domain.

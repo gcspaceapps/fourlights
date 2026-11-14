@@ -253,13 +253,48 @@ test.describe('views, theme and help', () => {
     await expect(tip.locator('.tip')).toContainText('NASA');
   });
 
-  test('the map has its own tab and shows twelve sites that open the chart', async ({ page }) => {
+  test('the map tab lists twelve sites: the button flies, "Open chart" opens the chart', async ({
+    page,
+  }) => {
+    const wanted: string[] = [];
+    page.on('request', (r) => /globe|etiles/.test(r.url()) && wanted.push(r.url()));
     await open(page);
-    await expect(page.locator('#map')).toBeHidden();
+    // Nothing of the 3D map is downloaded until its tab is opened.
+    await page.waitForTimeout(500);
+    expect(wanted).toEqual([]);
+    await expect(page.locator('#globe-sites')).toBeHidden();
     await page.getByRole('tab', { name: 'Map' }).click();
-    await expect(page.locator('#map g.site')).toHaveCount(12);
-    await page.locator('#map g.site', { hasText: 'Haworth' }).click();
+    await expect(page.locator('#globe-sites li')).toHaveCount(12);
+    await expect(page.locator('.globe-legend li')).toHaveCount(4);
+    // Every verdict has a symbol and words, not colour alone.
+    await expect(page.locator('#globe-sites li .sym').first()).toHaveText(/[●▲✕○]/);
+    await page.getByRole('button', { name: /^Fly to Haworth/ }).click();
+    await expect(page.locator('#tab-map')).toHaveAttribute('aria-selected', 'true');
+    await page.getByRole('button', { name: 'Open the chart for Haworth' }).click();
     await expect(page.locator('#site')).toHaveValue('haworth');
+  });
+
+  test('the 3D map loads tiles lazily, switches layer, and leaves no canvas behind', async ({
+    page,
+  }) => {
+    const problems: string[] = [];
+    page.on('console', (m) => ['error', 'warning'].includes(m.type()) && problems.push(m.text()));
+    await open(page);
+    const tiles: string[] = [];
+    page.on('request', (r) => r.url().includes('/etiles/') && tiles.push(r.url()));
+    for (let i = 0; i < 3; i++) {
+      await page.getByRole('tab', { name: 'Map' }).click();
+      const canvas = page.locator('#globe-view canvas');
+      const noWebgl = page.locator('#globe-fallback');
+      // Software WebGL may be missing on a runner: then the message and the list still work.
+      await expect(canvas.or(noWebgl.filter({ hasText: 'WebGL' }))).toHaveCount(1);
+      await page.getByRole('tab', { name: 'Planner' }).click();
+      await expect(page.locator('#globe-view canvas')).toHaveCount(0);
+    }
+    expect(problems.filter((p) => !/WebGL|GPU stall|favicon|404/.test(p))).toEqual([]);
+    if (tiles.length) {
+      expect(tiles.every((u) => /\/etiles\/(wac|lola)\/\d+\/\d+\/\d+$/.test(u))).toBe(true);
+    }
   });
 });
 
@@ -307,8 +342,10 @@ test.describe('page health', () => {
     page.on('response', (r) => r.status() >= 400 && problems.push(`${r.status()} ${r.url()}`));
     await open(page);
     await page.getByRole('tab', { name: 'Map' }).click();
-    await expect(page.locator('#map g.site')).toHaveCount(12);
-    expect(problems).toEqual([]);
+    await expect(page.locator('#globe-sites li')).toHaveCount(12);
+    await page.waitForTimeout(1500);
+    // A runner without software WebGL logs its own context warning; anything else is a failure.
+    expect(problems.filter((p) => !/WebGL/i.test(p))).toEqual([]);
   });
 
   test('first view loads the planner summary, not every site file', async ({ page }) => {

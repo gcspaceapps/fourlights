@@ -36,6 +36,7 @@
 
       <nav aria-label="On this page" class="toc">
         <a href="#lola">LOLA terrain</a>
+        <a href="#moontrek">Moon imagery</a>
         <a href="#horizons">JPL Horizons</a>
         <a href="#spice">NAIF SPICE</a>
         <a href="#usgs">Artemis regions</a>
@@ -62,7 +63,15 @@
                 <th scope="row"><a href="#lola">LOLA elevation models</a></th>
                 <td>NASA Goddard, PDS</td>
                 <td>The terrain horizon at every site</td>
-                <td>The skyline in the Sun-Path Chart; every light; the map shading</td>
+                <td>The skyline in the Sun-Path Chart; every light; the map's polar shading</td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <a href="#moontrek">LRO WAC imagery and LOLA colour-shaded elevation</a>
+                </th>
+                <td>NASA, via Moon Trek</td>
+                <td>The picture of the Moon in the 3D map</td>
+                <td>The Map tab's Imagery and Elevation layers</td>
               </tr>
               <tr>
                 <th scope="row"><a href="#horizons">JPL Horizons</a></th>
@@ -166,6 +175,46 @@
             ·
             <a href="https://science.nasa.gov/mission/lro/" target="_blank" rel="noopener"
               >about the mission</a
+            >
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="moontrek">
+        <h2 id="moontrek">LRO WAC imagery and LOLA colour-shaded elevation (NASA Moon Trek)</h2>
+        <p class="who">
+          NASA Lunar Reconnaissance Orbiter: the Wide Angle Camera mosaic (NASA/GSFC/Arizona State
+          University) and the Lunar Orbiter Laser Altimeter colour-shaded elevation (NASA/GSFC/MIT),
+          published as map tiles by NASA Moon Trek.
+        </p>
+        <dl>
+          <dt>What the app uses it for</dt>
+          <dd>
+            The 3D Moon in the Map tab: <strong>Imagery (WAC)</strong>, layer
+            <code>LRO_WAC_Mosaic_Global_303ppd_v02</code> (zoom 0 to 8), and
+            <strong>Elevation (LOLA)</strong>, layer
+            <code>LRO_LOLA_ClrShade_Global_128ppd_v04</code> (zoom 0 to 5). Pictures only: no light,
+            threshold or horizon in the app is computed from them.
+          </dd>
+          <dt>What we did to it</dt>
+          <dd>
+            Nothing to the pixels. The browser asks our own server for the tiles in view; our server
+            fetches each from Moon Trek once, keeps it in a cache and passes it on. The tiles are
+            draped on a sphere without reprojecting them.
+          </dd>
+          <dt>Limits</dt>
+          <dd>
+            The tiles are an equirectangular grid, so they are stretched and streaky within a few
+            degrees of the pole, where all twelve sites are. For that reason the Map tab also has
+            <strong>Polar shading</strong>, our own hillshade from LOLA (see above), and shows it
+            when you fly to a site. The elevation colours are NASA's own scale.
+          </dd>
+          <dt>Licence</dt>
+          <dd>NASA imagery and data, open; credit NASA/GSFC/ASU (WAC) and NASA/GSFC/MIT (LOLA).</dd>
+          <dt>Link</dt>
+          <dd>
+            <a href="https://trek.nasa.gov/moon/" target="_blank" rel="noopener"
+              >trek.nasa.gov/moon</a
             >
           </dd>
         </dl>

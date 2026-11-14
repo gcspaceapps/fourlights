@@ -80,3 +80,82 @@ describe('Worker', () => {
     expect((await ask('x', env(new Error('model down')))).status).toBe(503);
   });
 });
+
+describe('/etiles (Moon Trek tiles)', () => {
+  const real = globalThis.fetch;
+  const calls: string[] = [];
+  const stub = (status = 200) => {
+    calls.length = 0;
+    globalThis.fetch = ((u: RequestInfo | URL) => {
+      calls.push(String(u));
+      return Promise.resolve(
+        status === 200
+          ? new Response(new Uint8Array([1, 2, 3]), { headers: { 'content-type': 'image/jpeg' } })
+          : new Response('x', { status }),
+      );
+    }) as typeof fetch;
+  };
+  const get = (path: string) =>
+    app.request(path, {}, env(), {
+      waitUntil: () => {},
+      passThroughOnException: () => {},
+    } as never);
+
+  it('answers 404 for anything outside the grid, without calling NASA', async () => {
+    stub();
+    for (const p of [
+      '/etiles/wac/9/0/0', // WAC stops at zoom 8
+      '/etiles/lola/6/0/0', // LOLA stops at zoom 5
+      '/etiles/wac/0/1/0', // zoom 0 has one row
+      '/etiles/wac/0/0/2', // and two columns
+      '/etiles/wac/3/8/0', // 2^3 rows
+      '/etiles/wac/3/0/16', // 2^4 columns
+      '/etiles/wac/x/0/0',
+      '/etiles/wac/01/0/0',
+      '/etiles/wac/-1/0/0',
+      '/etiles/moon/0/0/0',
+      '/etiles/constructor/0/0/0',
+    ]) {
+      expect((await get(p)).status, p).toBe(404);
+    }
+    expect(calls).toEqual([]);
+    globalThis.fetch = real;
+  });
+
+  it('fetches a valid tile from Moon Trek and says to keep it for a week', async () => {
+    stub();
+    const res = await get('/etiles/wac/8/255/511');
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toBe('public, max-age=604800');
+    expect(res.headers.get('content-type')).toBe('image/jpeg');
+    expect(calls[0]).toBe(
+      'https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/8/255/511.jpg',
+    );
+    globalThis.fetch = real;
+  });
+
+  it('shares one NASA fetch between simultaneous requests, and passes a 404 on', async () => {
+    stub();
+    const [a, b] = await Promise.all([get('/etiles/lola/5/10/20'), get('/etiles/lola/5/10/20')]);
+    expect([a.status, b.status]).toEqual([200, 200]);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toContain(
+      'LRO_LOLA_ClrShade_Global_128ppd_v04/1.0.0/default/default028mm/5/10/20.png',
+    );
+    stub(404);
+    expect((await get('/etiles/lola/5/11/21')).status).toBe(404);
+    stub(500);
+    const bad = await get('/etiles/lola/5/12/22');
+    expect(bad.status).toBe(502);
+    expect(bad.headers.get('cache-control')).toBe('no-store');
+    globalThis.fetch = real;
+  });
+
+  it('sits behind the password gate', async () => {
+    stub();
+    const res = await app.request('/etiles/wac/0/0/0', {}, env('{}', 'secret'));
+    expect(res.status).toBe(401);
+    expect(calls).toEqual([]);
+    globalThis.fetch = real;
+  });
+});

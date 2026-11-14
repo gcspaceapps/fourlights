@@ -9,8 +9,9 @@ import {
 import { renderChart } from './chart';
 import { infoTip, lightIcon, upgradeIcons, upgradeInfoTips, type LightName } from './icons';
 import { renderEarthBob, renderSunYear } from './learn';
-import { renderMap } from './map';
-import { answerText, renderPlanner } from './planner';
+import { setupMap } from './map';
+import { loadUserSites, makeUserSite, mergeSites, saveUserSites } from './usersites';
+import { answerText, renderPlanner, type PlannedResult } from './planner';
 import { loadReviews, loadSite, loadSites } from './data';
 import {
   COMMS_MARGIN_DEG,
@@ -39,8 +40,10 @@ function $(id: string): HTMLElement {
 
 const ui = {
   site: $('site') as HTMLSelectElement,
-  date: $('date') as HTMLInputElement,
-  days: $('days') as HTMLSelectElement,
+  // One landing date and one mission window for the whole page: the controls in the bar above
+  // the tabs. `date`/`days` and `plan`/`planDays` are the same elements.
+  date: $('plan') as HTMLInputElement,
+  days: $('plan-days') as HTMLSelectElement,
   height: $('height') as HTMLSelectElement,
   centre: $('centre') as HTMLSelectElement,
   time: $('time') as HTMLInputElement,
@@ -76,16 +79,25 @@ const ui = {
   ask: $('ask') as HTMLFormElement,
   askQ: $('ask-q') as HTMLInputElement,
   askNote: $('ask-note'),
-  map: $('map') as unknown as SVGSVGElement,
   chartSection: $('chart-title'),
 };
 
 /** The demo scenario (_shared/concept.md): planned landing, the slip, and the site that survives. */
 const DEFAULT_PLAN = '2028-04-19';
-const DEMO_SLIP_DAYS = 3;
 const DEMO_SITE = 'peak-near-shackleton';
 
+const mapTab = setupMap(
+  $('map-tab'),
+  (siteId) => openChart(siteId, ui.plan.value || DEFAULT_PLAN, Number(ui.planDays.value)),
+  (siteId) => chooseSite(siteId),
+  (name, lat, lon) => addUserSite(name, lat, lon),
+  (siteId) => removeUserSite(siteId),
+);
+let lastResults: PlannedResult[] = [];
 let sites: SiteSummary[] = [];
+let published: SiteSummary[] = [];
+/** True while the selected site is one of ours with no data yet (see usersites.ts). */
+let noData = false;
 let current: SiteData | null = null;
 
 const ymd = (d: Date): string => d.toISOString().slice(0, 10);
@@ -108,9 +120,7 @@ function writeHash(): void {
     ps: ui.preset.value,
     pw: [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value].join('_'),
     tab: activeTab(),
-    plan: ui.plan.value,
     v: document.documentElement.dataset.view ?? 'explore',
-    pdays: ui.planDays.value,
   });
   history.replaceState(null, '', `#${p.toString()}`);
 }
@@ -186,7 +196,7 @@ function currentPowerSystem(): PowerPreset | undefined {
 
 function render(): void {
   const site = current;
-  if (!site) return;
+  if (!site || noData) return;
   const profile = profileFor(site, Number(ui.height.value));
   const days = Number(ui.days.value);
   const start = indexAt(site, new Date(`${ui.date.value}T00:00:00Z`));
@@ -313,6 +323,15 @@ function render(): void {
 }
 
 async function selectSite(id: string): Promise<void> {
+  const mine = sites.find((x) => x.id === id);
+  noData = !!mine?.user;
+  document.documentElement.dataset.nodata = String(noData);
+  if (mine?.user) {
+    const note = `${mine.name} is a site you added, at ${Math.abs(mine.lat).toFixed(2)}°${mine.lat < 0 ? 'S' : 'N'}, ${Math.abs(mine.lon_e).toFixed(2)}°${mine.lon_e < 0 ? 'W' : 'E'}. It has no data yet: the lights, chart and battery need its terrain horizon, which we compute ahead of time. Once it is published it will fill in here by itself.`;
+    for (const el of document.querySelectorAll('.nodata-note')) el.textContent = note;
+    writeHash();
+    return;
+  }
   current = await loadSite(id);
   const first = timeAt(current, 0);
   const last = timeAt(current, current.times.n - 1);
@@ -331,11 +350,83 @@ async function selectSite(id: string): Promise<void> {
   render();
 }
 
+function fillSiteOptions(): void {
+  ui.site.replaceChildren(
+    ...sites.map(
+      (s) =>
+        new Option(
+          s.id.startsWith('fake-') ? `${s.name} [fixture]` : s.user ? `${s.name} (yours)` : s.name,
+          s.id,
+        ),
+    ),
+  );
+}
+
+/** Sites changed (one added or removed): every list, the planner and the map follow. */
+function sitesChanged(select?: string): void {
+  const keep = select ?? ui.site.value;
+  fillSiteOptions();
+  ui.site.value = sites.some((x) => x.id === keep) ? keep : (sites[0]?.id ?? '');
+  drawPlanner();
+  mapTab.setData(sites, lastResults);
+  ui.site.dispatchEvent(new Event('change'));
+}
+
+function addUserSite(name: string, lat: number, lon: number): void {
+  const mine = sites.filter((s) => s.user);
+  const site = makeUserSite(
+    name,
+    lat,
+    lon,
+    sites.map((s) => s.id),
+  );
+  saveUserSites([...mine, site]);
+  sites = mergeSites(published, [...mine, site]);
+  sitesChanged(site.id);
+}
+
+function removeUserSite(id: string): void {
+  const mine = sites.filter((s) => s.user && s.id !== id);
+  saveUserSites(mine);
+  sites = mergeSites(published, mine);
+  sitesChanged(ui.site.value === id ? DEMO_SITE : undefined);
+}
+
+/** Make a site the selected one everywhere: the chart, the planner row, the map and the bar. */
+function chooseSite(id: string): void {
+  if (ui.site.value === id) {
+    showSelected();
+    return;
+  }
+  ui.site.value = id;
+  ui.site.dispatchEvent(new Event('change'));
+}
+
+/** Highlight the selected site in every view (the dropdown in the chart is its source of truth). */
+function showSelected(): void {
+  const id = ui.site.value;
+  for (const el of document.querySelectorAll<HTMLElement>('tr[data-site]')) {
+    el.classList.toggle('selected', el.dataset.site === id);
+  }
+  mapTab.setSelected(id);
+  const r = lastResults.find((x) => x.id === id);
+  const mine = sites.find((x) => x.id === id)?.user;
+  const words = mine
+    ? 'your site, no data yet'
+    : r?.verdict
+      ? `${{ green: 'works', amber: 'marginal', red: 'no power' }[r.verdict]}, ${r.usableDays.toFixed(1)} usable days for the planned landing`
+      : '';
+  $('selected-note').textContent = words ? `· ${words}` : '';
+}
+
 /** Show a site and landing date in the Sun-Path Chart (from a planner cell or a map marker). */
 function openChart(siteId: string, date: string, days: number): void {
   ui.site.value = siteId;
+  showSelected();
+  const moved = ui.date.value !== date || ui.days.value !== String(days);
   ui.date.value = date;
   ui.days.value = String(days);
+  if (moved) drawPlanner();
   ui.time.value = '0';
   showTab('sun-path-chart');
   void selectSite(siteId).then(() => {
@@ -352,12 +443,17 @@ function drawPlanner(): void {
     windowDays: Number(ui.planDays.value),
     onAnswer: (results) => {
       const planned = new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`);
-      ui.answer.textContent = answerText(results, planned, Number(ui.planDays.value));
-      renderMap(ui.map, sites, results, (siteId) =>
-        openChart(siteId, ui.plan.value || DEFAULT_PLAN, Number(ui.planDays.value)),
+      ui.answer.textContent = answerText(
+        results.filter((r) => r.verdict),
+        planned,
+        Number(ui.planDays.value),
       );
+      lastResults = results;
+      mapTab.setData(sites, results);
+      showSelected();
     },
     onOpen: openChart,
+    onSelect: chooseSite,
   });
   writeHash();
 }
@@ -370,23 +466,17 @@ function slip(days: number): void {
 }
 
 async function init(): Promise<void> {
-  sites = await loadSites();
+  published = await loadSites();
+  sites = mergeSites(published, loadUserSites());
   const hash = readHash();
-  ui.site.replaceChildren(
-    ...sites.map(
-      (s) => new Option(s.id.startsWith('fake-') ? `${s.name} [fixture]` : s.name, s.id),
-    ),
-  );
-  ui.days.replaceChildren(...WINDOW_DAYS.map((d) => new Option(String(d), String(d))));
+  fillSiteOptions();
   ui.planDays.replaceChildren(...WINDOW_DAYS.map((d) => new Option(String(d), String(d))));
-  ui.plan.value = hash.get('plan') ?? DEFAULT_PLAN;
-  ui.planDays.value = hash.get('pdays') ?? String(WINDOW_DAYS[0]);
+  // Old links carried a planner date (plan, pdays) and a chart date (date, days); the chart's wins.
+  ui.plan.value = hash.get('date') ?? hash.get('plan') ?? DEFAULT_PLAN;
+  ui.planDays.value = hash.get('days') ?? hash.get('pdays') ?? String(WINDOW_DAYS[0]);
   const demoSite = sites.some((x) => x.id === DEMO_SITE) ? DEMO_SITE : (sites[0]?.id ?? '');
-  ui.site.value = hash.get('site') ?? demoSite;
-  const slipped = new Date(`${DEFAULT_PLAN}T00:00:00Z`);
-  slipped.setUTCDate(slipped.getUTCDate() + DEMO_SLIP_DAYS);
-  ui.date.value = hash.get('date') ?? ymd(slipped);
-  ui.days.value = hash.get('days') ?? String(WINDOW_DAYS[0]);
+  const wanted = hash.get('site');
+  ui.site.value = wanted && sites.some((x) => x.id === wanted) ? wanted : demoSite;
   ui.centre.value = hash.get('c') ?? '0';
   // A range input starts with max = 100 and would clamp a later time from a shared link;
   // render() sets the real maximum for the window.
@@ -394,7 +484,10 @@ async function init(): Promise<void> {
   ui.time.value = hash.get('t') ?? '0';
   if (hash.get('h')) ui.height.replaceChildren(new Option('', hash.get('h') ?? ''));
 
-  ui.site.addEventListener('change', () => void selectSite(ui.site.value));
+  ui.site.addEventListener('change', () => {
+    showSelected();
+    void selectSite(ui.site.value);
+  });
   ui.preset.replaceChildren(...PRESETS.map((p) => new Option(p.name, p.id)));
   ui.preset.value = hash.get('ps') ?? PRESETS[0]?.id ?? '';
   const basePreset = (): PowerPreset | undefined =>
@@ -573,6 +666,15 @@ function setupViews(): void {
     r.addEventListener('change', () => {
       if (r.checked && isView(r.value)) setView(r.value);
     });
+    // A radio button moves its choice with the arrow keys; here the arrows belong to the tabs
+    // (Left and Right) and the page, so the views change only when clicked or activated.
+    r.addEventListener('keydown', (e) => {
+      if (!e.key.startsWith('Arrow')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.key === 'ArrowLeft') stepTab(-1);
+      if (e.key === 'ArrowRight') stepTab(1);
+    });
   }
 }
 
@@ -728,11 +830,22 @@ const SHORTCUTS: Shortcut[] = [
 ];
 
 setupViews();
-setupTabs($('tabs'), readHash().get('tab'), () => writeHash());
-for (const sel of [ui.planDays, ui.days, ui.height, ui.centre, ui.preset]) segmented(sel);
+setupTabs($('tabs'), readHash().get('tab'), (slug) => {
+  writeHash();
+  mapTab.setActive(slug === 'map');
+});
+mapTab.setActive(activeTab() === 'map');
+for (const sel of [
+  ui.planDays,
+  ui.height,
+  ui.centre,
+  ui.preset,
+  $('globe-layer') as HTMLSelectElement,
+])
+  segmented(sel);
 ui.pointingCsv.addEventListener('click', () => {
   const site = current;
-  if (!site) return;
+  if (!site || noData) return;
   const profile = profileFor(site, Number(ui.height.value));
   const start = indexAt(site, new Date(`${ui.date.value}T00:00:00Z`));
   const csv = pointingCsv(site, profile, start, Number(ui.days.value) * 24);
