@@ -171,6 +171,22 @@ h1 {
   font-size: clamp(2rem, 6vw, 3rem);
   letter-spacing: -0.01em;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+/* The team logo beside the title: sized by the title, so it shrinks with it in Mission view */
+h1 .logo {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  border-radius: 0.2em;
+}
+
+h1 .logo-home {
+  display: flex;
+  border-radius: 0.2em;
 }
 
 .tagline {
