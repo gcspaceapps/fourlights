@@ -92,7 +92,7 @@ test.describe('Sun-Path Chart', () => {
     await open(page);
     await expect(page.locator('#preset-img')).toHaveAttribute('src', /surveyor-3\.jpg$/);
     await expect(page.locator('#preset-credit')).toContainText('NASA');
-    await page.locator('#preset').selectOption('crew');
+    await page.getByRole('button', { name: 'Crewed lander' }).click();
     await expect(page.locator('#preset-img')).toHaveAttribute(
       'src',
       /apollo-11-lunar-module\.jpg$/,
@@ -101,6 +101,47 @@ test.describe('Sun-Path Chart', () => {
       .locator('#preset-img')
       .evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0);
     expect(loaded).toBe(true);
+  });
+});
+
+test.describe('button groups', () => {
+  test('window, height and centre are buttons that drive the chart and the URL', async ({
+    page,
+  }) => {
+    await open(page, '#site=peak-near-shackleton&date=2028-04-22');
+    const group = (name: string) => page.getByRole('group', { name });
+    await group('Observer height').getByRole('button', { name: '5 m' }).click();
+    await expect(page.locator('#height')).toHaveValue('5');
+    await expect(page.locator('#chart')).toContainText('observer 5 m');
+    await group('Centre on').getByRole('button', { name: 'South (pole)' }).click();
+    await expect(page.locator('#centre')).toHaveValue('180');
+    await expect(group('Centre on').getByRole('button', { name: 'South (pole)' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(group('Centre on').getByRole('button', { name: 'North' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(page.url()).toContain('h=5');
+    expect(page.url()).toContain('c=180');
+    // A keyboard shortcut moves the same control, and the buttons follow.
+    await page.keyboard.press('h');
+    await expect(group('Observer height').getByRole('button', { name: '1 m' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  test('the planner window buttons change the grid', async ({ page }) => {
+    await open(page);
+    await page
+      .locator('#controls, .controls')
+      .first()
+      .getByRole('button', { name: '30 days' })
+      .click();
+    await expect(page.locator('#plan-days')).toHaveValue('30');
+    await expect(answer(page)).toContainText('30-day window');
   });
 });
 

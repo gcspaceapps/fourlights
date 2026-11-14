@@ -24,6 +24,7 @@ import {
   windowSummary,
   type InstantLights,
 } from './lights';
+import { segmented, syncSegmented } from './segmented';
 import { key, setupShortcuts, type Shortcut } from './shortcuts';
 import { at, type SiteData, type SiteSummary } from './types';
 
@@ -92,6 +93,7 @@ function readHash(): URLSearchParams {
 }
 
 function writeHash(): void {
+  syncSegmented();
   const p = new URLSearchParams({
     site: ui.site.value,
     date: ui.date.value,
@@ -718,6 +720,7 @@ const SHORTCUTS: Shortcut[] = [
 ];
 
 setupViews();
+for (const sel of [ui.planDays, ui.days, ui.height, ui.centre, ui.preset]) segmented(sel);
 upgradeIcons();
 upgradeInfoTips();
 setupShortcuts(SHORTCUTS, $('shortcuts') as HTMLDialogElement);
