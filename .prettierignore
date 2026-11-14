@@ -6,3 +6,6 @@ web/public/data
 pipeline
 *.md
 LICENSE
+coverage
+test-results
+playwright-report
