@@ -77,7 +77,7 @@ Full cards: [`_datasets/`](_datasets/_index.md).
 Code: [Apache-2.0](LICENSE). Docs, images and the published data files: [CC BY 4.0](LICENSE-docs.md). NASA's source data stays NASA's (credited above); third-party packages keep their own licences.
 
 ## Team
-Steve Dalton and Matt Paine (team "Make it So", Gold Coast). We both love maps and have worked extensively with GIS tools such as QGIS and PostGIS on Earth, but never on the Moon before. We work at [Refactor](https://refactor.com.au) and its R&D arm [Refactor Red](https://refactor.red); Refactor is a contributor to the QGIS project and has previously contributed funding to the LIDAR features within QGIS.
+Steve Dalton and Matt Paine (team "Make it So", Gold Coast). We both love maps and have worked extensively with GIS tools such as QGIS and PostGIS on Earth, but never on the Moon before. We work at [Refactor](https://refactor.com.au) and its R&D arm [Refactor Red](https://refactor.red); Refactor is a contributor to the QGIS project and has previously contributed funding to the LIDAR features within QGIS. We use Agile principles throughout: test-driven development, pair programming, fast cycles and small batch sizes.
 
 ## How we built it
 The repo is laid out so a coding agent can walk it: numbered stages (`stages/`), each with a `CONTEXT.md` contract and an `output/` folder, shared facts in `_shared/`, one card per dataset in `_datasets/`, and code in plain folders (`pipeline/`, `api/`, `web/`).
