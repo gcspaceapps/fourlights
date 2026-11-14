@@ -305,7 +305,7 @@ export class Globe {
     this.overlay.add(this.selRing);
 
     this.setLayer(opts.layer);
-    this.gridGroup.visible = opts.grid;
+    this.setGrid(opts.grid);
 
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(opts.container);
@@ -364,6 +364,7 @@ export class Globe {
 
   setGrid(on: boolean): void {
     this.gridGroup.visible = on;
+    for (const ring of this.poleRings) ring.visible = on;
     this.invalidate();
   }
 
@@ -511,7 +512,7 @@ export class Globe {
     this.gridGroup.add(this.gridLines);
   }
 
-  /** The 84, 86 and 88°S circles, the pole cross and their labels (always on). */
+  /** The 84, 86 and 88°S circles and their labels (shown with the grid) and the pole cross (always on). */
   private buildPoleMarks(): void {
     for (const lat of [-84, -86, -88]) {
       const pts: number[] = [];
@@ -1035,7 +1036,10 @@ export class Globe {
     for (const s of this.poleLabels) {
       const aspect = (s.userData as { aspect: number }).aspect;
       const hpx = 12 + 10;
-      s.visible = this.view.D < 1.6 && facesCamera(s.position.toArray() as Vec3, cam);
+      s.visible =
+        this.gridGroup.visible &&
+        this.view.D < 1.6 &&
+        facesCamera(s.position.toArray() as Vec3, cam);
       s.scale.set(hpx * aspect * k, hpx * k, 1);
       s.center.set(0.5, 0.5);
     }
