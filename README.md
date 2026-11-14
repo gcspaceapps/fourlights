@@ -30,6 +30,8 @@ npm install          # also switches on the repo's git hooks
 npm run dev          # builds web/, then serves page + data + API on http://localhost:8787
 npm run check        # formatting, lint, type check, unit tests, ruff
 npm run test:e2e     # end-to-end tests in Chrome (about 30 s; not part of check)
+npm run test:e2e:watch   # the same, in a visible Chrome window, slowed down so you can follow
+npm run test:e2e:ui      # Playwright's test window: pick tests, step through, replay each action
 ```
 The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
 
