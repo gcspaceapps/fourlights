@@ -64,3 +64,24 @@ def test_earth_azimuth_follows_site_longitude(site_id: str) -> None:
     az, lon_e = _earth(site_id)
     d = (az - expected_earth_azimuth_deg(lon_e) + 180) % 360 - 180
     assert abs(d) < 10, (site_id, az, lon_e)
+
+
+def test_dsn_moon_elevation_matches_horizons() -> None:
+    # JPL Horizons, Moon (301) from DSS-14/43/63 (CENTER='-14@399' etc.), QUANTITIES='4',
+    # 2028-04-22 00:00 and 03:00 UTC, fetched 2026-11-14.
+    from four_lights.dsn import DSN_KERNELS, moon_elevation_deg
+    from four_lights.ephem import KERNELS, TimeRange
+    from four_lights.paths import RAW_SPICE
+
+    if not all((RAW_SPICE / k).exists() for k in [*KERNELS, *DSN_KERNELS]):
+        pytest.skip("run `make fetch-spice` first")
+    rng = TimeRange("t", datetime(2028, 4, 22, tzinfo=UTC), 4, 60)
+    expected = {
+        "DSS-14": (-2.701346431, -35.037112223),
+        "DSS-43": (49.799826161, 31.015075181),
+        "DSS-63": (-39.287173076, -11.512951413),
+    }
+    for station, (first, last) in expected.items():
+        el = moon_elevation_deg(station, rng)
+        assert el[0] == pytest.approx(first, abs=0.005), station
+        assert el[3] == pytest.approx(last, abs=0.005), station

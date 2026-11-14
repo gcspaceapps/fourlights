@@ -16,6 +16,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+from four_lights.dsn import station_mask
 from four_lights.ephem import PHOTO, PRODUCT, VALIDATION
 from four_lights.manifest import log_run
 from four_lights.paths import EPHEM_OUT, HORIZON_OUT, PUBLIC_DATA
@@ -91,7 +92,10 @@ def publish(site_id: str, *, log: bool = True) -> list[Path]:
     if hz["site"]["lat"] != ep["site"]["lat"] or hz["site"]["lon_e"] != ep["site"]["lon_e"]:
         raise SystemExit(f"{site_id}: horizon and ephemeris site points differ; rerun ephem")
 
-    outs = [_write(PUBLIC_DATA / "sites" / f"{site_id}.json", _site_file(hz, ep, PRODUCT.name))]
+    product = _site_file(hz, ep, PRODUCT.name)
+    # Canberra Link: which DSN station sees the Moon each hour (same for every site).
+    product["stations"] = [int(v) for v in station_mask(PRODUCT)]
+    outs = [_write(PUBLIC_DATA / "sites" / f"{site_id}.json", product)]
     outs.append(
         _write(
             PUBLIC_DATA / "validation" / PHOTO.name / f"{site_id}.json",

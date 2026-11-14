@@ -1,12 +1,15 @@
 // The four lights, mission window and usable days, exactly as defined in _shared/concept.md.
 // Every threshold is a named constant here and nowhere else.
-import { at, type HorizonProfile, type SiteData } from './types';
+import { STATION_BITS, at, type HorizonProfile, type SiteData } from './types';
 
 /** Power: the site must be sunlit at least this fraction of the mission window... */
 export const POWER_MIN_SUNLIT_FRACTION = 0.7;
 /** ...and never dark for longer than this many hours in a row. */
 export const POWER_MAX_DARK_HOURS = 48;
-/** Comms: Earth's centre must be at least this far above the terrain. */
+/**
+ * Comms: Earth's centre must be at least this far above the terrain, and (Canberra Link) a DSN
+ * 70 m station must have the Moon at least 10° up. The 10° mask is applied in the pipeline.
+ */
 export const COMMS_MARGIN_DEG = 1;
 /** Mission window lengths offered (days); the first is the default. */
 export const WINDOW_DAYS = [7, 14, 30] as const;
@@ -30,14 +33,32 @@ export interface InstantLights {
   sun: boolean;
   earth: boolean;
   comms: boolean;
+  /** Earth clears the terrain by the Comms margin (before the DSN station test). */
+  earthClearForComms: boolean;
+  /** DSN stations that see the Moon now; null when the file has no station data. */
+  stations: StationName[] | null;
+}
+
+export type StationName = keyof typeof STATION_BITS;
+
+/** Stations (Goldstone, Canberra, Madrid) with the Moon at least 10° up at step `i`. */
+export function stationsAt(site: SiteData, i: number): StationName[] | null {
+  if (!site.stations) return null;
+  const mask = at(site.stations, i);
+  return (Object.keys(STATION_BITS) as StationName[]).filter((k) => (mask & STATION_BITS[k]) !== 0);
 }
 
 export function lightsAt(site: SiteData, h: HorizonProfile, i: number): InstantLights {
   const earthClear = at(site.earth.el, i) - terrainAt(h, at(site.earth.az, i));
+  const stations = stationsAt(site, i);
+  const earthClearForComms = earthClear >= COMMS_MARGIN_DEG;
   return {
     sun: at(site.sun.el, i) > terrainAt(h, at(site.sun.az, i)),
     earth: earthClear > 0,
-    comms: earthClear >= COMMS_MARGIN_DEG,
+    // Canberra Link: with station data, a DSN station must also see the Moon.
+    comms: earthClearForComms && (stations === null || stations.length > 0),
+    earthClearForComms,
+    stations,
   };
 }
 

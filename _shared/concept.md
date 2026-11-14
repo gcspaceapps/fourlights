@@ -28,7 +28,7 @@ Power thresholds checked on the real data (S6): 7-day windows are nearly all-or-
 12 curated south-pole sites (`sites.md`), a precomputed horizon profile per site, the **Sun-Path Chart** (one site, time slider, four lights) and the **Slip Planner** (sites × dates, one number: usable days). Comms = Earth ≥ 1° above the terrain horizon.
 
 ## Stretch goals, in order
-1. **Canberra Link:** DSN station visibility in the Comms light
+1. **Canberra Link:** DSN station visibility in the Comms light. **Done Sat 14 Nov**: the Comms light needs Goldstone, Canberra or Madrid to have the Moon at least 10° up, and names the station carrying the link. At least one station qualifies 98.6% of 2028–29 (gaps of one hour at most), so it rarely changes a verdict; the demo scenario is unchanged
 2. **Survive the Night:** battery state of charge from a panel/battery preset
 3. Custom coordinates (horizon computed live)
 4. **GridScore:** weighted grid heat-map to find new sites

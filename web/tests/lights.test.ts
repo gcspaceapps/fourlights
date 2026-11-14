@@ -33,9 +33,14 @@ describe('four lights', () => {
   it('Sun and Earth need to clear the terrain; Comms needs a 1° margin', () => {
     const s = site([0.5, -0.5, 0.5], [0.5, 2, 1], 0);
     const h = profileFor(s, 2);
-    expect(lightsAt(s, h, 0)).toEqual({ sun: true, earth: true, comms: false });
-    expect(lightsAt(s, h, 1)).toEqual({ sun: false, earth: true, comms: true });
-    expect(lightsAt(s, h, 2)).toEqual({ sun: true, earth: true, comms: true });
+    expect(lightsAt(s, h, 0)).toMatchObject({ sun: true, earth: true, comms: false });
+    expect(lightsAt(s, h, 1)).toMatchObject({ sun: false, earth: true, comms: true });
+    expect(lightsAt(s, h, 2)).toMatchObject({
+      sun: true,
+      earth: true,
+      comms: true,
+      stations: null,
+    });
   });
 
   it('Power needs 70% sunlit and no dark spell over 48 h', () => {
@@ -66,6 +71,16 @@ describe('four lights', () => {
     const earth = Array.from({ length: 48 }, (_, i) => (i >= 12 ? 5 : -5));
     const s = site(sun, earth);
     expect(windowSummary(s, profileFor(s, 2), 0, 48).usableDays).toBe(1); // hours 12..35
+  });
+
+  it('Canberra Link: Comms also needs a DSN station that sees the Moon', () => {
+    const s = site([1, 1, 1], [5, 5, 5]);
+    s.stations = [0, 2, 5]; // none; Canberra; Goldstone + Madrid
+    const h = profileFor(s, 2);
+    expect(lightsAt(s, h, 0)).toMatchObject({ earth: true, comms: false, stations: [] });
+    expect(lightsAt(s, h, 1)).toMatchObject({ comms: true, stations: ['canberra'] });
+    expect(lightsAt(s, h, 2)).toMatchObject({ comms: true, stations: ['goldstone', 'madrid'] });
+    expect(windowSummary(s, h, 0, 3).usableDays).toBe(0.1); // 2 of 3 hours
   });
 
   it('planner verdicts', () => {

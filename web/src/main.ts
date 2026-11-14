@@ -13,6 +13,7 @@ import {
   profileFor,
   timeAt,
   windowSummary,
+  type InstantLights,
 } from './lights';
 import { at, type SiteData, type SiteSummary } from './types';
 
@@ -89,6 +90,15 @@ function light(name: string, on: boolean, detail: string): HTMLLIElement {
   return li;
 }
 
+const STATION_LABELS = { goldstone: 'Goldstone', canberra: 'Canberra', madrid: 'Madrid' } as const;
+
+function commsDetail(now: InstantLights): string {
+  if (!now.earthClearForComms) return `Earth is not ${COMMS_MARGIN_DEG}° above the terrain`;
+  if (now.stations === null) return `Earth at least ${COMMS_MARGIN_DEG}° above the terrain`;
+  if (now.stations.length === 0) return 'Earth is clear, but no DSN station sees the Moon';
+  return `Earth clear by ${COMMS_MARGIN_DEG}°+; link via ${now.stations.map((s) => STATION_LABELS[s]).join(', ')} (DSN)`;
+}
+
 function render(): void {
   const site = current;
   if (!site) return;
@@ -128,7 +138,7 @@ function render(): void {
       w.power,
       `whole window: sunlit ${(w.sunlitFraction * 100).toFixed(0)}% (need ${POWER_MIN_SUNLIT_FRACTION * 100}%), longest dark ${w.longestDarkHours} h (max ${POWER_MAX_DARK_HOURS} h)`,
     ),
-    light('Comms', now.comms, `Earth at least ${COMMS_MARGIN_DEG}° above the terrain`),
+    light('Comms', now.comms, commsDetail(now)),
   );
   ui.window.textContent = `Usable days in this ${days}-day window (Sun and Comms both on): ${w.usableDays.toFixed(1)}`;
 

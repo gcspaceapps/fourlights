@@ -3,7 +3,8 @@
     python -m four_lights.scenario [--slip 3] [--days 7]
 
 Uses exactly the rules in web/src/lights.ts and web/src/planner.ts (2 m observer):
-Sun on = Sun's centre above the terrain; Comms on = Earth's centre >= 1° above the terrain;
+Sun on = Sun's centre above the terrain; Comms on = Earth's centre >= 1° above the terrain and
+(Canberra Link) a DSN station sees the Moon;
 Power = sunlit >= 70% of the window and no dark spell > 48 h; usable days = hours with Sun and
 Comms on / 24, to one decimal; green = Power on and usable >= 50% of the window, amber = Power on,
 red = Power off. Fixture (fake-*) sites are ignored.
@@ -48,6 +49,8 @@ def hourly_flags(d: dict) -> tuple[np.ndarray, np.ndarray]:
 
     sun = np.asarray(d["sun"]["el"]) > under(d["sun"]["az"])
     comms = np.asarray(d["earth"]["el"]) - under(d["earth"]["az"]) >= COMMS_MARGIN_DEG
+    if "stations" in d:  # Canberra Link: a DSN station must also see the Moon
+        comms &= np.asarray(d["stations"]) > 0
     return sun, comms
 
 

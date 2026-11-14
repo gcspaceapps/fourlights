@@ -174,6 +174,25 @@ SPICE_FILES: dict[str, RawFile] = {
             32726016,
             "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
         ),
+        # DSN stations (Canberra Link): positions, topocentric frames, Earth orientation.
+        _f(
+            "spice/earthstns_itrf93_260814.bsp",
+            f"{NAIF}/spk/stations/earthstns_itrf93_260814.bsp",
+            26624,
+            "007eb0aad5dd022c6d61bdbfb2395680bd1eb31c49a8637d0b0a1cfbea737c6b",
+        ),
+        _f(
+            "spice/earth_topo_260814.tf",
+            f"{NAIF}/fk/stations/earth_topo_260814.tf",
+            69400,
+            "4f40cd1e86718047bc8ea6ff6bd063c9fbf36102b63f0dca370c8e94fd282490",
+        ),
+        _f(
+            "spice/earth_2026_260806_2126_predict.bpc",
+            f"{NAIF}/pck/earth_2026_260806_2126_predict.bpc",
+            19169280,
+            "9f565ab5aaccd33afe54f3a1b20cb8b136636c31a0bd4c0986fac722b931c280",
+        ),
     ]
 }
 
