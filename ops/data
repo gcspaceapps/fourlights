@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Build the published site data from the raw NASA files (the precompute in pipeline/).
+#
+#   ./ops/data                                     every site
+#   ./ops/data haworth slater-plain                only these
+#   ./ops/data add <id> "<Name>" <lat> <lon_e>     register a new site, then build it
+#                                                  e.g. ./ops/data add amundsen-rim "Amundsen rim" -84.23 69.5
+#
+# First run: creates pipeline/.venv (needs `uv`) and downloads about 5 GB of raw files into
+# data/raw/ (gitignored, SHA-256 checked). Later runs reuse both. About a minute per site.
+# JOBS=2 runs two sites at once (each peaks near 1.6 GB of memory).
+# Writes web/public/data/sites.json, sites/<id>.json, validation/ and planner.json, and logs the
+# run in stages/01_data/output/data-manifest.md. Commit those; site reviews are a separate step
+# (see ops/CONTEXT.md).
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+if ! command -v uv >/dev/null; then
+  echo "uv is not installed: see https://docs.astral.sh/uv/ (macOS: brew install uv)" >&2
+  exit 1
+fi
+if [ ! -x pipeline/.venv/bin/python ]; then
+  echo "Creating pipeline/.venv..."
+  make -C pipeline venv
+fi
+if [ ! -d node_modules ]; then
+  echo "Installing dependencies..."
+  npm install
+fi
+
+py="$PWD/pipeline/.venv/bin/python"
+
+if [ "${1:-}" = "add" ]; then
+  shift
+  if [ "$#" -ne 4 ]; then
+    echo 'usage: ./ops/data add <id> "<Name>" <lat> <lon_e>' >&2
+    exit 2
+  fi
+  "$py" -m four_lights.add_site "$@"
+  set -- "$1"
+fi
+
+make -C pipeline fetch-spice fetch-usgs
+"$py" -m four_lights.fetch --all
+"$py" -m four_lights.run_sites --jobs "${JOBS:-1}" "$@"
+npm run planner-data
+
+echo
+echo "Done. Look at it with ./ops/dev, then commit web/public/data/, pipeline/sites.extra.json"
+echo "and stages/01_data/output/data-manifest.md."
