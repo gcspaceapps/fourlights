@@ -92,3 +92,10 @@ export interface SiteData {
   stations?: number[];
   meta: SiteMeta;
 }
+
+/** Checked array read: the published arrays have a known length, so a miss is a bug. */
+export function at(a: readonly number[], i: number): number {
+  const v = a[i];
+  if (v === undefined) throw new RangeError(`index ${i} outside 0..${a.length - 1}`);
+  return v;
+}

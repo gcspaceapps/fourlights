@@ -61,3 +61,265 @@ h1 {
   color: var(--sa-white);
   opacity: 0.9;
 }
+
+/* Layout */
+main {
+  max-width: 72rem;
+  padding: 2rem 1rem 3rem;
+}
+
+header {
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-family: var(--sa-font-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+select,
+input[type='date'] {
+  font: inherit;
+  font-weight: 400;
+  color: var(--sa-deep-blue);
+  background: var(--sa-white);
+  border: 2px solid var(--sa-blue-yonder);
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.5rem;
+  min-height: 2.5rem;
+}
+
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--sa-neon-yellow);
+  outline-offset: 2px;
+}
+
+/* Chart */
+.chart {
+  margin: 0;
+}
+
+.chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--sa-deep-blue);
+  border-radius: 0.5rem;
+}
+
+.chart figcaption {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.sky {
+  fill: var(--sa-deep-blue);
+}
+
+.grid {
+  stroke: rgb(255 255 255 / 15%);
+  stroke-width: 1;
+}
+
+.grid.zero {
+  stroke: rgb(255 255 255 / 45%);
+}
+
+.tick {
+  fill: var(--sa-white);
+  font: 12px var(--sa-font-body);
+}
+
+.terrain {
+  fill: #6b7280;
+  stroke: #d1d5db;
+  stroke-width: 1;
+}
+
+.track {
+  fill: none;
+  stroke-width: 2;
+}
+
+.track.sun {
+  stroke: var(--sa-neon-yellow);
+}
+
+.track.earth {
+  stroke: var(--sa-blue-yonder);
+}
+
+.tick-dot.sun {
+  fill: var(--sa-neon-yellow);
+}
+
+.tick-dot.earth {
+  fill: var(--sa-blue-yonder);
+}
+
+.marker {
+  stroke: var(--sa-deep-blue);
+  stroke-width: 2;
+}
+
+.marker.sun {
+  fill: var(--sa-neon-yellow);
+}
+
+.marker.earth {
+  fill: var(--sa-blue-yonder);
+}
+
+.label {
+  font: 700 14px var(--sa-font-body);
+  stroke: none;
+}
+
+.key {
+  font-weight: 700;
+}
+
+.key.sun {
+  color: var(--sa-neon-yellow);
+}
+
+.key.earth {
+  color: var(--sa-blue-yonder);
+}
+
+/* Time slider */
+.slider {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.slider label {
+  font-weight: 700;
+}
+
+.slider input {
+  width: 100%;
+  accent-color: var(--sa-neon-yellow);
+}
+
+.slider output {
+  grid-column: 2;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The four lights: state is in words, not colour alone */
+.lights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.lights li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--sa-blue-yonder);
+  border-radius: 0.75rem;
+  background: rgb(7 23 63 / 60%);
+}
+
+.lights .name {
+  font-family: var(--sa-font-heading);
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+
+.lights .state {
+  font-weight: 700;
+  text-transform: uppercase;
+  align-self: center;
+}
+
+.lights .on {
+  border-color: var(--sa-neon-yellow);
+}
+
+.lights .on .state {
+  color: var(--sa-neon-yellow);
+}
+
+.lights .off .state {
+  color: var(--sa-white);
+  text-decoration: line-through;
+}
+
+.lights .detail {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
+}
+
+.window {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Site info */
+.site-info dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0;
+}
+
+.site-info dt {
+  font-weight: 700;
+}
+
+.site-info dd {
+  margin: 0;
+}
+
+footer {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+}
+
+.chart-scroll {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+}
+
+@media (width <= 40rem) {
+  /* A 360° panorama needs width: on a phone it scrolls sideways instead of shrinking. */
+  .chart svg {
+    min-width: 56rem;
+  }
+
+  .site-info dl {
+    grid-template-columns: 1fr;
+  }
+
+  .site-info dd {
+    margin-bottom: 0.5rem;
+  }
+}

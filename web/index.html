@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Four Lights</title>
+    <meta
+      name="description"
+      content="Compare lunar south-pole landing sites and dates by where the Sun and Earth sit against each site's real terrain horizon."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,15 +17,78 @@
   </head>
   <body>
     <main>
-      <h1>Four Lights</h1>
-      <p class="tagline">Which lunar south-pole landing site still works when your launch slips?</p>
-      <ul class="lights" aria-label="The four lights">
-        <li>Sun</li>
-        <li>Earth</li>
-        <li>Power</li>
-        <li>Comms</li>
-      </ul>
-      <p class="status">API: <span id="health">checking…</span></p>
+      <header>
+        <h1>Four Lights</h1>
+        <p class="tagline">
+          Which lunar south-pole landing site still works when your launch slips?
+        </p>
+      </header>
+
+      <section aria-labelledby="chart-title">
+        <h2 id="chart-title">Sun-Path Chart</h2>
+        <form class="controls" id="controls">
+          <label
+            >Site
+            <select id="site"></select
+          ></label>
+          <label>Landing (UTC) <input type="date" id="date" required /></label>
+          <label
+            >Mission window
+            <select id="days"></select
+          ></label>
+          <label
+            >Observer height
+            <select id="height"></select
+          ></label>
+          <label>
+            Centre on
+            <select id="centre">
+              <option value="0">North</option>
+              <option value="90">East</option>
+              <option value="180">South (pole)</option>
+              <option value="270">West</option>
+            </select>
+          </label>
+        </form>
+
+        <figure class="chart">
+          <div
+            class="chart-scroll"
+            tabindex="0"
+            aria-label="Panorama (scrolls sideways on small screens)"
+          >
+            <svg id="chart" role="img" aria-labelledby="chart-desc"></svg>
+          </div>
+          <figcaption id="chart-desc">
+            The site's terrain horizon (grey) from LOLA elevation data, with the
+            <span class="key sun">Sun</span> and <span class="key earth">Earth</span> tracks over
+            the mission window (a dot every 24 h) and their positions at the time below.
+          </figcaption>
+        </figure>
+
+        <div class="slider">
+          <label for="time">Time in window</label>
+          <input type="range" id="time" min="0" value="0" step="1" />
+          <output id="time-label" for="time"></output>
+        </div>
+
+        <ul class="lights" id="lights" aria-live="polite"></ul>
+        <p class="window" id="window"></p>
+      </section>
+
+      <section class="site-info" aria-labelledby="site-title">
+        <h2 id="site-title">About this site</h2>
+        <dl id="site-info"></dl>
+      </section>
+
+      <footer>
+        <p>
+          Terrain: NASA LRO Lunar Orbiter Laser Altimeter (LOLA) elevation models, GSFC PGDA and
+          PDS. Sun and Earth positions: NASA JPL Horizons, checked against NAIF SPICE. Artemis
+          regions: USGS. Times are UTC; azimuth is from true north at the site (away from the pole).
+        </p>
+        <p class="status">API: <span id="health">checking…</span></p>
+      </footer>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
