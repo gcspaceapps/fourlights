@@ -129,6 +129,10 @@ def check(text: str, facts: dict[str, str]) -> str | None:
         return "not a single plain paragraph"
     if facts["name"] not in text:
         return "site name missing"
+    # Words the number check can't see: "approximate" only where the facts say so.
+    says_approx = bool(re.search(r"approximat|rough|coarse|estimate", text, flags=re.I))
+    if says_approx and "approximate" not in facts["terrain data under the site"]:
+        return "calls the terrain data approximate when it is not"
     return None
 
 

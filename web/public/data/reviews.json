@@ -1,11 +1,11 @@
 {
  "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
  "provider": "Cloudflare Workers AI",
- "generated_utc": "2026-11-14T02:59:49Z",
+ "generated_utc": "2026-11-14T03:13:25Z",
  "note": "AI-written from the facts listed with each review; every number in a review is checked against those facts.",
  "sites": {
   "de-gerlache-rim": {
-   "text": "de Gerlache rim is 4th for sunlight and 5th for shortest longest night, ranking 8th for communications, with 82% sunlight, 10.8 days longest night, 60% Earth visibility and 55% communications possible, based on approximate terrain data.",
+   "text": "de Gerlache rim, which ranks 4th for sunlight, 5th for shortest longest night, and 8th for communications, has 82% sunlight, a longest night of 10.8 days, is visible from Earth 60% of the time, and has communications possible 55% of the time, with terrain data based on a 5 m per pixel elevation model.",
    "facts": {
     "name": "de Gerlache rim",
     "position": "88.66°S, 68.4°W",
@@ -24,7 +24,7 @@
    }
   },
   "slater-plain": {
-   "text": "Slater Plain, which ranks 9th for sunlight and shortest longest night, and 12th for communications, receives sunlight 64% of the time, has a longest night of 14.0 days, Earth is visible 48% of the time, and communications are possible 43% of the time, with terrain data based on a 5 m per pixel elevation model.",
+   "text": "Slater Plain, ranked 9th for sunlight and shortest longest night, and 12th for communications, has 64% sunlight, a 14.0 day longest night, 48% Earth visibility, and 43% communications possible, with terrain data based on a 5 m per pixel elevation model.",
    "facts": {
     "name": "Slater Plain",
     "position": "87.26°S, 127.6°E",
@@ -43,7 +43,7 @@
    }
   },
   "haworth": {
-   "text": "Haworth, which ranks 11th for sunlight and 10th for shortest longest night, has 50% sunlight, a 14.8 day longest night, is visible from Earth 64% of the time, and has communications possible 58% of the time, with terrain data based on a 5 m per pixel elevation model.",
+   "text": "Haworth, which ranks 11th for sunlight and 10th for shortest longest night, has 50% sunlight, a 14.8 day longest night, is visible to Earth 64% of the time, and has communications possible 58% of the time, with terrain data based on a 5 m per pixel elevation model.",
    "facts": {
     "name": "Haworth",
     "position": "86.55°S, 21.8°W",
@@ -62,7 +62,7 @@
    }
   },
   "malapert-massif": {
-   "text": "Malapert Massif, the lowest ranked site for sunlight and shortest longest night, has 46% sunlight, a 19.4 day longest night, 85% Earth visibility and 77% communications possibility, with terrain data based on a 5 m per pixel elevation model.",
+   "text": "Malapert Massif, the lowest ranked site for sunlight and shortest longest night, has 46% sunlight, a 19.4 day longest night, 85% Earth visibility and 77% communications possible, with terrain data based on a 5 m per pixel elevation model.",
    "facts": {
     "name": "Malapert Massif",
     "position": "85.98°S, 0.7°E",
@@ -100,7 +100,7 @@
    }
   },
   "nobile-rim-1": {
-   "text": "Nobile Rim 1, ranked 7th for sunlight, 8th for shortest longest night and 4th for communications, has 66% sunlight, a 12.5 day longest night, 79% Earth visibility and 72% communications possible, with approximate terrain data.",
+   "text": "Nobile Rim 1, which ranks 7th for sunlight, 8th for shortest longest night, and 4th for communications, has 66% sunlight, a longest night of 12.5 days, is visible to Earth 79% of the time, and allows communications 72% of the time, with approximate terrain data.",
    "facts": {
     "name": "Nobile Rim 1",
     "position": "85.23°S, 36.6°E",
@@ -119,7 +119,7 @@
    }
   },
   "nobile-rim-2": {
-   "text": "Nobile Rim 2, which ranks 10th for sunlight and 11th for shortest longest night but 5th for communications, has 50% sunlight, a 15.9 day longest night, 71% Earth visibility and 65% communications possible, with approximate terrain data.",
+   "text": "Nobile Rim 2, which ranks 10th for sunlight, 11th for shortest longest night, and 5th for communications, has 50% sunlight, a 15.9 day longest night, 71% Earth visibility, and 65% communications possible, with approximate terrain data.",
    "facts": {
     "name": "Nobile Rim 2",
     "position": "84.13°S, 57.8°E",
@@ -138,7 +138,7 @@
    }
   },
   "shackleton-rim": {
-   "text": "Shackleton rim, ranked 2nd for sunlight and 1st for shortest longest night, has 85% sunlight, a 2.7 day longest night, 55% Earth visibility and 50% communications, with terrain data based on a 5 m per pixel elevation model.",
+   "text": "Shackleton rim, ranking 2nd for sunlight and 1st for shortest longest night, has 85% sunlight, a 2.7 day longest night, 55% Earth visibility and 50% communications, with terrain data based on a 5 m per pixel elevation model.",
    "facts": {
     "name": "Shackleton rim",
     "position": "89.78°S, 156.2°W",
@@ -157,7 +157,7 @@
    }
   },
   "connecting-ridge": {
-   "text": "Connecting Ridge, ranking 1st for sunlight and 3rd for shortest longest night, has 86% sunlight, a 10.2 day longest night, 57% Earth visibility, and 52% communications possibility, with terrain data based on a 5 m per pixel elevation model.",
+   "text": "Connecting Ridge, ranking 1st for sunlight and 3rd for shortest longest night, has 86% sunlight, a 10.2 day longest night, 57% Earth visibility, and 52% communications possible, with terrain data based on a 5 m per pixel elevation model.",
    "facts": {
     "name": "Connecting Ridge",
     "position": "89.44°S, 137.1°W",
@@ -176,7 +176,7 @@
    }
   },
   "peak-near-shackleton": {
-   "text": "Peak near Shackleton stands out as 3rd for sunlight and 2nd for shortest longest night, but 10th for communications, with 84% sunlit time, 5.7 days longest night, 56% Earth visibility and 52% communications possible, based on approximate terrain data.",
+   "text": "Peak near Shackleton is the 3rd best site for sunlight and 2nd best for shortest longest night, but 10th for communications. It is sunlit 84% of the time, has a longest night of 5.7 days, Earth is visible 56% of the time, and communications are possible 52% of the time, with terrain data based on a 5 m per pixel elevation model.",
    "facts": {
     "name": "Peak near Shackleton",
     "position": "88.81°S, 123.7°E",
@@ -214,7 +214,7 @@
    }
   },
   "peak-near-cabeus-b": {
-   "text": "Peak near Cabeus B stands out as the 1st for communications among the sites, and ranks 7th and 8th for shortest longest night and sunlight, with 65% sunlight, a longest night of 12.4 days, Earth visibility 90% of the time, and communications possible 79% of the time, based on approximate terrain data.",
+   "text": "Peak near Cabeus B stands out as 1st for communications, 7th for shortest longest night, and 8th for sunlight, with 65% sunlit time, 12.4 days longest night, 90% Earth visibility, and 79% communications possible, based on approximate terrain data.",
    "facts": {
     "name": "Peak near Cabeus B",
     "position": "83.58°S, 68.5°W",

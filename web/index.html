@@ -28,9 +28,30 @@
           <span class="visually-hidden">Dark mode</span>
         </button>
         <div class="view-switch" role="radiogroup" aria-label="Who is this view for?">
-          <label><input type="radio" name="view" value="mission" /><span>Mission</span></label>
-          <label><input type="radio" name="view" value="explore" /><span>Explore</span></label>
-          <label><input type="radio" name="view" value="learn" /><span>Learn</span></label>
+          <label
+            ><input type="radio" name="view" value="mission" aria-describedby="tip-mission" /><span
+              >Mission</span
+            ><span class="tip" role="tooltip" id="tip-mission"
+              >For mission planners: just the tools and the numbers, no explanations, with the
+              keyboard shortcuts in sight.</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="view" value="explore" aria-describedby="tip-explore" /><span
+              >Explore</span
+            ><span class="tip" role="tooltip" id="tip-explore"
+              >For everyone: the tools with short captions, photographs and a written summary of
+              each site.</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="view" value="learn" aria-describedby="tip-learn" /><span
+              >Learn</span
+            ><span class="tip" role="tooltip" id="tip-learn"
+              >For students and teachers: everything in Explore, plus why the south pole is
+              different, how to read the chart, a glossary and things to try.</span
+            ></label
+          >
         </div>
         <h1>Four Lights</h1>
         <p class="tagline">

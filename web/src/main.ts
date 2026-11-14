@@ -226,7 +226,7 @@ function render(): void {
     ),
     light('Comms', now.comms, commsDetail(now)),
   );
-  ui.window.textContent = `Usable days in this ${days}-day window (Sun and Comms both on): ${w.usableDays.toFixed(1)}`;
+  ui.window.textContent = `Usable days in this ${days}-day window (sunlight with a link to Earth): ${w.usableDays.toFixed(1)}`;
   ui.window.appendChild(
     infoTip(
       'Our measure: the hours in the mission window with the Comms light on, each counted by the share of the Sun in view (half the disc showing counts as half an hour), divided by 24.',
@@ -243,9 +243,13 @@ function render(): void {
     renderBattery(ui.battery, run, cursor - start);
     const spec = `${preset.name}: ${preset.arrayW} W array, ${preset.dayLoadW} W by day, ${preset.darkLoadW} W in the dark, ${preset.batteryWh / 1000} kWh battery (${darkEnduranceHours(preset).toFixed(0)} h of darkness from full).`;
     const flatAt = run.firstFlat >= 0 ? fmtTime(timeAt(site, start + run.firstFlat)) : '';
-    ui.batterySummary.textContent = run.survives
-      ? `Survives: battery never below ${(run.minSoc * 100).toFixed(0)}%. ${spec}`
-      : `Does not survive: battery flat for ${run.flatHours} h, first at ${flatAt}. ${spec}`;
+    const head = run.survives
+      ? `Survives: battery never below ${(run.minSoc * 100).toFixed(0)}%.`
+      : `Does not survive: battery flat for ${run.flatHours} h, first at ${flatAt}.`;
+    const detail = document.createElement('span');
+    detail.className = 'detail';
+    detail.textContent = spec;
+    ui.batterySummary.replaceChildren(head, detail);
     ui.batterySummary.className = `window ${run.survives ? 'ok' : 'bad'}`;
   }
 
