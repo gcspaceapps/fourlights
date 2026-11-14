@@ -1,6 +1,6 @@
 # api/: the Worker
 
-**What lives here:** the one Cloudflare Worker (Hono, TypeScript strict), `src/index.ts`. Config is `../wrangler.jsonc` at the repo root (obscure Worker name until Sunday 19:30 AEST, `account_id` pinned, static assets from `web/dist`).
+**What lives here:** the one Cloudflare Worker (Hono, TypeScript strict), `src/index.ts`. Config is `../wrangler.jsonc` at the repo root (obscure Worker name, served at fourlights.gcsa.space with workers.dev off, `account_id` pinned, static assets from `web/dist`).
 
 **Entry points:**
 - `GET /api/health` → `{ok, built}`

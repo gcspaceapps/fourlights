@@ -12,4 +12,11 @@
     "run_worker_first": true,
   },
   "observability": { "enabled": true },
+  // The demo lives on our own domain. Every request, pages and data, goes through the Worker's
+  // password gate while SITE_PASSWORD is set (see api/CONTEXT.md).
+  "routes": [{ "pattern": "fourlights.gcsa.space", "custom_domain": true }],
+  // One public URL: no <name>.workers.dev. Preview URLs stay on for `wrangler versions upload`
+  // (Matt and second sessions); they run the same code, so they are password-gated too.
+  "workers_dev": false,
+  "preview_urls": true,
 }

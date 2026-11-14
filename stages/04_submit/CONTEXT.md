@@ -9,7 +9,7 @@ Do NOT load: code folders, `data/`, `stages/01_data/`.
 
 ## Process
 1. **Sunday ~19:30 AEST: make the repo public**: `gh repo edit gcspaceapps/fourlights --visibility public --accept-visibility-change-consequences` (and the demo/deck link), before the link checks.
-2. Move the demo to our own domain if planned, then check the README runs cold.
+2. The demo is already on https://fourlights.gcsa.space; open it (delete the `SITE_PASSWORD` secret), then check the README runs cold.
 3. Open every link in a private browser window: the demo, the video or deck, the repo, every dataset link.
 4. Fill each field on the Space Apps project page from `../03_pitch/output/project-page.md`; tick it off in `output/submission.md`.
 5. **Submit by 22:00 Sun 15 Nov AEST** (our internal deadline; the official close is 11:59pm Sun 15 Nov, Queensland time). Record the URL and the time.

@@ -38,6 +38,6 @@
 | 15:30–17:00 | Steve | Optional judging session over Zoom, from 15:30 |
 | 17:00–21:00 | Steve | Fix what the panel raised; finish the project page and disclosures |
 | 17:30–19:30 | Matt | Read the pitch, demo and project page; **comments to Steve by 19:30** |
-| 19:30 | Steve | **Make this repo public**, then move the demo to our own domain |
+| 19:30 | Steve | **Make this repo public**, then open the demo (`npx wrangler secret delete SITE_PASSWORD`); it's already on fourlights.gcsa.space |
 | 19:30–21:00 | Matt | Run the demo cold again; check disclosures and that every link opens in a private window |
 | **by 22:00** | Steve | **Submit.** Record the URL and time |

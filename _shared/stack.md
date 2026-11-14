@@ -16,7 +16,7 @@
 
 ## Cloudflare
 - Account `gcspaceapps`, **`account_id` `e3cb8bffb3a1a6e6009c50fdf0bc6b82`** (pinned in `wrangler.jsonc`; never rely on the default account). Workers Free. R2 and Zero Trust available on free tiers if needed.
-- The Worker has an obscure name until Sunday 19:30 AEST (its `workers.dev` URL is public from the first deploy): never post the demo URL anywhere public before then. On Sunday the demo moves to our own domain.
+- The demo is at **https://fourlights.gcsa.space** (custom domain on the `gcsa.space` zone, same account), password-gated by the Worker until Sunday. `workers_dev` is off; `preview_urls` is on for `wrangler versions upload`, and previews are gated by the same code. The Worker keeps its obscure name (`q7m3-demo`). Never post the demo URL anywhere public before Sunday 19:30 AEST: custom-domain hostnames show up in public certificate-transparency logs, so the password is what protects it.
 
 ## Moon coordinate systems
 | Use | PROJ code | PostGIS SRID | Notes |
