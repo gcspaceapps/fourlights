@@ -1,25 +1,34 @@
 # Project page (Space Apps submission text)
 
-_Draft written Sat 14 Nov from the build log. One section per Submission Guide field. Steve and Matt to edit; every number here is from `../../02_build/output/build-log.md` and should be re-checked against it before submitting._
+_Draft written Sat 14 Nov from the build log. One section per form field, in the form's order and under its exact labels (2026 Project Submission Guide, checked Sun 15 Nov: eight fields, all text in English). Steve and Matt to edit; every number here is from `../../02_build/output/build-log.md` and should be re-checked against it before submitting._
 
-## Project name
+## 1. Project Name
 Four Lights
 
-## High-level summary
+## 2. High-Level Project Summary
+_The form asks: what did you develop, how does it address the challenge, why is it important?_
+
 A launch slips three days. Which lunar south-pole landing site still works?
 
 Near the Moon's south pole the Sun stays within a degree or two of the horizon, so a ridge 100 km away decides whether a lander has power, and a hill decides whether it can see Earth. Four Lights answers the planner's question with real terrain. For 12 candidate sites it works out, hour by hour for 2028 and 2029, where the Sun and Earth sit against each site's actual skyline from NASA's LOLA elevation data, and reduces that to four lights: **Sun**, **Earth**, **Power** and **Comms**. The Slip Planner shows every site against every landing date as one number, usable days. Slide the date and watch sites go red and green.
 
 In our demo scenario, a landing planned for 19 April 2028 slips to 22 April. Six sites work on the 19th. After the slip, four of them lose power: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B. Peak near Shackleton and Slater Plain still give 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. The slip cuts both ways, and that is why a planner needs to see it.
 
-## Project demo (link)
-_Public link to the video (30 seconds or less) or slides (7 or fewer): added Sunday._
+## 3. Link to Project Demo
+_**Still to add.** One public link, no password, permission or registration: a video of 30 seconds or less, or a deck of up to 7 slides including the title and intro slides. Over either limit means no Global Judging. A video opens with our names and the team name; a deck must show the team name, the members' names and the challenge chosen._
 
-## Final project (link: the live demo and this repo)
-- Live demo: https://fourlights.gcsa.space (public from Sunday 19:30 AEST)
-- Code and data: https://github.com/gcspaceapps/fourlights
+## 4. Link to Final Project
+_The form takes **one** link. Proposed: the live demo, with the repository named in the first line of field 5. Steve and Matt to confirm._
 
-## Project details
+https://fourlights.gcsa.space
+
+_(public from Sunday 19:30 AEST, when the password comes off)_
+
+## 5. Detailed Project Description
+_The form asks: what does it do, how does it work, what benefits, what do you hope to achieve, what tools, languages, hardware or software? Images (JPG, PNG, GIF up to 10 MB) can be uploaded or pasted into this field; stills are in `../../02_build/output/media/`. The form has no separate field for disclosures, so they sit at the end of this one._
+
+**Code and data:** https://github.com/gcspaceapps/fourlights (the live demo is the Final Project link above).
+
 **Who it is for.** A mission planner whose launch date has moved and who has to re-pick a site or a date quickly. Educators and the public get the same data in their own views: the page switches between Mission (terse, keyboard-driven), Explore (the default) and Learn (short explanations of why the pole is different, how to read the chart, a glossary and classroom activities).
 
 **What it does.**
@@ -55,7 +64,16 @@ _Public link to the video (30 seconds or less) or slides (7 or fewer): added Sun
 
 **How we built it.** The repository is laid out so a coding agent can walk it: numbered stages with a contract and an output folder each, shared facts in one place, one card per dataset. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours.
 
-## Use of NASA data (every dataset, linked)
+**Disclosures.**
+- **Prepared before the start:** the plan, data contract and build prompts were written before the start, and raw NASA files were mirrored unmodified as an outage fallback; all code and data processing happened after 09:00 Sat 14 Nov 2026 (AEST).
+- **Pre-existing work:** Ice Rover (https://icerover.refactor.red), a small educational game about why the lunar south pole is hard, built by Steve before the event. Same theme, separate codebase: no code or assets shared with this project, and it is not part of this entry.
+
+## 6. Use of Super Intelligence (SI)
+_The form asks: "Did you utilize any Super Intelligence (SI) tools and software in preparing your solution? If yes, how did you use them?" Judges do not see this answer; they see the acknowledgements in the project itself (field 5 and the README)._
+
+Yes. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours. In the app, the short "Site review" paragraph for each site is written by a language model on Cloudflare Workers AI (Llama 3.3 70B) from numbers we computed, and is labelled as AI-written; every number in it is checked against those numbers. The "ask in plain English" box uses the same model only to turn a typed question into the planner's settings; it never produces the answer. There are no AI-generated images, video or audio in the project.
+
+## 7. NASA Data
 _The app has its own data-sources page with the same information in more depth: https://fourlights.gcsa.space/sources_
 
 - **LRO LOLA south-pole elevation models** (NASA GSFC Planetary Geodesy Data Archive and PDS): the 5 m site models and the 87°S mosaic, https://pgda.gsfc.nasa.gov/products/78 and https://pgda.gsfc.nasa.gov/products/81 ; the polar gridded models at 20, 60 and 240 m, https://imbrium.mit.edu/DATA/LOLA_GDR/POLAR/ . Every horizon in the app comes from these.
@@ -64,15 +82,11 @@ _The app has its own data-sources page with the same information in more depth: 
 - **Artemis candidate landing regions** (USGS, for NASA), https://doi.org/10.5066/P1MEQ6UK : the centres of six of our sites.
 - **NASA Image and Video Library**, https://images.nasa.gov : three photographs (Surveyor 3, AS12-48-7121; a VIPER rover prototype, GRC-2021-C-00493; the Apollo 11 lunar module, AS11-40-5927) shown as examples of vehicle classes.
 
-## Use of AI
-_For the form's AI-use question; reword to match the guide's exact prompt._
+## 8. Space Agency Partner Data and Other References
+_One field on the form: partner data, then every resource and tool, including code, text and images._
 
-We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours. In the app, the short "Site review" paragraph for each site is written by a language model on Cloudflare Workers AI (Llama 3.3 70B) from numbers we computed, and is labelled as AI-written; every number in it is checked against those numbers. The "ask in plain English" box uses the same model only to turn a typed question into the planner's settings; it never produces the answer. There are no AI-generated images, video or audio in the project.
+No Space Agency Partner data is used; the data is from NASA and USGS (listed under NASA Data).
 
-## Space agency partner and other data
-None beyond NASA and USGS. No space agency partner data is used.
-
-## References
 - Barker, M. K., et al. (2021). Improved LOLA elevation maps for south pole landing sites: error estimates and their impact on illumination conditions. Planetary and Space Science 203, 105119. https://doi.org/10.1016/j.pss.2020.105119
 - Mazarico, E., et al. (2011). Illumination conditions of the lunar polar regions using LOLA topography. Icarus 211, 1066–1081. https://doi.org/10.1016/j.icarus.2010.10.030
 - JPL Horizons On-Line Ephemeris System, NASA/JPL Solar System Dynamics. https://ssd.jpl.nasa.gov/horizons/
@@ -80,7 +94,3 @@ None beyond NASA and USGS. No space agency partner data is used.
 - USGS Astrogeology (2024). Lunar Grid Reference System navigational grids for the Artemis III candidate landing regions. https://doi.org/10.5066/P1MEQ6UK
 - DSN Telecommunications Link Design Handbook 810-005, module 301 (elevation limits). https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf
 - Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, Hono, Vite, Cloudflare Workers and Workers AI. Icons: Phosphor Icons (MIT licence).
-
-## Disclosures
-- **Prepared before the start:** the plan, data contract and build prompts were written before the start, and raw NASA files were mirrored unmodified as an outage fallback; all code and data processing happened after 09:00 Sat 14 Nov 2026 (AEST).
-- **Pre-existing work:** Ice Rover (https://icerover.refactor.red), a small educational game about why the lunar south pole is hard, built by Steve before the event. Same theme, separate codebase: no code or assets shared with this project, and it is not part of this entry.
