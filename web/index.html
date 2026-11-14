@@ -21,8 +21,11 @@
   <body>
     <main>
       <header>
-        <button type="button" class="theme-toggle" id="theme" aria-live="polite">
-          Theme: Auto
+        <button type="button" class="theme-switch" id="theme" role="switch" aria-checked="true">
+          <span class="theme-icon" aria-hidden="true">☀</span>
+          <span class="track" aria-hidden="true"><span class="knob"></span></span>
+          <span class="theme-icon" aria-hidden="true">☾</span>
+          <span class="visually-hidden">Dark mode</span>
         </button>
         <h1>Four Lights</h1>
         <p class="tagline">

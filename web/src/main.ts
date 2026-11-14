@@ -246,30 +246,33 @@ async function showHealth(): Promise<void> {
   }
 }
 
-/** Auto (follow the device) / Dark / Light, remembered in this browser only. */
+/**
+ * Dark/light switch. Until it is touched it follows the device (and changes with it); once
+ * slid, the choice is remembered in this browser only.
+ */
 function setupTheme(): void {
   const btn = document.getElementById('theme');
   if (!btn) return;
-  const modes = ['auto', 'dark', 'light'] as const;
-  type Mode = (typeof modes)[number];
-  const apply = (m: Mode): void => {
-    if (m === 'auto') delete document.documentElement.dataset.theme;
-    else document.documentElement.dataset.theme = m;
-    btn.textContent = `Theme: ${m[0]?.toUpperCase()}${m.slice(1)}`;
-  };
-  let mode: Mode = 'auto';
+  const root = document.documentElement;
+  const deviceDark = window.matchMedia('(prefers-color-scheme: dark)');
+  let saved: string | null = null;
   try {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') mode = saved;
+    saved = localStorage.getItem('theme');
   } catch {
-    // storage blocked: stay on auto
+    // storage blocked: follow the device
   }
-  apply(mode);
+  const isDark = (): boolean =>
+    root.dataset.theme ? root.dataset.theme === 'dark' : deviceDark.matches;
+  const show = (): void => btn.setAttribute('aria-checked', String(isDark()));
+  if (saved === 'dark' || saved === 'light') root.dataset.theme = saved;
+  show();
+  deviceDark.addEventListener('change', show);
   btn.addEventListener('click', () => {
-    mode = modes[(modes.indexOf(mode) + 1) % modes.length] ?? 'auto';
-    apply(mode);
+    const next = isDark() ? 'light' : 'dark';
+    root.dataset.theme = next;
+    show();
     try {
-      localStorage.setItem('theme', mode);
+      localStorage.setItem('theme', next);
     } catch {
       // storage blocked: the choice lasts for this page only
     }
