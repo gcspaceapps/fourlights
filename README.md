@@ -13,6 +13,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, de Gerlac
 - **Sun-Path Chart:** stand at a site and look around: a 360° skyline from NASA's LOLA terrain, with the Sun's and Earth's paths traced over it and a time slider.
 - **Slip Planner:** sites × landing dates, each cell showing **usable days** (hours with the Sun up and Earth in view, over the mission window). Slip the date and see which sites still work.
 - **Canberra Link:** the Comms light also needs a Deep Space Network station (Goldstone, Canberra or Madrid) that can see the Moon, and names the one carrying the link.
+- **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells?
 - 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
 
 ## Run it locally

@@ -29,7 +29,7 @@ Power thresholds checked on the real data (S6): 7-day windows are nearly all-or-
 
 ## Stretch goals, in order
 1. **Canberra Link:** DSN station visibility in the Comms light. **Done Sat 14 Nov**: the Comms light needs Goldstone, Canberra or Madrid to have the Moon at least 10° up, and names the station carrying the link. At least one station qualifies 98.6% of 2028–29 (gaps of one hour at most), so it rarely changes a verdict; the demo scenario is unchanged
-2. **Survive the Night:** battery state of charge from a panel/battery preset
+2. **Survive the Night:** battery state of charge from a panel/battery preset. **Done Sat 14 Nov**: a panel under the Sun-Path Chart simulates the battery hour by hour through the mission window from the Sun light (array runs the day load and charges with the surplus; the battery runs a survival load in the dark; starts full). Three presets with round, illustrative numbers (small lander, hibernating rover, crewed lander), labelled as not real vehicle specifications. It does not change the four lights or the planner
 3. Custom coordinates (horizon computed live)
 4. **GridScore:** weighted grid heat-map to find new sites
 5. Moon photo comparison overlay

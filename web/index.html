@@ -107,6 +107,25 @@
 
         <ul class="lights" id="lights" aria-live="polite"></ul>
         <p class="window" id="window"></p>
+
+        <h3 id="battery-title">Survive the Night</h3>
+        <div class="controls">
+          <label
+            >Power system (illustrative)
+            <select id="preset"></select
+          ></label>
+        </div>
+        <figure class="chart">
+          <div class="chart-scroll">
+            <svg id="battery" role="img" aria-labelledby="battery-desc"></svg>
+          </div>
+          <figcaption id="battery-desc">
+            Battery state of charge through the mission window, starting full at landing. Shaded
+            bands are the hours the Sun is behind the terrain. A simple energy balance with
+            round-number presets, not a real vehicle's power system.
+          </figcaption>
+        </figure>
+        <p class="window" id="battery-summary" aria-live="polite"></p>
       </section>
 
       <section class="site-info" aria-labelledby="site-title">

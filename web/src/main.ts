@@ -1,4 +1,5 @@
 import './style.css';
+import { PRESETS, darkEnduranceHours, renderBattery, simulateBattery } from './battery';
 import { renderChart } from './chart';
 import { renderPlanner } from './planner';
 import { loadSite, loadSites } from './data';
@@ -35,6 +36,9 @@ const ui = {
   lights: $('lights'),
   window: $('window'),
   info: $('site-info'),
+  preset: $('preset') as HTMLSelectElement,
+  battery: $('battery') as unknown as SVGSVGElement,
+  batterySummary: $('battery-summary'),
   plan: $('plan') as HTMLInputElement,
   planDays: $('plan-days') as HTMLSelectElement,
   slipBack: $('slip-back') as HTMLButtonElement,
@@ -67,6 +71,7 @@ function writeHash(): void {
     h: ui.height.value,
     c: ui.centre.value,
     t: ui.time.value,
+    ps: ui.preset.value,
     plan: ui.plan.value,
     pdays: ui.planDays.value,
   });
@@ -141,6 +146,18 @@ function render(): void {
     light('Comms', now.comms, commsDetail(now)),
   );
   ui.window.textContent = `Usable days in this ${days}-day window (Sun and Comms both on): ${w.usableDays.toFixed(1)}`;
+
+  const preset = PRESETS.find((p) => p.id === ui.preset.value) ?? PRESETS[0];
+  if (preset) {
+    const run = simulateBattery(site, profile, start, hours, preset);
+    renderBattery(ui.battery, run, cursor - start);
+    const spec = `${preset.name}: ${preset.arrayW} W array, ${preset.dayLoadW} W by day, ${preset.darkLoadW} W in the dark, ${preset.batteryWh / 1000} kWh battery (${darkEnduranceHours(preset).toFixed(0)} h of darkness from full).`;
+    const flatAt = run.firstFlat >= 0 ? fmtTime(timeAt(site, start + run.firstFlat)) : '';
+    ui.batterySummary.textContent = run.survives
+      ? `Survives: battery never below ${(run.minSoc * 100).toFixed(0)}%. ${spec}`
+      : `Does not survive: battery flat for ${run.flatHours} h, first at ${flatAt}. ${spec}`;
+    ui.batterySummary.className = `window ${run.survives ? 'ok' : 'bad'}`;
+  }
 
   const s = sites.find((x) => x.id === site.id);
   const rows: [string, string][] = [
@@ -238,7 +255,11 @@ async function init(): Promise<void> {
   if (hash.get('h')) ui.height.replaceChildren(new Option('', hash.get('h') ?? ''));
 
   ui.site.addEventListener('change', () => void selectSite(ui.site.value));
-  for (const e of [ui.date, ui.days, ui.height, ui.centre]) e.addEventListener('change', render);
+  ui.preset.replaceChildren(...PRESETS.map((p) => new Option(p.name, p.id)));
+  ui.preset.value = hash.get('ps') ?? PRESETS[0]?.id ?? '';
+  for (const e of [ui.date, ui.days, ui.height, ui.centre, ui.preset]) {
+    e.addEventListener('change', render);
+  }
   ui.time.addEventListener('input', render);
   for (const e of [ui.plan, ui.planDays]) e.addEventListener('change', drawPlanner);
   ui.slipBack.addEventListener('click', () => slip(-1));

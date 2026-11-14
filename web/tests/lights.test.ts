@@ -2,6 +2,7 @@
 // on the real published files (so a data or rule change that breaks the demo fails the build).
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { PRESETS, darkEnduranceHours, simulateBattery } from '../src/battery';
 import { indexAt, lightsAt, profileFor, terrainAt, windowSummary } from '../src/lights';
 import { verdict } from '../src/planner';
 import type { SiteData } from '../src/types';
@@ -87,6 +88,36 @@ describe('four lights', () => {
     expect(verdict(false, 6.9, 7)).toBe('red');
     expect(verdict(true, 3.5, 7)).toBe('green');
     expect(verdict(true, 3.4, 7)).toBe('amber');
+  });
+});
+
+describe('Survive the Night', () => {
+  const small = PRESETS[0];
+  if (!small) throw new Error('no presets');
+  const run = (lit: boolean[]) => {
+    const s = site(
+      lit.map((x) => (x ? 1 : -1)),
+      lit.map(() => 5),
+    );
+    return simulateBattery(s, profileFor(s, 2), 0, lit.length, small);
+  };
+
+  it('a full battery lasts exactly its dark endurance', () => {
+    const e = darkEnduranceHours(small); // 3000 Wh / 60 W = 50 h
+    expect(e).toBe(50);
+    expect(run(new Array<boolean>(49).fill(false))).toMatchObject({ survives: true, flatHours: 0 });
+    const r = run(new Array<boolean>(52).fill(false));
+    expect(r.survives).toBe(false);
+    expect(r.firstFlat).toBe(49); // empty at the end of the 50th hour
+    expect(r.flatHours).toBe(3);
+  });
+
+  it('charges with the surplus in sunlight and never above full', () => {
+    const r = run([false, false, false, false, false, true, true]); // -300 Wh, then +300 Wh/h
+    expect(r.soc[4]).toBeCloseTo(0.9);
+    expect(r.soc[5]).toBeCloseTo(1);
+    expect(r.soc[6]).toBe(1);
+    expect(r.minSoc).toBeCloseTo(0.9);
   });
 });
 
