@@ -8,6 +8,8 @@
 
 **Views:** `data-view` on `<html>` is `mission`, `explore` or `learn` (switch in the header, `V` key, `v=` in the URL, remembered per browser). Mark content with class `v-explore` (hidden in Mission), `v-learn` (Learn only) or `v-mission` (Mission only); the rules are in `style.css`. Teaching text lives in `index.html` and must stay factual and sourced from the same data.
 
+**Tests:** unit tests in `tests/` (`npm test`, part of `npm run check`): the light rules, the disc, the battery, the planner sentence and summary, the AI-reply validator, and the demo scenario on the real files. End-to-end tests in `../e2e/` (`npm run test:e2e`, Playwright with the installed Chrome, about 30 s, **not** part of check): the demo scenario through the UI, the chart, views, theme, shortcuts, map, the question box with the model stubbed, the API, and the password gate on a second local Worker. Run them before a deploy that changes behaviour.
+
 **Rules:** the four lights, mission window and usable days follow `../_shared/concept.md` exactly; thresholds are named constants in one file. The browser does the maths (the Worker can't: 10 ms CPU). Its own clean design (Space Apps colours not required, see `../_shared/brand.md`), 4.5:1 contrast, keyboard-usable. Phones are a design goal, not a priority: nothing should break, wide views scroll sideways. Each NASA dataset is named on screen, and anything that is our own definition or an illustrative number says so in its info tip.
 
 **Touches:** `public/data/` is written by `pipeline/` (see `../_datasets/`). If you change the data shape, change `../_shared/stack.md`, `src/types.ts` and the pipeline together.

@@ -14,7 +14,7 @@ import {
   windowSummary,
 } from '../src/lights';
 import { answerText, verdict } from '../src/planner';
-import { summariseSite, type PlannerSummary } from '../src/summary';
+import { cellAt, summariseSite, type PlannerSummary } from '../src/summary';
 import type { SiteData } from '../src/types';
 
 function site(sunEl: number[], earthEl: number[], terrainDeg = 0): SiteData {
@@ -249,4 +249,29 @@ describe('published planner summary', () => {
       }
     }
   }, 60_000);
+});
+
+describe('planner summary lookup', () => {
+  const summary: PlannerSummary = {
+    height_m: 2,
+    start_utc: '2028-01-01T00:00:00Z',
+    windows: { '7': { a: { u: [70, 35, 0], s: [100, 80, 10], d: [0, 12, 150], v: 'gar' } } },
+  };
+  const day = (d: string) => new Date(`${d}T00:00:00Z`);
+
+  it('reads the cell for a landing day', () => {
+    expect(cellAt(summary, 'a', day('2028-01-02'), 7)).toEqual({
+      usableDays: 3.5,
+      sunlitPct: 80,
+      longestDarkHours: 12,
+      verdict: 'amber',
+    });
+  });
+
+  it('returns nothing outside the data, or for an unknown site or window', () => {
+    expect(cellAt(summary, 'a', day('2027-12-31'), 7)).toBeNull();
+    expect(cellAt(summary, 'a', day('2028-01-04'), 7)).toBeNull();
+    expect(cellAt(summary, 'b', day('2028-01-01'), 7)).toBeNull();
+    expect(cellAt(summary, 'a', day('2028-01-01'), 14)).toBeNull();
+  });
 });

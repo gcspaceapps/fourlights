@@ -27,7 +27,8 @@ Needs Node 22+, Python 3.12+, [uv](https://docs.astral.sh/uv/) and ruff.
 ```sh
 npm install          # also switches on the repo's git hooks
 npm run dev          # builds web/, then serves page + data + API on http://localhost:8787
-npm run check        # formatting, lint, type check, ruff
+npm run check        # formatting, lint, type check, unit tests, ruff
+npm run test:e2e     # end-to-end tests in Chrome (about 30 s; not part of check)
 ```
 The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
 

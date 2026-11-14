@@ -20,3 +20,5 @@ Thumbs.db
 .dev.vars
 *.egg-info/
 data/derived/
+test-results/
+playwright-report/

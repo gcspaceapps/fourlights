@@ -17,12 +17,14 @@
     "check:real-data": "node scripts/check-real-data.mjs",
     "deploy": "npm run check && npm run check:real-data && npm run build && wrangler deploy",
     "fake-data": "node scripts/make-fake-data.mjs",
-    "test": "vitest run",
-    "planner-data": "node scripts/build-planner-summary.mjs"
+    "test": "vitest run --dir web",
+    "planner-data": "node scripts/build-planner-summary.mjs",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@phosphor-icons/core": "^2.1.1",
+    "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.6",
     "eslint": "^10.15.0",
     "globals": "^17.14.0",
