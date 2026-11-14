@@ -1,15 +1,95 @@
+/*
+ * Four Lights: a mission-operations look. Dark by default (ops rooms, and the Sun and Earth
+ * read like they do in the sky); light when the device asks for it (projectors, daylight).
+ * Colours carry meaning everywhere: Sun = amber-gold, Earth = sky-cyan, terrain = grey,
+ * go / marginal / no-go = green / amber / red, always paired with a symbol or a word.
+ * Every text pair meets 4.5:1.
+ */
 :root {
-  --sa-blue-yonder: #2e96f5;
-  --sa-neon-blue: #0960e1;
-  --sa-electric-blue: #0042a6;
-  --sa-deep-blue: #07173f;
-  --sa-rocket-red: #e43700;
-  --sa-martian-red: #8e1100;
-  --sa-neon-yellow: #eafe07;
-  --sa-white: #ffffff;
-  --sa-gradient: linear-gradient(135deg, #0042a6 0%, #07173f 100%);
-  --sa-font-heading: 'Fira Sans', 'Overpass', sans-serif;
-  --sa-font-body: 'Overpass', sans-serif;
+  color-scheme: dark;
+  --bg: #0b0f14;
+  --surface: #121821;
+  --surface-2: #19212d;
+  --border: #2b3646;
+  --text: #e6edf3;
+  --muted: #9aa7b4;
+  --sun: #ffb020;
+  --earth: #4cc3ff;
+  --accent: #ffd166;
+  --sky: #06090d;
+  --terrain: #343e4b;
+  --terrain-edge: #8b97a6;
+  --grid: rgb(230 237 243 / 10%);
+  --grid-zero: rgb(230 237 243 / 40%);
+  --go-bg: #12392a;
+  --go-fg: #7ee2a8;
+  --go-edge: #2f8f5f;
+  --warn-bg: #3d2e0b;
+  --warn-fg: #ffcf5c;
+  --warn-edge: #a8780f;
+  --nogo-bg: #3f1616;
+  --nogo-fg: #ff9a9a;
+  --nogo-edge: #b54848;
+  --font: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --radius: 0.5rem;
+}
+
+/* Light: when the device asks for it (unless the toggle forces dark), or when forced. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #eef1f5;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --muted: #57606a;
+    --sun: #b35c00;
+    --earth: #0969da;
+    --accent: #0969da;
+    --sky: #eef3f8;
+    --terrain: #a7b0bb;
+    --terrain-edge: #59636e;
+    --grid: rgb(31 35 40 / 10%);
+    --grid-zero: rgb(31 35 40 / 45%);
+    --go-bg: #dafbe1;
+    --go-fg: #116329;
+    --go-edge: #4ac26b;
+    --warn-bg: #fff1c2;
+    --warn-fg: #7a4d00;
+    --warn-edge: #d4a72c;
+    --nogo-bg: #ffe2e0;
+    --nogo-fg: #a40e26;
+    --nogo-edge: #e5534b;
+  }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --sun: #b35c00;
+  --earth: #0969da;
+  --accent: #0969da;
+  --sky: #eef3f8;
+  --terrain: #a7b0bb;
+  --terrain-edge: #59636e;
+  --grid: rgb(31 35 40 / 10%);
+  --grid-zero: rgb(31 35 40 / 45%);
+  --go-bg: #dafbe1;
+  --go-fg: #116329;
+  --go-edge: #4ac26b;
+  --warn-bg: #fff1c2;
+  --warn-fg: #7a4d00;
+  --warn-edge: #d4a72c;
+  --nogo-bg: #ffe2e0;
+  --nogo-fg: #a40e26;
+  --nogo-edge: #e5534b;
 }
 
 * {
@@ -19,64 +99,46 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--sa-gradient);
-  color: var(--sa-white);
-  font-family: var(--sa-font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
   line-height: 1.5;
 }
 
 main {
-  max-width: 48rem;
+  max-width: 76rem;
   margin: 0 auto;
-  padding: 3rem 1rem;
-}
-
-h1 {
-  font-family: var(--sa-font-heading);
-  font-weight: 900;
-  font-size: clamp(2.5rem, 8vw, 4rem);
-  margin: 0;
-}
-
-.tagline {
-  font-size: 1.25rem;
-}
-
-.lights {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 0;
-  list-style: none;
-}
-
-.lights li {
-  padding: 0.5rem 1rem;
-  border: 2px solid var(--sa-blue-yonder);
-  border-radius: 999px;
-  font-weight: 700;
-}
-
-.status {
-  color: var(--sa-white);
-  opacity: 0.9;
-}
-
-/* Layout */
-main {
-  max-width: 72rem;
   padding: 2rem 1rem 3rem;
 }
 
 header {
-  margin-bottom: 1.5rem;
+  position: relative;
+  margin-bottom: 1rem;
+  padding-right: 7rem;
+}
+
+h1 {
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3rem);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.tagline {
+  font-size: 1.15rem;
+  color: var(--muted);
+  margin: 0.25rem 0 0;
 }
 
 h2 {
-  font-family: var(--sa-font-heading);
-  font-weight: 700;
-  font-size: 1.5rem;
-  margin: 1.5rem 0 0.75rem;
+  font-weight: 600;
+  font-size: 1.35rem;
+  margin: 2rem 0 0.5rem;
+}
+
+section > p {
+  color: var(--muted);
+  max-width: 60rem;
 }
 
 /* Controls */
@@ -84,33 +146,66 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
-  margin-bottom: 1rem;
+  margin: 0.75rem 0 1rem;
+  align-items: flex-end;
 }
 
 .controls label {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 select,
-input[type='date'] {
+input[type='date'],
+button {
   font: inherit;
-  font-weight: 400;
-  color: var(--sa-deep-blue);
-  background: var(--sa-white);
-  border: 2px solid var(--sa-blue-yonder);
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 0.375rem;
-  padding: 0.35rem 0.5rem;
+  padding: 0.4rem 0.6rem;
   min-height: 2.5rem;
 }
 
-select:focus-visible,
-input:focus-visible {
-  outline: 3px solid var(--sa-neon-yellow);
+button {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover,
+select:hover,
+input[type='date']:hover {
+  border-color: var(--muted);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
+}
+
+.slip-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Theme toggle */
+.theme-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.85rem;
+  min-height: 2.25rem;
+}
+
+#slip-on {
+  background: var(--sun);
+  border-color: var(--sun);
+  color: var(--bg);
 }
 
 /* Chart */
@@ -118,40 +213,46 @@ input:focus-visible {
   margin: 0;
 }
 
+.chart-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
 .chart svg {
   display: block;
   width: 100%;
   height: auto;
-  background: var(--sa-deep-blue);
-  border-radius: 0.5rem;
+  background: var(--sky);
 }
 
 .chart figcaption {
   font-size: 0.9rem;
+  color: var(--muted);
   margin-top: 0.5rem;
 }
 
 .sky {
-  fill: var(--sa-deep-blue);
+  fill: var(--sky);
 }
 
 .grid {
-  stroke: rgb(255 255 255 / 15%);
+  stroke: var(--grid);
   stroke-width: 1;
 }
 
 .grid.zero {
-  stroke: rgb(255 255 255 / 45%);
+  stroke: var(--grid-zero);
 }
 
 .tick {
-  fill: var(--sa-white);
-  font: 12px var(--sa-font-body);
+  fill: var(--muted);
+  font: 12px var(--mono);
 }
 
 .terrain {
-  fill: #6b7280;
-  stroke: #d1d5db;
+  fill: var(--terrain);
+  stroke: var(--terrain-edge);
   stroke-width: 1;
 }
 
@@ -161,49 +262,49 @@ input:focus-visible {
 }
 
 .track.sun {
-  stroke: var(--sa-neon-yellow);
+  stroke: var(--sun);
 }
 
 .track.earth {
-  stroke: var(--sa-blue-yonder);
+  stroke: var(--earth);
 }
 
 .tick-dot.sun {
-  fill: var(--sa-neon-yellow);
+  fill: var(--sun);
 }
 
 .tick-dot.earth {
-  fill: var(--sa-blue-yonder);
+  fill: var(--earth);
 }
 
 .marker {
-  stroke: var(--sa-deep-blue);
+  stroke: var(--sky);
   stroke-width: 2;
 }
 
 .marker.sun {
-  fill: var(--sa-neon-yellow);
+  fill: var(--sun);
 }
 
 .marker.earth {
-  fill: var(--sa-blue-yonder);
+  fill: var(--earth);
 }
 
 .label {
-  font: 700 14px var(--sa-font-body);
+  font: 600 14px var(--font);
   stroke: none;
 }
 
 .key {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .key.sun {
-  color: var(--sa-neon-yellow);
+  color: var(--sun);
 }
 
 .key.earth {
-  color: var(--sa-blue-yonder);
+  color: var(--earth);
 }
 
 /* Time slider */
@@ -216,17 +317,19 @@ input:focus-visible {
 }
 
 .slider label {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .slider input {
   width: 100%;
-  accent-color: var(--sa-neon-yellow);
+  accent-color: var(--sun);
 }
 
 .slider output {
   grid-column: 2;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 /* The four lights: state is in words, not colour alone */
@@ -239,104 +342,62 @@ input:focus-visible {
 }
 
 .lights li {
+  --on: var(--go-fg);
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.25rem 0.5rem;
   padding: 0.75rem 1rem;
-  border: 2px solid var(--sa-blue-yonder);
-  border-radius: 0.75rem;
-  background: rgb(7 23 63 / 60%);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.lights li[data-light='sun'] {
+  --on: var(--sun);
+}
+
+.lights li[data-light='earth'],
+.lights li[data-light='comms'] {
+  --on: var(--earth);
 }
 
 .lights .name {
-  font-family: var(--sa-font-heading);
-  font-weight: 900;
-  font-size: 1.25rem;
+  font-weight: 700;
+  font-size: 1.15rem;
 }
 
 .lights .state {
-  font-weight: 700;
+  font-family: var(--mono);
+  font-weight: 600;
   text-transform: uppercase;
   align-self: center;
 }
 
 .lights .on {
-  border-color: var(--sa-neon-yellow);
+  border-left-color: var(--on);
 }
 
 .lights .on .state {
-  color: var(--sa-neon-yellow);
+  color: var(--on);
 }
 
 .lights .off .state {
-  color: var(--sa-white);
-  text-decoration: line-through;
+  color: var(--muted);
 }
 
 .lights .detail {
   grid-column: 1 / -1;
   font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .window {
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-/* Site info */
-.site-info dl {
-  display: grid;
-  grid-template-columns: minmax(8rem, max-content) 1fr;
-  gap: 0.35rem 1rem;
-  margin: 0;
-}
-
-.site-info dt {
-  font-weight: 700;
-}
-
-.site-info dd {
-  margin: 0;
-}
-
-footer {
-  margin-top: 2rem;
-  font-size: 0.85rem;
-}
-
-.chart-scroll {
-  overflow-x: auto;
-  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1.05rem;
 }
 
 /* Slip Planner */
-.slip-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-end;
-}
-
-button {
-  font: inherit;
-  font-weight: 700;
-  color: var(--sa-deep-blue);
-  background: var(--sa-white);
-  border: 2px solid var(--sa-blue-yonder);
-  border-radius: 0.375rem;
-  padding: 0.35rem 0.75rem;
-  min-height: 2.5rem;
-  cursor: pointer;
-}
-
-button:focus-visible {
-  outline: 3px solid var(--sa-neon-yellow);
-  outline-offset: 2px;
-}
-
-#slip-on {
-  background: var(--sa-neon-yellow);
-}
-
 .table-scroll {
   overflow-x: auto;
 }
@@ -344,11 +405,12 @@ button:focus-visible {
 .planner {
   border-collapse: separate;
   border-spacing: 3px;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
 }
 
 .planner th {
-  font-weight: 700;
+  font-family: var(--font);
+  font-weight: 600;
   font-size: 0.85rem;
   text-align: center;
   padding: 0.25rem;
@@ -359,7 +421,8 @@ button:focus-visible {
   text-align: left;
   position: sticky;
   left: 0;
-  background: var(--sa-deep-blue);
+  z-index: 1;
+  background: var(--bg);
   padding-right: 0.75rem;
 }
 
@@ -367,10 +430,12 @@ button:focus-visible {
   display: block;
   font-weight: 400;
   font-size: 0.75rem;
+  color: var(--muted);
 }
 
-.planner th.planned {
-  color: var(--sa-neon-yellow);
+.planner th.planned,
+.planner th.planned .slip {
+  color: var(--sun);
 }
 
 .planner td {
@@ -384,35 +449,89 @@ button:focus-visible {
   min-height: 2.25rem;
   padding: 0.25rem;
   border-radius: 0.25rem;
+  font-family: var(--mono);
   font-size: 0.9rem;
 }
 
-/* White on these reds/greens would fail contrast, so cells use dark text on light fills. */
 .planner td.green button {
-  background: #b6f2c4;
-  border-color: #1e8a3c;
+  background: var(--go-bg);
+  border-color: var(--go-edge);
+  color: var(--go-fg);
 }
 
 .planner td.amber button {
-  background: #ffe08a;
-  border-color: #a86b00;
+  background: var(--warn-bg);
+  border-color: var(--warn-edge);
+  color: var(--warn-fg);
 }
 
 .planner td.red button {
-  background: #ffc2b3;
-  border-color: var(--sa-martian-red);
+  background: var(--nogo-bg);
+  border-color: var(--nogo-edge);
+  color: var(--nogo-fg);
 }
 
 .planner td.planned button {
-  outline: 3px solid var(--sa-neon-yellow);
-  outline-offset: -1px;
+  outline: 2px solid var(--sun);
+  outline-offset: 1px;
+}
+
+.planner td.none,
+.planner td.pending {
+  color: var(--muted);
 }
 
 .key-green,
 .key-amber,
 .key-red {
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
+  padding: 0 0.3rem;
+  border-radius: 0.25rem;
+}
+
+.key-green {
+  background: var(--go-bg);
+  color: var(--go-fg);
+}
+
+.key-amber {
+  background: var(--warn-bg);
+  color: var(--warn-fg);
+}
+
+.key-red {
+  background: var(--nogo-bg);
+  color: var(--nogo-fg);
+}
+
+/* Site info */
+.site-info dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0;
+}
+
+.site-info dt {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.site-info dd {
+  margin: 0;
+}
+
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+footer p {
+  margin: 0.25rem 0;
 }
 
 @media (width <= 40rem) {

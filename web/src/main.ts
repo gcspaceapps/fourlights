@@ -72,6 +72,7 @@ function writeHash(): void {
 function light(name: string, on: boolean, detail: string): HTMLLIElement {
   const li = document.createElement('li');
   li.className = on ? 'on' : 'off';
+  li.dataset.light = name.toLowerCase();
   for (const [cls, text] of [
     ['name', name],
     ['state', on ? 'on' : 'off'],
@@ -245,6 +246,37 @@ async function showHealth(): Promise<void> {
   }
 }
 
+/** Auto (follow the device) / Dark / Light, remembered in this browser only. */
+function setupTheme(): void {
+  const btn = document.getElementById('theme');
+  if (!btn) return;
+  const modes = ['auto', 'dark', 'light'] as const;
+  type Mode = (typeof modes)[number];
+  const apply = (m: Mode): void => {
+    if (m === 'auto') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = m;
+    btn.textContent = `Theme: ${m[0]?.toUpperCase()}${m.slice(1)}`;
+  };
+  let mode: Mode = 'auto';
+  try {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') mode = saved;
+  } catch {
+    // storage blocked: stay on auto
+  }
+  apply(mode);
+  btn.addEventListener('click', () => {
+    mode = modes[(modes.indexOf(mode) + 1) % modes.length] ?? 'auto';
+    apply(mode);
+    try {
+      localStorage.setItem('theme', mode);
+    } catch {
+      // storage blocked: the choice lasts for this page only
+    }
+  });
+}
+
+setupTheme();
 void showHealth();
 init().catch((e: unknown) => {
   ui.lights.textContent = `Could not load the site data: ${String(e)}`;
