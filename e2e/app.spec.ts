@@ -81,6 +81,35 @@ test.describe('Sun-Path Chart', () => {
     await expect(page.locator('#chart text.label.earth')).toHaveText('Earth (hidden)');
   });
 
+  test('the pointing table gives the raw numbers, and the window downloads as CSV', async ({
+    page,
+  }) => {
+    await open(page, '#site=connecting-ridge&date=2028-04-22&t=100');
+    const row = (body: string) =>
+      page.locator('#pointing tbody tr', { hasText: body }).locator('td');
+    await expect(page.locator('#pointing thead th')).toHaveText([
+      '',
+      'Azimuth',
+      'Elevation',
+      'Terrain there',
+      'Clearance',
+    ]);
+    await expect(row('Sun')).toHaveText(['296.10°', '−1.28°', '−1.30°', '+0.02°']);
+    await expect(row('Earth').nth(3)).toHaveClass(/clear/);
+    await page.locator('#time').fill('0');
+    await expect(row('Sun').first()).not.toHaveText('296.10°'); // follows the slider
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#pointing-csv').click(),
+    ]);
+    expect(download.suggestedFilename()).toBe('four-lights_connecting-ridge_2028-04-22_7d_2m.csv');
+    const lines = (await (await download.createReadStream()).toArray()).join('').trim().split('\n');
+    expect(lines).toHaveLength(1 + 7 * 24);
+    expect(lines[0]).toContain('time_utc,sun_az_deg,sun_el_deg');
+    expect(lines[1]).toMatch(/^2028-04-22T00:00Z,/);
+  });
+
   test('the Comms light names a Deep Space Network station', async ({ page }) => {
     await open(page, '#site=peak-near-shackleton&date=2028-04-22&t=36');
     await expect(page.locator('#lights li[data-light="comms"]')).toContainText(

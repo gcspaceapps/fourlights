@@ -24,6 +24,7 @@ import {
   windowSummary,
   type InstantLights,
 } from './lights';
+import { pointingAt, pointingCsv, renderPointing } from './pointing';
 import { segmented, syncSegmented } from './segmented';
 import { key, setupShortcuts, type Shortcut } from './shortcuts';
 import { at, type SiteData, type SiteSummary } from './types';
@@ -45,6 +46,8 @@ const ui = {
   chart: $('chart') as unknown as SVGSVGElement,
   lights: $('lights'),
   window: $('window'),
+  pointing: $('pointing') as HTMLTableElement,
+  pointingCsv: $('pointing-csv') as HTMLButtonElement,
   info: $('site-info'),
   review: $('review'),
   reviewText: $('review-text'),
@@ -228,6 +231,7 @@ function render(): void {
     ),
     light('Comms', now.comms, commsDetail(now)),
   );
+  renderPointing(ui.pointing, pointingAt(site, profile, cursor));
   ui.window.textContent = `Usable days in this ${days}-day window (sunlight with a link to Earth): ${w.usableDays.toFixed(1)}`;
   ui.window.appendChild(
     infoTip(
@@ -724,6 +728,18 @@ const SHORTCUTS: Shortcut[] = [
 
 setupViews();
 for (const sel of [ui.planDays, ui.days, ui.height, ui.centre, ui.preset]) segmented(sel);
+ui.pointingCsv.addEventListener('click', () => {
+  const site = current;
+  if (!site) return;
+  const profile = profileFor(site, Number(ui.height.value));
+  const start = indexAt(site, new Date(`${ui.date.value}T00:00:00Z`));
+  const csv = pointingCsv(site, profile, start, Number(ui.days.value) * 24);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `four-lights_${site.id}_${ui.date.value}_${ui.days.value}d_${ui.height.value}m.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
 upgradeIcons();
 upgradeInfoTips();
 setupShortcuts(SHORTCUTS, $('shortcuts') as HTMLDialogElement);

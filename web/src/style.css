@@ -618,6 +618,54 @@ circle.marker.hidden {
   color: var(--earth);
 }
 
+/* Pointing: the raw azimuth and elevation numbers */
+.pointing {
+  margin: 1rem 0;
+}
+
+.pointing-table {
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  margin-bottom: 0.6rem;
+}
+
+.pointing-table th,
+.pointing-table td {
+  padding: 0.35rem 1.25rem 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pointing-table thead th {
+  font-family: var(--font);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pointing-table tbody th {
+  font-family: var(--font);
+  font-weight: 700;
+  text-align: left;
+}
+
+.pointing-table th.sun {
+  color: var(--sun);
+}
+
+.pointing-table th.earth {
+  color: var(--earth);
+}
+
+.pointing-table td.clear {
+  color: var(--go-fg);
+}
+
+.pointing-table td.blocked {
+  color: var(--nogo-fg);
+}
+
 /* Survive the Night */
 h3 {
   font-weight: 600;

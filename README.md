@@ -12,6 +12,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 ## What it does
 - **Sun-Path Chart:** stand at a site and look around: a 360° skyline from NASA's LOLA terrain, with the Sun's and Earth's paths traced over it and a time slider.
 - **Slip Planner:** sites × landing dates, each cell showing **usable days** (hours with the Sun up and Earth in view, over the mission window). Slip the date and see which sites still work.
+- **Pointing numbers:** the Sun's and Earth's azimuth and elevation at any hour, the terrain height in that direction and the clearance, with a CSV download of the whole mission window, for aiming solar panels and antennas.
 - **Canberra Link:** the Comms light also needs a Deep Space Network station (Goldstone, Canberra or Madrid) that can see the Moon, and names the one carrying the link.
 - **Site map:** the 12 sites on LOLA terrain shading of the pole, coloured for the planned landing.
 - **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.

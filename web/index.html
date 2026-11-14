@@ -325,6 +325,20 @@
             >, where the Sun and Earth positions come from
           </p>
         </div>
+        <div class="pointing">
+          <h3
+            id="pointing-title"
+            data-info="The raw numbers behind the lights, at the time on the slider. Azimuth is clockwise from true north at the site; elevation is above the local level (negative means below it). Both are for the body's centre, from NASA JPL Horizons. 'Terrain there' is the highest ground in that direction from the LOLA elevation models, for the chosen observer height. Clearance is elevation minus terrain."
+          >
+            Pointing
+          </h3>
+          <div class="table-scroll">
+            <table class="pointing-table" id="pointing" aria-labelledby="pointing-title"></table>
+          </div>
+          <button type="button" id="pointing-csv">
+            Download the hourly values for this window (CSV)
+          </button>
+        </div>
         <p class="window" id="window"></p>
 
         <h3

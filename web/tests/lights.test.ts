@@ -14,6 +14,7 @@ import {
   windowSummary,
 } from '../src/lights';
 import { answerText, verdict } from '../src/planner';
+import { pointingAt, pointingCsv } from '../src/pointing';
 import { cellAt, summariseSite, type PlannerSummary } from '../src/summary';
 import type { SiteData } from '../src/types';
 
@@ -273,5 +274,29 @@ describe('planner summary lookup', () => {
     expect(cellAt(summary, 'a', day('2028-01-04'), 7)).toBeNull();
     expect(cellAt(summary, 'b', day('2028-01-01'), 7)).toBeNull();
     expect(cellAt(summary, 'a', day('2028-01-01'), 14)).toBeNull();
+  });
+});
+
+describe('pointing: the raw azimuth and elevation numbers', () => {
+  const s = site([1.5, -0.2], [5, 5], 0.25); // terrain 0.25° everywhere
+  s.stations = [2, 0];
+  const h = profileFor(s, 2);
+
+  it('gives azimuth, elevation, terrain and clearance for each body', () => {
+    expect(pointingAt(s, h, 0)).toEqual([
+      { body: 'Sun', azDeg: 10, elDeg: 1.5, terrainDeg: 0.25, clearDeg: 1.25 },
+      { body: 'Earth', azDeg: 200, elDeg: 5, terrainDeg: 0.25, clearDeg: 4.75 },
+    ]);
+    expect(pointingAt(s, h, 1)[0]?.clearDeg).toBeCloseTo(-0.45);
+  });
+
+  it('exports the window hour by hour as CSV', () => {
+    const lines = pointingCsv(s, h, 0, 2).trim().split('\n');
+    expect(lines[0]).toBe(
+      'time_utc,sun_az_deg,sun_el_deg,sun_terrain_deg,sun_disc_in_view,earth_az_deg,earth_el_deg,earth_terrain_deg,comms,dsn_stations',
+    );
+    expect(lines[1]).toBe('2028-01-01T00:00Z,10.00,1.50,0.25,1.000,200.00,5.00,0.25,1,canberra');
+    expect(lines[2]).toBe('2028-01-01T01:00Z,10.00,-0.20,0.25,0.000,200.00,5.00,0.25,0,');
+    expect(lines).toHaveLength(3);
   });
 });
