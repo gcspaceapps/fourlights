@@ -28,6 +28,7 @@ import {
 import { pointingAt, pointingCsv, renderPointing } from './pointing';
 import { segmented, syncSegmented } from './segmented';
 import { key, setupShortcuts, type Shortcut } from './shortcuts';
+import { activeTab, refreshTabs, setupTabs, showTab, stepTab } from './tabs';
 import { at, type SiteData, type SiteSummary } from './types';
 
 function $(id: string): HTMLElement {
@@ -71,7 +72,6 @@ const ui = {
   slipOn: $('slip-on') as HTMLButtonElement,
   planner: $('planner') as HTMLTableElement,
   answer: $('answer'),
-  mapDetails: $('map-details') as HTMLDetailsElement,
   theme: $('theme'),
   ask: $('ask') as HTMLFormElement,
   askQ: $('ask-q') as HTMLInputElement,
@@ -107,6 +107,7 @@ function writeHash(): void {
     t: ui.time.value,
     ps: ui.preset.value,
     pw: [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value].join('_'),
+    tab: activeTab(),
     plan: ui.plan.value,
     v: document.documentElement.dataset.view ?? 'explore',
     pdays: ui.planDays.value,
@@ -336,6 +337,7 @@ function openChart(siteId: string, date: string, days: number): void {
   ui.date.value = date;
   ui.days.value = String(days);
   ui.time.value = '0';
+  showTab('sun-path-chart');
   void selectSite(siteId).then(() => {
     ui.chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     ui.site.focus({ preventScroll: true });
@@ -546,6 +548,7 @@ function setView(v: View, remember = true): void {
   for (const r of document.querySelectorAll<HTMLInputElement>('input[name="view"]')) {
     r.checked = r.value === v;
   }
+  refreshTabs();
   if (remember) {
     try {
       localStorage.setItem('view', v);
@@ -576,24 +579,6 @@ function setupViews(): void {
 function nextView(): void {
   const cur = document.documentElement.dataset.view as View;
   setView(VIEWS[(VIEWS.indexOf(cur) + 1) % VIEWS.length] ?? 'explore');
-}
-
-/** The map is tucked away by default; remember whether this browser had it open. */
-function setupMapToggle(): void {
-  const d = document.getElementById('map-details') as HTMLDetailsElement | null;
-  if (!d) return;
-  try {
-    d.open = localStorage.getItem('map') === 'open';
-  } catch {
-    // storage blocked: stay closed
-  }
-  d.addEventListener('toggle', () => {
-    try {
-      localStorage.setItem('map', d.open ? 'open' : 'closed');
-    } catch {
-      // storage blocked
-    }
-  });
 }
 
 /** Step a <select> to its next or previous option and fire its change handler. */
@@ -636,15 +621,18 @@ const SHORTCUTS: Shortcut[] = [
     keys: ['/'],
     what: 'Ask in plain English',
     match: key('/'),
-    run: () => ui.askQ.focus(),
+    run: () => {
+      showTab('planner');
+      ui.askQ.focus();
+    },
   },
   {
     group: 'Planner',
     keys: ['M'],
-    what: 'Show or hide the map',
+    what: 'Go to the map',
     match: key('m', 'M'),
     run: () => {
-      ui.mapDetails.open = !ui.mapDetails.open;
+      showTab('map');
     },
   },
   {
@@ -658,11 +646,18 @@ const SHORTCUTS: Shortcut[] = [
     },
   },
   {
-    group: 'Sun-Path Chart',
+    group: 'Page',
     keys: ['←', '→'],
-    what: 'Move the time one hour',
+    what: 'Previous or next tab',
     match: (e) => key('ArrowLeft', 'ArrowRight')(e) && !e.shiftKey,
-    run: (e) => moveTime(e.key === 'ArrowLeft' ? -1 : 1),
+    run: (e) => stepTab(e.key === 'ArrowLeft' ? -1 : 1),
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: [',', '.'],
+    what: 'Move the time one hour',
+    match: key(',', '.'),
+    run: (e) => moveTime(e.key === ',' ? -1 : 1),
   },
   {
     group: 'Sun-Path Chart',
@@ -704,7 +699,10 @@ const SHORTCUTS: Shortcut[] = [
     keys: ['G'],
     what: 'Go to the chart',
     match: key('g', 'G'),
-    run: () => ui.chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    run: () => {
+      showTab('sun-path-chart');
+      ui.chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
   },
   {
     group: 'Page',
@@ -730,6 +728,7 @@ const SHORTCUTS: Shortcut[] = [
 ];
 
 setupViews();
+setupTabs($('tabs'), readHash().get('tab'), () => writeHash());
 for (const sel of [ui.planDays, ui.days, ui.height, ui.centre, ui.preset]) segmented(sel);
 ui.pointingCsv.addEventListener('click', () => {
   const site = current;
@@ -747,7 +746,6 @@ upgradeIcons();
 upgradeInfoTips();
 setupShortcuts(SHORTCUTS, $('shortcuts') as HTMLDialogElement);
 setupAsk();
-setupMapToggle();
 setupTheme();
 void showHealth();
 init().catch((e: unknown) => {

@@ -224,7 +224,7 @@ test.describe('views, theme and help', () => {
     await expect(page.locator('#plan-days')).toHaveValue('14');
     await page.keyboard.press('d');
     await expect(page.locator('#plan')).toHaveValue('2028-04-19');
-    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('.');
     await page.keyboard.press('Shift+ArrowRight');
     await expect(page.locator('#time')).toHaveValue('25');
     const before = await page.locator('#site').inputValue();
@@ -253,10 +253,10 @@ test.describe('views, theme and help', () => {
     await expect(tip.locator('.tip')).toContainText('NASA');
   });
 
-  test('the map is tucked away, then shows twelve sites that open the chart', async ({ page }) => {
+  test('the map has its own tab and shows twelve sites that open the chart', async ({ page }) => {
     await open(page);
     await expect(page.locator('#map')).toBeHidden();
-    await page.locator('#map-details summary').click();
+    await page.getByRole('tab', { name: 'Map' }).click();
     await expect(page.locator('#map g.site')).toHaveCount(12);
     await page.locator('#map g.site', { hasText: 'Haworth' }).click();
     await expect(page.locator('#site')).toHaveValue('haworth');
@@ -306,7 +306,7 @@ test.describe('page health', () => {
     page.on('pageerror', (e) => problems.push(`error: ${e.message}`));
     page.on('response', (r) => r.status() >= 400 && problems.push(`${r.status()} ${r.url()}`));
     await open(page);
-    await page.locator('#map-details summary').click();
+    await page.getByRole('tab', { name: 'Map' }).click();
     await expect(page.locator('#map g.site')).toHaveCount(12);
     expect(problems).toEqual([]);
   });

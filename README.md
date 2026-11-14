@@ -19,7 +19,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 - **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
 - **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
 - **Three views:** Mission (terse, shortcuts in sight), Explore (the default) and Learn (teaching panels with NASA photographs and charts drawn from the site's own data, a glossary and things to try), for planners, the public and classrooms.
-- **Keyboard shortcuts:** `]` and `[` slip the date, arrows move the time, `J`/`K` change site; `Ctrl` `/` (or `?`) lists them all.
+- **Keyboard shortcuts:** `]` and `[` slip the date, left and right arrows switch tab, `,` and `.` move the time, `J`/`K` change site; `Ctrl` `/` (or `?`) lists them all.
 - **How we built it** (`/how`): the solutions architecture, with diagrams: the design decisions and their trade-offs, the pipeline, the horizon engine, serving at the edge, and how each layer is independently checked.
 - **Data sources page** (`/sources`): every dataset, what the app uses it for, what we did to it, how we checked it, its limits, licence and citation, plus links to download our derived files.
 - **Where it comes from:** an info button beside each view, light and number says which NASA dataset or which of our own definitions is behind it.

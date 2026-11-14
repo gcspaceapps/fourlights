@@ -81,8 +81,9 @@
         </p>
         <p class="keys-strip v-mission">
           <kbd>]</kbd> slip a day · <kbd>[</kbd> back · <kbd>1</kbd> <kbd>2</kbd>
-          <kbd>3</kbd> window · <kbd>J</kbd> <kbd>K</kbd> site · <kbd>←</kbd> <kbd>→</kbd> time ·
-          <kbd>/</kbd> ask · <kbd>V</kbd> view · <kbd>Ctrl</kbd> <kbd>/</kbd> all shortcuts
+          <kbd>3</kbd> window · <kbd>J</kbd> <kbd>K</kbd> site · <kbd>←</kbd> <kbd>→</kbd> tab ·
+          <kbd>,</kbd> <kbd>.</kbd> time · <kbd>/</kbd> ask · <kbd>V</kbd> view · <kbd>Ctrl</kbd>
+          <kbd>/</kbd> all shortcuts
         </p>
         <p class="intro v-explore">
           At the Moon's south pole the Sun and Earth skim the horizon, so the hills and crater rims
@@ -92,7 +93,9 @@
         </p>
       </header>
 
-      <section class="learn v-learn" aria-labelledby="learn-start">
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
+
+      <section class="learn v-learn" data-tab="Start here" aria-labelledby="learn-start">
         <h2 id="learn-start">Start here: why the south pole is different</h2>
         <div class="learn-grid">
           <div>
@@ -194,79 +197,82 @@
         </p>
       </section>
 
-      <section aria-labelledby="planner-title">
-        <h2
-          id="planner-title"
-          data-info="Computed in your browser from each site's terrain horizon (NASA LRO LOLA elevation models) and the Sun's and Earth's direction for every hour of 2028 and 2029 (NASA JPL Horizons), for an observer 2 m above the ground. The green, amber and red rules are our own definitions."
-        >
-          Slip Planner
-        </h2>
-        <p class="legend">
-          Each cell is the <strong>usable days</strong> for a landing on that date: time in the
-          mission window with sunlight and a link to Earth. <span class="key-green">● works</span>
-          <span class="key-amber">▲ marginal</span>
-          <span
-            class="key-red"
-            data-info="Works: Power on and at least half the window usable. Marginal: Power on, less usable. No power: the Sun is in view less than 70% of the window on average, or fully hidden for more than 48 hours."
-            >✕ no power</span
+      <div data-tab="Planner">
+        <section aria-labelledby="planner-title">
+          <h2
+            id="planner-title"
+            data-info="Computed in your browser from each site's terrain horizon (NASA LRO LOLA elevation models) and the Sun's and Earth's direction for every hour of 2028 and 2029 (NASA JPL Horizons), for an observer 2 m above the ground. The green, amber and red rules are our own definitions."
           >
-          Choose a cell to see why.
-        </p>
-        <div class="controls">
-          <label>Planned landing (UTC) <input type="date" id="plan" /></label>
-          <label
-            >Mission window (days)
-            <select id="plan-days"></select
-          ></label>
-          <div class="slip-buttons" role="group" aria-label="Move the planned landing">
-            <button type="button" id="slip-back">− 1 day</button>
-            <button type="button" id="slip-on">Slip + 1 day</button>
-          </div>
-        </div>
-        <form class="ask" id="ask">
-          <label
-            for="ask-q"
-            data-info="A language model on Cloudflare Workers AI (Llama 3.3 70B) returns only a date, a slip, a window and a site. The server checks each one, then the planner computes the answer. The model never sees or produces the numbers."
-            >Or ask in plain English</label
-          >
-          <div class="ask-row">
-            <input
-              type="text"
-              id="ask-q"
-              maxlength="200"
-              placeholder="Launch slips 3 days from 19 April. Which sites still work?"
-              autocomplete="off"
-            />
-            <button type="submit">Ask</button>
-          </div>
-          <p class="ask-note v-explore" id="ask-note" aria-live="polite">
-            An AI model (Cloudflare Workers AI) only turns your words into the settings above; the
-            answer is computed by the planner.
+            Slip Planner
+          </h2>
+          <p class="legend">
+            Each cell is the <strong>usable days</strong> for a landing on that date: time in the
+            mission window with sunlight and a link to Earth. <span class="key-green">● works</span>
+            <span class="key-amber">▲ marginal</span>
+            <span
+              class="key-red"
+              data-info="Works: Power on and at least half the window usable. Marginal: Power on, less usable. No power: the Sun is in view less than 70% of the window on average, or fully hidden for more than 48 hours."
+              >✕ no power</span
+            >
+            Choose a cell to see why.
           </p>
-        </form>
-        <p class="answer" id="answer" aria-live="polite"></p>
-        <div class="table-scroll" tabindex="0" aria-label="Slip Planner table (scrolls sideways)">
-          <table class="planner" id="planner"></table>
-        </div>
-      </section>
+          <div class="controls">
+            <label>Planned landing (UTC) <input type="date" id="plan" /></label>
+            <label
+              >Mission window (days)
+              <select id="plan-days"></select
+            ></label>
+            <div class="slip-buttons" role="group" aria-label="Move the planned landing">
+              <button type="button" id="slip-back">− 1 day</button>
+              <button type="button" id="slip-on">Slip + 1 day</button>
+            </div>
+          </div>
+          <form class="ask" id="ask">
+            <label
+              for="ask-q"
+              data-info="A language model on Cloudflare Workers AI (Llama 3.3 70B) returns only a date, a slip, a window and a site. The server checks each one, then the planner computes the answer. The model never sees or produces the numbers."
+              >Or ask in plain English</label
+            >
+            <div class="ask-row">
+              <input
+                type="text"
+                id="ask-q"
+                maxlength="200"
+                placeholder="Launch slips 3 days from 19 April. Which sites still work?"
+                autocomplete="off"
+              />
+              <button type="submit">Ask</button>
+            </div>
+            <p class="ask-note v-explore" id="ask-note" aria-live="polite">
+              An AI model (Cloudflare Workers AI) only turns your words into the settings above; the
+              answer is computed by the planner.
+            </p>
+          </form>
+          <p class="answer" id="answer" aria-live="polite"></p>
+          <div class="table-scroll" tabindex="0" aria-label="Slip Planner table (scrolls sideways)">
+            <table class="planner" id="planner"></table>
+          </div>
+        </section>
+      </div>
 
-      <details class="map-details" id="map-details">
-        <summary
+      <section data-tab="Map" aria-labelledby="map-title">
+        <h2
+          id="map-title"
           data-info="Terrain shading made by us with GDAL from NASA's LOLA polar elevation model LDEM_75S_240M (PDS). Site positions come from NASA Goddard's 5 m site models and the USGS grids for the Artemis candidate regions."
         >
           Map: where the sites are
-        </summary>
+        </h2>
         <figure class="map">
           <svg id="map" role="group" aria-labelledby="map-desc"></svg>
           <figcaption id="map-desc" class="v-explore">
             The Moon's south pole, 420 km across, the pole marked with a cross, shaded from NASA's
-            LOLA elevation model (LDEM_75S_240M). Each site is coloured for the planned landing
-            above; choose one to open its Sun-Path Chart. Earth is toward the top.
+            LOLA elevation model (LDEM_75S_240M). Each site is coloured for the planned landing in
+            the Slip Planner; choose one to open its Sun-Path Chart. Earth is toward the top.
           </figcaption>
         </figure>
-      </details>
+      </section>
 
-      <section aria-labelledby="chart-title">
+      <section data-tab="Sun-Path Chart" aria-labelledby="chart-title">
         <h2
           id="chart-title"
           data-info="Skyline: the highest terrain in each half-degree of direction, computed by us from NASA LOLA elevation models, 5 m per pixel at the site out to 240 m per pixel about 650 km away. Sun and Earth: the apparent positions of their centres from NASA JPL Horizons (ephemeris DE441), every hour, checked against NASA NAIF SPICE."
@@ -405,7 +411,9 @@
           </button>
         </div>
         <p class="window" id="window"></p>
+      </section>
 
+      <section data-tab="Survive the Night" aria-labelledby="battery-title">
         <h3
           id="battery-title"
           data-info="A simple hour-by-hour energy balance of our own, driven by the Sun light above: in sunlight the array runs the day load and charges the battery with the surplus; in the dark the battery runs the survival load. It starts full at landing. No thermal model, no panel pointing, no battery ageing."
@@ -458,7 +466,7 @@
         <p class="window" id="battery-summary" aria-live="polite"></p>
       </section>
 
-      <section class="site-info" aria-labelledby="site-title">
+      <section class="site-info" data-tab="About this site" aria-labelledby="site-title">
         <h2
           id="site-title"
           data-info="Position, ground height and terrain come from the NASA LOLA files named below; the site point follows the rule shown. The whole-period figures are computed in your browser from the same data as the chart."
@@ -472,7 +480,7 @@
         <dl id="site-info"></dl>
       </section>
 
-      <section class="learn v-learn" aria-labelledby="learn-ai">
+      <section class="learn v-learn" data-tab="Where AI is used" aria-labelledby="learn-ai">
         <h2 id="learn-ai">Where AI is used on this page, and where it isn't</h2>
         <div class="learn-grid">
           <div>
@@ -546,7 +554,7 @@
         </p>
       </section>
 
-      <section class="learn v-learn" aria-labelledby="learn-try">
+      <section class="learn v-learn" data-tab="Try and glossary" aria-labelledby="learn-try">
         <h2 id="learn-try">Things to try</h2>
         <ol>
           <li>

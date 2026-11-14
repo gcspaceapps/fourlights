@@ -191,6 +191,46 @@ h2 {
   margin: 2.25rem 0 0.6rem;
 }
 
+/* Tabs: one panel at a time; Learn-only tabs follow the view rules above. */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border, currentColor);
+  margin-bottom: 0.5rem;
+}
+
+.tabs button {
+  flex: none;
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font: inherit;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tabs button:hover {
+  color: var(--text);
+}
+
+.tabs button[aria-selected='true'] {
+  color: var(--text);
+  border-bottom-color: var(--accent, currentColor);
+  font-weight: 600;
+}
+
+.tabs button:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: -2px;
+}
+
+.tab-off {
+  display: none !important;
+}
+
 section > p {
   color: var(--muted);
   max-width: var(--measure);
@@ -1151,28 +1191,7 @@ section > .window {
   color: var(--nogo-fg);
 }
 
-/* Map (collapsible) */
-.map-details {
-  margin: 1.25rem 0 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.map-details summary {
-  cursor: pointer;
-  font-weight: 600;
-  padding: 0.6rem 0.9rem;
-}
-
-.map-details[open] {
-  padding-bottom: 0.9rem;
-}
-
-.map-details .map {
-  margin: 0 0.9rem;
-}
-
+/* Map */
 .map {
   margin: 0;
   max-width: 44rem;
