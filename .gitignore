@@ -22,3 +22,5 @@ Thumbs.db
 data/derived/
 test-results/
 playwright-report/
+coverage/
+.coverage

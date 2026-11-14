@@ -1,6 +1,6 @@
 # Four Lights precompute. Data targets log their runs in stages/01_data/output/data-manifest.md.
 # SITE defaults to Shackleton rim; FETCH_FLAGS=--cache-first takes files from $NASA_CACHE first.
-.PHONY: venv test lint fetch fetch-spice fetch-usgs horizon bruteforce grass ephem publish regions sites validate qgis map
+.PHONY: venv test lint fetch fetch-spice fetch-usgs horizon bruteforce grass ephem publish regions sites validate qgis map coverage
 
 PY := .venv/bin/python
 SITE ?= shackleton-rim
@@ -12,6 +12,10 @@ venv:
 
 test:
 	.venv/bin/pytest
+
+# Unit-test coverage for the pipeline: a table here, and HTML in ../coverage/pipeline/.
+coverage:
+	.venv/bin/pytest -q --cov=four_lights --cov-report=term --cov-report=html:../coverage/pipeline
 
 lint:
 	ruff check . && ruff format --check .
