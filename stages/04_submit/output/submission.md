@@ -49,7 +49,7 @@ Scanned every tracked file and the commit history.
 - **Secrets:** none found. `.dev.vars` is ignored and was never committed. The Cloudflare `account_id` in `wrangler.jsonc` is an identifier, not a secret.
 - **AI attribution in commits:** none (0 matches across the whole commit history).
 - **Commit email: decided (Steve, Sat 14 Nov).** Every commit carries Steve's work email address as its author, and that is fine to be public. No history rewrite.
-- **Decision for Steve, machine name:** `stages/01_data/output/data-manifest.md` records the build machine's hostname in about 150 rows. Harmless, but it is a detail of a personal machine; it can be replaced with "Steve's laptop" in one edit if wanted.
+- **Machine name: decided (Steve, Sat 14 Nov).** The data manifest records the build machine's hostname. It means nothing to anyone else, so it stays.
 - **Named on purpose:** the team's names (README), and Ice Rover's URL in the pre-existing-work disclosure.
 - **Working notes that become public:** the build log says "Steve + agent" on each row, and `AGENTS.md` / `_shared/how-we-work.md` say the project is built with Claude Code. That matches the README's AI line; mentioned so it is a choice, not a surprise.
 - **Images:** screenshots of our own app, three public-domain NASA photographs (credited), and a hillshade made from NASA data. No generated images, video or audio.
