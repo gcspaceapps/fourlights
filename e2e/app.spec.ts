@@ -356,3 +356,51 @@ test.describe('data sources page', () => {
     for (const href of hrefs) expect((await request.get(href)).status(), href).toBe(200);
   });
 });
+
+test.describe('how we built it', () => {
+  test('renders its three architecture diagrams and links back', async ({ page }) => {
+    await open(page);
+    await page.getByRole('link', { name: 'How we built it' }).click();
+    await expect(page).toHaveURL(/\/how/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('How we built it');
+    await expect(page.locator('pre.mermaid svg')).toHaveCount(3);
+    await expect(page.locator('pre.mermaid').first()).toContainText('Horizon engine');
+    for (const id of [
+      'overview',
+      'decisions',
+      'pipeline',
+      'engine',
+      'serving',
+      'correct',
+      'quality',
+      'stack',
+      'team',
+    ]) {
+      await expect(page.locator(`#${id}`), id).toBeVisible();
+    }
+    await page.getByRole('link', { name: '← Back to Four Lights' }).first().click();
+    await expect(answer(page)).toContainText('sites work');
+  });
+});
+
+test.describe('Learn view pictures', () => {
+  test('shows NASA photographs and two charts drawn from the site data', async ({ page }) => {
+    await open(page, '#v=learn');
+    for (const file of [
+      'south-pole-clementine.jpg',
+      'earthrise-apollo-8.jpg',
+      'dss-43-canberra.jpg',
+    ]) {
+      const img = page.locator(`img[src$="${file}"]`);
+      await img.scrollIntoViewIfNeeded();
+      await expect(img).toBeVisible();
+      await expect
+        .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0))
+        .toBe(true);
+    }
+    await expect(page.locator('#learn-sun path.sun-line')).toHaveCount(1);
+    await expect(page.locator('#learn-earth path.earth-line')).toHaveCount(1);
+    await expect(page.locator('#learn-earth path.terrain-line')).toHaveCount(1);
+    await expect(page.locator('.learn figcaption').first()).toContainText('NASA');
+  });
+});

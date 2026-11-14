@@ -8,6 +8,7 @@ import {
 } from './battery';
 import { renderChart } from './chart';
 import { infoTip, lightIcon, upgradeIcons, upgradeInfoTips, type LightName } from './icons';
+import { renderEarthBob, renderSunYear } from './learn';
 import { renderMap } from './map';
 import { answerText, renderPlanner } from './planner';
 import { loadReviews, loadSite, loadSites } from './data';
@@ -314,6 +315,8 @@ async function selectSite(id: string): Promise<void> {
   current = await loadSite(id);
   const first = timeAt(current, 0);
   const last = timeAt(current, current.times.n - 1);
+  renderSunYear($('learn-sun') as unknown as SVGSVGElement, current);
+  renderEarthBob($('learn-earth') as unknown as SVGSVGElement, current);
   ui.date.min = ymd(first);
   ui.date.max = ymd(last);
   if (!ui.date.value || ui.date.value < ui.date.min || ui.date.value > ui.date.max) {

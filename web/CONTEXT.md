@@ -6,6 +6,8 @@
 
 **Run / test:** `npm run dev` at the repo root (build + `wrangler dev`), or `npm run dev -w web` for Vite alone. `npm run check` before every commit. `npm run check:real-data` (part of `npm run deploy`) fails if any `fake-` fixture is in `public/data/`; `npm run fake-data` regenerates the three fixtures for UI work, never to be committed.
 
+**Third page:** `how.html` (served at `/how`, entry `src/how.ts`): the solutions-architecture page, with Mermaid diagrams (the `mermaid` package loads only there). Keep its numbers (test counts, sizes) in step with reality. `learn.ts` draws the Learn view's two data charts from the loaded site file.
+
 **Second page:** `sources.html` (served at `/sources`, entry `src/sources.ts`): the data-sources page, written from the `_datasets/` cards. When a card changes, change this page too. Both pages are listed in `vite.config.ts`.
 
 **Views:** `data-view` on `<html>` is `mission`, `explore` or `learn` (switch in the header, `V` key, `v=` in the URL, remembered per browser). Mark content with class `v-explore` (hidden in Mission), `v-learn` (Learn only) or `v-mission` (Mission only); the rules are in `style.css`. Teaching text lives in `index.html` and must stay factual and sourced from the same data.

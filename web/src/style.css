@@ -314,6 +314,57 @@ section > p {
   margin-bottom: 0.4rem;
 }
 
+.learn-figs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  align-items: start;
+  gap: 1rem 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.learn figure {
+  margin: 0;
+}
+
+.learn figure img,
+.learn figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--sky);
+}
+
+.learn figcaption {
+  margin-top: 0.4rem;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.learn-side {
+  float: right;
+  width: min(18rem, 45%);
+  margin: 0 0 0.75rem 1.25rem !important;
+}
+
+.learn-line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.sun-line {
+  stroke: var(--sun);
+}
+
+.earth-line {
+  stroke: var(--earth);
+}
+
+.terrain-line {
+  stroke: var(--terrain-edge);
+}
+
 .learn .more {
   font-size: var(--fs-sm);
   color: var(--muted);
@@ -1326,6 +1377,38 @@ section > .window {
   .dataset dd {
     margin-bottom: 0.6rem;
   }
+}
+
+/* How-we-built-it page: Mermaid diagrams */
+pre.mermaid {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow-x: auto;
+  text-align: center;
+  font: var(--fs-sm) var(--mono);
+  white-space: pre;
+}
+
+pre.mermaid:not([data-processed]) {
+  color: var(--muted);
+  text-align: left;
+}
+
+.how .dataset {
+  max-width: 72rem;
+}
+
+.how .dataset > p,
+.how .dataset > ul,
+.how .dataset > dl {
+  max-width: var(--measure);
+}
+
+.how .header-tools {
+  gap: 1.25rem;
 }
 
 /* Keyboard shortcuts */

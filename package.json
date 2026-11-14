@@ -42,5 +42,8 @@
   "allowScripts": {
     "workerd@1.20261113.1": true,
     "esbuild@0.28.2": true
+  },
+  "dependencies": {
+    "mermaid": "^12.3.0"
   }
 }

@@ -18,8 +18,9 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 - **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.
 - **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
 - **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
-- **Three views:** Mission (terse, shortcuts in sight), Explore (the default) and Learn (teaching panels, a glossary and things to try), for planners, the public and classrooms.
+- **Three views:** Mission (terse, shortcuts in sight), Explore (the default) and Learn (teaching panels with NASA photographs and charts drawn from the site's own data, a glossary and things to try), for planners, the public and classrooms.
 - **Keyboard shortcuts:** `]` and `[` slip the date, arrows move the time, `J`/`K` change site; `Ctrl` `/` (or `?`) lists them all.
+- **How we built it** (`/how`): the solutions architecture, with diagrams: the design decisions and their trade-offs, the pipeline, the horizon engine, serving at the edge, and how each layer is independently checked.
 - **Data sources page** (`/sources`): every dataset, what the app uses it for, what we did to it, how we checked it, its limits, licence and citation, plus links to download our derived files.
 - **Where it comes from:** an info button beside each view, light and number says which NASA dataset or which of our own definitions is behind it.
 - 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
@@ -67,7 +68,7 @@ make validate        # Connecting Ridge 2024-2026 against Barker et al. 2021
 - **JPL Horizons** (NASA JPL Solar System Dynamics): Sun and Earth positions from each site, https://ssd.jpl.nasa.gov/horizons/ . NASA open data.
 - **NAIF SPICE kernels** (NASA JPL): DE440s, Moon frames, DSN stations, https://naif.jpl.nasa.gov/ . NASA open data.
 - **Artemis candidate regions** (USGS, for NASA): LGRS navigational grids, https://doi.org/10.5066/P1MEQ6UK . Public domain.
-- **Photographs** (NASA Image and Video Library, public domain): Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493, NASA/GRC/Bridget Caswell) and the Apollo 11 lunar module (AS11-40-5927), https://images.nasa.gov .
+- **Photographs** (NASA Image and Video Library, public domain, https://images.nasa.gov): Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493, NASA/GRC/Bridget Caswell), the Apollo 11 lunar module (AS11-40-5927), the Clementine south-pole mosaic (PIA00001, NASA/JPL/USGS), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) and Deep Space Station 43 (PIA23797, NASA/JPL-Caltech).
 - **Icons:** [Phosphor Icons](https://phosphoricons.com) (MIT licence).
 - Validation: Barker et al. 2021, Mazarico et al. 2011, LOLA and LROC polar illumination maps (`_shared/validation.md`).
 Full cards: [`_datasets/`](_datasets/_index.md).

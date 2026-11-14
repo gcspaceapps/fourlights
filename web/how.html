@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title>How we built it · Four Lights</title>
+    <meta
+      name="description"
+      content="The solutions architecture behind Four Lights: precompute on our own machines, static files at the edge, the maths in the browser, and how we know it is right."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="sources how">
+      <header>
+        <div class="title-row">
+          <h1>How we built it</h1>
+          <div class="header-tools">
+            <a class="back" href="/sources">Data sources</a>
+            <a class="back" href="/">← Back to Four Lights</a>
+          </div>
+        </div>
+        <p class="tagline">The solutions architecture behind Four Lights.</p>
+        <p class="intro">
+          Four Lights answers one question quickly: which lunar south-pole landing site still works
+          when a launch slips? The hard part is a horizon calculation over a hundred million terrain
+          pixels per site. The architecture is built around doing that once, checking it properly,
+          and making everything after it instant.
+        </p>
+      </header>
+
+      <nav aria-label="On this page" class="toc">
+        <a href="#overview">Overview</a>
+        <a href="#decisions">Design decisions</a>
+        <a href="#pipeline">The pipeline</a>
+        <a href="#engine">The horizon engine</a>
+        <a href="#serving">Serving and the edge</a>
+        <a href="#correct">How we know it is right</a>
+        <a href="#quality">Testing and quality</a>
+        <a href="#stack">Stack</a>
+        <a href="#team">The team</a>
+      </nav>
+
+      <section class="dataset" aria-labelledby="overview">
+        <h2 id="overview">Overview</h2>
+        <p>
+          Three stages, with a hard line between them. Heavy computation happens ahead of time on
+          our own machines. What it produces is a set of small static files. The browser does the
+          final, cheap arithmetic, so every interaction is immediate and there is no server to
+          scale.
+        </p>
+        <pre class="mermaid">
+flowchart LR
+  subgraph NASA["Open NASA data"]
+    LOLA["LOLA elevation models<br/>5 m to 240 m, about 5 GB"]
+    HZ["JPL Horizons<br/>Sun and Earth, hourly"]
+    SP["NAIF SPICE kernels<br/>check and DSN stations"]
+    US["USGS Artemis regions"]
+  end
+  subgraph PRE["Precompute: Python, our machines"]
+    FE["Fetch<br/>SHA-256 pinned"]
+    HE["Horizon engine<br/>720 directions per site"]
+    EP["Ephemerides<br/>17,544 hours per site"]
+    PB["Publish"]
+  end
+  subgraph EDGE["Cloudflare: one Worker"]
+    AS["Static assets<br/>12 site files, planner summary"]
+    WK["Hono Worker<br/>password gate, /api/ask"]
+    AI["Workers AI<br/>question to settings only"]
+  end
+  BR["Browser<br/>four lights, planner, chart"]
+  LOLA --> FE
+  US --> FE
+  FE --> HE
+  HZ --> EP
+  SP --> EP
+  HE --> PB
+  EP --> PB
+  PB --> AS
+  AS --> WK
+  WK --> BR
+  WK -.-> AI
+        </pre>
+      </section>
+
+      <section class="dataset" aria-labelledby="decisions">
+        <h2 id="decisions">Design decisions and their trade-offs</h2>
+        <dl>
+          <dt>Precompute, don't compute on request</dt>
+          <dd>
+            A site's horizon takes one to two minutes and about 1.5 GB of memory. No request should
+            wait for that, and Cloudflare's free plan allows a Worker 10 ms of CPU. So horizons are
+            computed once per site, offline. The cost: the app covers 12 curated sites, not any
+            point on the Moon.
+          </dd>
+          <dt>Static files, no database</dt>
+          <dd>
+            The published result is one JSON file per site (about 470 kB) plus an index. Files are
+            cacheable, versioned in Git, diffable, and downloadable by anyone. A database would add
+            a failure mode and nothing we need for 12 sites.
+          </dd>
+          <dt>The browser does the maths</dt>
+          <dd>
+            Comparing a body's elevation with the skyline is a table lookup. Doing it in the browser
+            means the time slider, the date slip and every toggle respond without a round trip, and
+            the rules live in one tested module.
+          </dd>
+          <dt>A precomputed summary for the first screen</dt>
+          <dd>
+            The planner needs every site for every date. Loading all twelve site files cost about
+            1.2 MB on first view, so the build writes a 35 kB summary, generated by the same rule
+            code the browser runs, and a test fails the build if the two ever differ. Site files now
+            load only when a chart is opened.
+          </dd>
+          <dt>One Worker for everything</dt>
+          <dd>
+            Pages, data and the single API route are served by one Cloudflare Worker with static
+            assets. Every request passes through it, which is what lets one line of configuration
+            put the whole site, data included, behind a password before launch.
+          </dd>
+          <dt>A language model with no authority</dt>
+          <dd>
+            The plain-English box sends the question to a model that may return only four settings.
+            The Worker validates each against an allow-list and the planner computes the answer. The
+            model cannot produce a number the user sees.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="pipeline">
+        <h2 id="pipeline">The pipeline</h2>
+        <p>
+          One command rebuilds every published file from NASA's originals. Each step is a small
+          Python module with a Makefile target, and every run is logged with its inputs, their
+          checksums, the outputs and the run time.
+        </p>
+        <pre class="mermaid">
+flowchart TD
+  F["fetch<br/>original URLs, SHA-256 verified,<br/>offline mirror as fallback"]
+  S["site point<br/>tile centre or region summit"]
+  H["horizon<br/>3 observer heights x 720 sectors"]
+  E["ephemerides<br/>JPL Horizons, SPICE fallback"]
+  D["DSN visibility<br/>Goldstone, Canberra, Madrid"]
+  P["publish<br/>data contract, 0.01 degree rounding"]
+  PS["planner summary<br/>built by the app's own rules"]
+  R["site reviews<br/>model writes, checker verifies"]
+  C1{{"overlapping models agree?"}}
+  C2{{"Horizons equals SPICE?<br/>Earth azimuth matches longitude?"}}
+  F --> S --> H --> C1 --> P
+  E --> C2 --> P
+  D --> P
+  P --> PS
+  P --> R
+        </pre>
+        <p>
+          Reproducibility is designed in: dependencies are pinned, every input file has a recorded
+          checksum, and the downloads were verified against NASA's servers, not just our mirror.
+        </p>
+      </section>
+
+      <section class="dataset" aria-labelledby="engine">
+        <h2 id="engine">The horizon engine</h2>
+        <p>The core algorithm, and the part with the most ways to be quietly wrong.</p>
+        <dl>
+          <dt>The problem</dt>
+          <dd>
+            At the pole the Sun sits within a degree or two of the horizon, so a ridge 100 km away
+            matters as much as a boulder 100 m away. The skyline needs fine terrain nearby and wide
+            coverage far off.
+          </dd>
+          <dt>Nested terrain</dt>
+          <dd>
+            Six elevation models are stacked: 5 m per pixel at the site, then 20 m to 60 km, 60 m to
+            150 km and 240 m to about 650 km. Each point uses the finest model that covers it. About
+            100 million pixels are evaluated per site.
+          </dd>
+          <dt>True 3D geometry</dt>
+          <dd>
+            Every pixel becomes a 3D position on the Moon's sphere and is viewed from the site's
+            local east-north-up frame. That handles curvature exactly and avoids the classic polar
+            trap, where map north and true north differ by the site's longitude.
+          </dd>
+          <dt>Maximum over a sector, not a ray</dt>
+          <dd>
+            For each half-degree of direction the engine keeps the highest terrain anywhere in the
+            sector. Casting single rays would miss narrow distant peaks and over-predict sunlight.
+          </dd>
+          <dt>The near field</dt>
+          <dd>
+            A test with a smooth dome showed that binning pixel centres under-read nearby ground
+            badly: minus 22 degrees where the answer is minus 5.1. The terrain within about 400 m is
+            now resampled to 0.5 m, and the dome comes out within 0.01 degrees.
+          </dd>
+          <dt>Bounded memory</dt>
+          <dd>
+            Large rasters are read in windowed strips, never whole, so a 3.4 GB mosaic runs on a 14
+            GB laptop at a 1.5 GB peak.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="serving">
+        <h2 id="serving">Serving and the edge</h2>
+        <pre class="mermaid">
+sequenceDiagram
+  participant B as Browser
+  participant W as Worker (Hono)
+  participant A as Static assets
+  participant M as Workers AI
+  B->>W: GET / and /data/planner.json
+  W->>W: password gate (while enabled)
+  W->>A: fetch asset
+  A-->>B: page, 35 kB summary
+  Note over B: planner drawn, no further requests
+  B->>W: GET /data/sites/site.json (on opening a chart)
+  A-->>B: skyline + 2 years of hourly positions
+  Note over B: lights, chart, battery computed locally
+  B->>W: POST /api/ask (optional)
+  W->>M: question
+  M-->>W: date, slip, window, site
+  W->>W: validate each field
+  W-->>B: settings only
+        </pre>
+        <dl>
+          <dt>Deployment</dt>
+          <dd>
+            One command checks formatting, lint, types and unit tests, refuses to ship fixture data,
+            builds, and deploys. Production deploys come only from an up-to-date main branch;
+            everything else goes to a preview URL.
+          </dd>
+          <dt>State in the URL</dt>
+          <dd>
+            Site, dates, window, observer height, view and even an adjusted power system live in the
+            address, so any view can be shared or bookmarked and the server keeps no sessions.
+          </dd>
+          <dt>Accessibility</dt>
+          <dd>
+            Native controls, full keyboard operation with shortcuts and a help dialog, status never
+            carried by colour alone, 4.5:1 contrast in both themes, and reduced-motion respected.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="correct">
+        <h2 id="correct">How we know it is right</h2>
+        <p>
+          Validity was treated as an architectural requirement, not a final step. Each layer has an
+          independent check.
+        </p>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Layer</th>
+                <th scope="col">Independent check</th>
+                <th scope="col">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Horizon geometry</th>
+                <td>
+                  A second implementation with different mathematics (map library and spherical
+                  trigonometry)
+                </td>
+                <td>Identical on 8 directions across all 6 models</td>
+              </tr>
+              <tr>
+                <th scope="row">Horizon geometry</th>
+                <td>
+                  Cases with analytic answers: bare sphere, dome, single-pixel spike, a peak due
+                  north
+                </td>
+                <td>All pass</td>
+              </tr>
+              <tr>
+                <th scope="row">Terrain inputs</th>
+                <td>Heights compared where neighbouring models overlap</td>
+                <td>Median difference 0.06 m or better</td>
+              </tr>
+              <tr>
+                <th scope="row">Sun and Earth positions</th>
+                <td>JPL Horizons against NAIF SPICE</td>
+                <td>Agree to about a millionth of a degree</td>
+              </tr>
+              <tr>
+                <th scope="row">Orientation</th>
+                <td>Earth's mean direction against each site's longitude</td>
+                <td>Within 0.2 degrees at all 12 sites</td>
+              </tr>
+              <tr>
+                <th scope="row">Rules in two languages</th>
+                <td>
+                  The Python copy of the rules against the app's own output, every site and landing
+                  day
+                </td>
+                <td>Agree across 8,700 cells</td>
+              </tr>
+              <tr>
+                <th scope="row">End result</th>
+                <td>Barker et al. (2021), NASA Goddard, Connecting Ridge 2024 to 2026</td>
+                <td>
+                  Longest night within their range; our illumination a few points higher, and we say
+                  so
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="dataset" aria-labelledby="quality">
+        <h2 id="quality">Testing and quality</h2>
+        <dl>
+          <dt>Unit tests</dt>
+          <dd>
+            34 for the front end and Worker and 36 for the pipeline, run before every commit and
+            deploy. Most of the code that computes or draws is above 95% line coverage.
+          </dd>
+          <dt>End-to-end tests</dt>
+          <dd>
+            29 Playwright tests drive the real page in Chrome against a local Worker: the demo
+            scenario, every control and shortcut, the data pages, and the password gate on a second
+            Worker instance.
+          </dd>
+          <dt>A regression test for the demo itself</dt>
+          <dd>
+            The headline scenario (a three-day slip from 19 April 2028) is asserted against the real
+            data, so a change that would break the demo fails the build.
+          </dd>
+          <dt>Static checks</dt>
+          <dd>
+            TypeScript in strict mode with checked array access, ESLint, Prettier, and Ruff for
+            Python, in one command.
+          </dd>
+          <dt>Constraining the model</dt>
+          <dd>
+            Every AI-written site review is checked by code: any number not in the supplied facts,
+            or a claim the facts do not support, rejects the draft.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="stack">
+        <h2 id="stack">Stack</h2>
+        <dl>
+          <dt>Precompute</dt>
+          <dd>Python, NumPy, rasterio and GDAL, pyproj, spiceypy; GRASS GIS for a cross-check.</dd>
+          <dt>Front end</dt>
+          <dd>
+            TypeScript and Vite, no framework; hand-written SVG charts; about 16 kB of script over
+            the wire.
+          </dd>
+          <dt>Edge</dt>
+          <dd>Cloudflare Workers with static assets, Hono, Workers AI, a custom domain.</dd>
+          <dt>Quality</dt>
+          <dd>Vitest, Playwright, pytest, coverage reporting, ESLint, Prettier, Ruff.</dd>
+          <dt>Repository</dt>
+          <dd>
+            Laid out as numbered stages, each with a written contract and an output folder, shared
+            facts in one place, and one card per dataset, so that a person or a coding agent can
+            find what a task needs without reading everything.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="team">
+        <h2 id="team">The team</h2>
+        <p>
+          Four Lights was built over one weekend for the NASA Space Apps Challenge 2026 by Steve
+          Dalton and Matt Paine, team Make it So, Gold Coast, Australia: two developers with 30 and
+          20-plus years of experience.
+        </p>
+        <p>What this project shows of how we work:</p>
+        <ul>
+          <li>
+            Solutions architecture: putting the expensive work where it is cheap, and keeping the
+            runtime simple.
+          </li>
+          <li>
+            Geospatial and scientific computing: planetary coordinate systems, large rasters,
+            ephemerides.
+          </li>
+          <li>
+            Edge platforms: Cloudflare Workers, static-first delivery, constrained AI integration.
+          </li>
+          <li>
+            Engineering discipline at speed: reproducible data, independent verification, tests that
+            guard the demo.
+          </li>
+          <li>
+            Honest reporting: stated limits, and a published comparison where our numbers differ
+            from NASA's.
+          </li>
+        </ul>
+        <p class="more">
+          We used AI coding tools (Claude) to help write the code, tests and data pipeline; the
+          idea, the design decisions and the checking of results are ours.
+        </p>
+      </section>
+
+      <footer>
+        <p><a href="/">← Back to Four Lights</a> · <a href="/sources">Data sources</a></p>
+      </footer>
+    </main>
+    <script type="module" src="/src/how.ts"></script>
+  </body>
+</html>
