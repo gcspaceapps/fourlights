@@ -130,6 +130,11 @@ h1 {
   margin: 0.25rem 0 0;
 }
 
+.intro {
+  max-width: 52rem;
+  margin: 0.75rem 0 0;
+}
+
 h2 {
   font-weight: 600;
   font-size: 1.35rem;
@@ -391,6 +396,32 @@ h3 {
 
 .window.bad {
   color: var(--nogo-fg);
+}
+
+/* Example photograph of the chosen vehicle class */
+.preset-photo {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  margin: 0 0 0.9rem;
+  max-width: 44rem;
+}
+
+.preset-photo img {
+  width: 11rem;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  flex: none;
+}
+
+.preset-photo figcaption {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.preset-photo .credit {
+  white-space: nowrap;
 }
 
 /* Adjust the power system (collapsed by default) */

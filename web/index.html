@@ -31,6 +31,12 @@
         <p class="tagline">
           Which lunar south-pole landing site still works when your launch slips?
         </p>
+        <p class="intro">
+          At the Moon's south pole the Sun and Earth skim the horizon, so the hills and crater rims
+          around a landing site decide whether it has power and a link home. Four Lights checks 12
+          candidate sites against their real skylines, from NASA's laser-altimeter terrain, for
+          every hour of 2028 and 2029.
+        </p>
       </header>
 
       <section aria-labelledby="planner-title">
@@ -41,10 +47,15 @@
           Slip Planner
         </h2>
         <p>
-          Usable days (Sun and Comms both on) in the mission window starting each landing date, at a
-          2 m observer height. <span class="key-green">● works</span> (Power on, at least half the
-          window usable), <span class="key-amber">▲ marginal</span> (Power on, less usable),
-          <span class="key-red">✕ no power</span>. Choose a cell to open its Sun-Path Chart.
+          Each cell is the <strong>usable days</strong> for a landing on that date: time in the
+          mission window with sunlight and a link to Earth. <span class="key-green">● works</span>
+          <span class="key-amber">▲ marginal</span>
+          <span
+            class="key-red"
+            data-info="Works: Power on and at least half the window usable. Marginal: Power on, less usable. No power: the Sun is in view less than 70% of the window on average, or fully hidden for more than 48 hours."
+            >✕ no power</span
+          >
+          Choose a cell to see why.
         </p>
         <div class="controls">
           <label>Planned landing (UTC) <input type="date" id="plan" /></label>
@@ -171,6 +182,14 @@
             <select id="preset"></select
           ></label>
         </div>
+        <figure class="preset-photo">
+          <img id="preset-img" width="480" height="360" alt="" />
+          <figcaption>
+            <span id="preset-cap"></span>
+            <span class="credit" id="preset-credit"></span>
+            The numbers here are round illustrative values, not this vehicle's.
+          </figcaption>
+        </figure>
         <details class="customise" id="customise">
           <summary
             data-info="For planning and for looking back: change the vehicle and see whether it would have made it through this window at this site. Starts from the chosen preset; nothing here changes the four lights or the planner."

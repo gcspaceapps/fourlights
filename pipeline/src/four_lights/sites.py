@@ -12,6 +12,14 @@ import numpy as np
 
 from four_lights.dem import Raster, bounds, sample
 
+REGION_RADIUS_M = 8000.0
+"""Artemis regions (about 20 km square): the site is the highest summit within this distance of
+the region's grid centre, which keeps it inside the region."""
+SUMMIT_CLEAR_M = 1000.0
+"""A summit has nothing higher within this distance, so it is a real local top, not a point on a
+slope at the edge of the search circle."""
+SUMMIT_CELL_M = 50.0
+
 SITE_RADIUS_M = 2000.0
 """The site pixel is the highest DEM pixel within this distance of the tile or region centre."""
 
@@ -92,6 +100,55 @@ def highest_within(
     return float(xs[j]), float(ys[i])
 
 
+def highest_summit(
+    r: Raster,
+    cx: float,
+    cy: float,
+    radius_m: float = REGION_RADIUS_M,
+    clear_m: float = SUMMIT_CLEAR_M,
+) -> tuple[float, float] | None:
+    """Centre of the highest pixel within `radius_m` that has nothing higher within `clear_m`.
+
+    Works on `SUMMIT_CELL_M` cells (each cell's maximum), then returns the highest pixel of the
+    winning cell. None if no cell in range is a local top.
+    """
+    f = max(1, int(round(SUMMIT_CELL_M / r.res_m)))
+    cs = f * r.res_m
+    half = radius_m + clear_m
+    c0 = max(0, int((cx - half - r.left) // r.res_m))
+    c1 = min(r.width, int((cx + half - r.left) // r.res_m) + 1)
+    r0 = max(0, int((r.top - cy - half) // r.res_m))
+    r1 = min(r.height, int((r.top - cy + half) // r.res_m) + 1)
+    h = r.read(r0, r1, c0, c1)
+    h = np.where(np.isfinite(h), h, -np.inf)
+    rows, cols = (h.shape[0] // f) * f, (h.shape[1] // f) * f
+    if rows == 0 or cols == 0:
+        return None
+    g = h[:rows, :cols].reshape(rows // f, f, cols // f, f).max(axis=(1, 3))
+    k = int(round(clear_m / cs))
+    pad = np.pad(g, k, constant_values=-np.inf)
+    local = g.copy()
+    for dy in range(-k, k + 1):
+        for dx in range(-k, k + 1):
+            if dy * dy + dx * dx <= k * k:
+                local = np.maximum(
+                    local, pad[k + dy : k + dy + g.shape[0], k + dx : k + dx + g.shape[1]]
+                )
+    ys = r.top - (r0 + (np.arange(g.shape[0]) + 0.5) * f) * r.res_m
+    xs = r.left + (c0 + (np.arange(g.shape[1]) + 0.5) * f) * r.res_m
+    d = np.hypot(xs[None, :] - cx, ys[:, None] - cy)
+    ok = (g >= local) & (d <= radius_m) & np.isfinite(g)
+    if not ok.any():
+        return None
+    i, j = np.unravel_index(int(np.argmax(np.where(ok, g, -np.inf))), g.shape)
+    block = h[i * f : (i + 1) * f, j * f : (j + 1) * f]
+    a, b = np.unravel_index(int(np.argmax(block)), block.shape)
+    return (
+        float(r.left + (c0 + j * f + b + 0.5) * r.res_m),
+        float(r.top - (r0 + i * f + a + 0.5) * r.res_m),
+    )
+
+
 def site_point(
     spec: SiteSpec, tile: Raster | None, finer_first: list[Raster] | None = None
 ) -> SitePoint:
@@ -103,15 +160,25 @@ def site_point(
         c = region_centre(RAW / "usgs" / f"{spec.region}.zip")
         for r in finer_first or []:
             if np.isfinite(sample(r, c.x, c.y)):
-                x, y = highest_within(r, c.x, c.y)
-                km = SITE_RADIUS_M / 1000
+                found = highest_summit(r, c.x, c.y)
+                if found is None:  # no summit in range: fall back to the highest pixel nearby
+                    x, y = highest_within(r, c.x, c.y)
+                    how = (
+                        f"highest {r.res_m:g} m pixel ({r.name}) within {SITE_RADIUS_M / 1000:g} km"
+                    )
+                else:
+                    x, y = found
+                    how = (
+                        f"highest summit ({r.name}, {r.res_m:g} m; nothing higher within "
+                        f"{SUMMIT_CLEAR_M / 1000:g} km) within {REGION_RADIUS_M / 1000:g} km"
+                    )
                 return SitePoint(
                     x,
                     y,
                     c.x,
                     c.y,
-                    f"highest {r.res_m:g} m pixel ({r.name}) within {km:g} km of the USGS "
-                    f"{spec.region} grid centre ({c.x / 1000:.2f}, {c.y / 1000:.2f}) km",
+                    f"{how} of the USGS {spec.region} grid centre "
+                    f"({c.x / 1000:.2f}, {c.y / 1000:.2f}) km",
                 )
         raise ValueError(f"{spec.id}: no DEM has data at the region centre")
     if spec.fixed_point is not None:

@@ -8,21 +8,21 @@ Working product name: **Four Lights** (final name picked at submission).
 - Secondary: educators and the public, through the same sun-path view (the format solar installers use on Earth).
 
 ## The four lights (per site and time)
-- **Sun:** the Sun's centre is above the terrain horizon at its azimuth (centre, not disc; a 0.53° disc is a stretch item).
+- **Sun:** any part of the Sun's 0.53° disc is above the terrain horizon at its azimuth. The share of the disc in view (0 to 1, terrain taken as level across the disc) is used wherever sunlight is counted. (Was centre-only until Sat 14 Nov.)
 - **Earth:** the Earth's centre is above the terrain horizon (Earth is ~1.9° wide from the Moon; we state the centre assumption).
-- **Power:** over the mission window, the site is sunlit **≥ 70%** of the time **and** never dark longer than **48 h**. Both are named constants in one place in `web/`, set from the real results on Saturday evening (70% may be too strict).
+- **Power:** over the mission window, the share of the Sun in view averages **≥ 70%** **and** the Sun is never fully hidden for longer than **48 h**. Both are named constants in one place in `web/`, set from the real results on Saturday evening (70% may be too strict).
 - **Comms:** Earth's centre is at least **1°** above the terrain (a margin so it differs from the Earth light). With Canberra Link, a DSN station must also see the Moon at ≥ 10° elevation.
 
 ## Mission window and usable days
 - **Mission window:** the stay on the surface, starting at the landing date. Default **7 days**; 14 and 30 selectable. Power and usable days are worked out over it. In the Sun-Path Chart, Sun, Earth and Comms follow the time slider; Power is for the window as a whole.
-- **Usable days:** the hours in the mission window with the **Sun light and the Comms light both on**, divided by 24, to one decimal. Not based on Power (Power is a verdict on the whole window, so counting days by it would be circular).
+- **Usable days:** the hours in the mission window with the **Comms light on, each counted by the share of the Sun in view** (half the disc showing counts as half an hour), divided by 24, to one decimal. Not based on Power (Power is a verdict on the whole window, so counting days by it would be circular).
 
 ## The demo moment (first 30 seconds)
-"A crewed lander (Artemis IV, 2028), launch slips 3 days." The Slip Planner grid: some sites go red, one stays green. Click it: a 360° skyline from real LOLA terrain, the Sun skimming the ridge, Earth bobbing above it with libration, the Comms band showing the link. The real sites and dates are picked from the results on Saturday evening (written here when chosen).
+"A crewed lander (Artemis IV, 2028), launch slips 3 days." The Slip Planner grid: some sites go red, some stay green. Click it: a 360° skyline from real LOLA terrain, the Sun skimming the ridge, Earth bobbing above it with libration, the Comms band showing the link. The real sites and dates are picked from the results on Saturday evening (written here when chosen).
 
-Demo scenario (set in S6 from the real results, `python -m four_lights.scenario`): **planned landing 19 Apr 2028, 7-day window, launch slips 3 days to 22 Apr.** Connecting Ridge, de Gerlache rim and Peak near Cabeus B go from green to red; **Peak near Shackleton stays green**; Shackleton rim goes the other way and turns green. The slip cuts both ways, which is why a planner needs this. The survivor sits on a 5 m PGDA site tile, not an approximate site. Same pattern on 10 Mar 2029. The app opens on this scenario.
+Demo scenario (set in S6, `python -m four_lights.scenario`; re-checked Sat 14 Nov after the site points moved to summits and the Sun became a disc): **planned landing 19 Apr 2028, 7-day window, launch slips 3 days to 22 Apr.** Six sites work on the 19th. After the slip four of them lose power (Connecting Ridge, de Gerlache rim, de Gerlache Rim 2, Peak near Cabeus B); **Peak near Shackleton and Slater Plain stay green at 7.0 usable days**; Shackleton rim goes the other way and turns green. The slip cuts both ways, which is why a planner needs this. The app opens on this scenario, and a test fails the build if it stops being true.
 
-Power thresholds checked on the real data (S6): 7-day windows are nearly all-or-nothing (sunlit 10th/50th/75th percentile 0% / 74% / 100%), so 70% sunlit and 48 h longest dark sit in the gap and the two tests agree (52% vs 54% of site-windows pass). Kept as is.
+Power thresholds checked on the real data (S6, re-run after the disc and summit changes): 7-day windows are mostly all-or-nothing (share of the Sun in view, 10th/50th/75th percentile: 1% / 87% / 100%), so 70% and 48 h sit in the gap and the two tests nearly agree (60% vs 65% of 8,688 site-windows pass). Kept as is.
 
 ## Minimum demo
 12 curated south-pole sites (`sites.md`), a precomputed horizon profile per site, the **Sun-Path Chart** (one site, time slider, four lights) and the **Slip Planner** (sites × dates, one number: usable days). Comms = Earth ≥ 1° above the terrain horizon.

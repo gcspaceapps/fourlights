@@ -126,3 +126,23 @@ def test_near_field_dome_matches_formula() -> None:
     expect = -np.degrees(np.arctan(np.sqrt(2 * h * (1 / rc + 1 / MOON_RADIUS_M))))
     assert np.allclose(prof, expect, atol=0.02), (prof.min(), prof.max(), expect)
     assert prof.std() < 0.01
+
+
+def test_region_site_is_a_summit_not_a_point_on_a_slope() -> None:
+    from four_lights.sites import highest_summit, highest_within
+
+    # A long slope rising to the east, with a 300 m hill 3 km west of the centre.
+    r = flat_raster("slope", 0.0, 0.0, 12000, 20)
+    xs = r.left + (np.arange(r.width) + 0.5) * r.res_m
+    ys = r.top - (np.arange(r.height) + 0.5) * r.res_m
+    hill = 300 * np.exp(-((xs[None, :] + 3000) ** 2 + ys[:, None] ** 2) / (2 * 400**2))
+    r.data = 0.02 * xs[None, :] + hill
+    # The old rule runs to the edge of its circle, up the slope.
+    x_old, _ = highest_within(r, 0.0, 0.0)
+    assert x_old > 1900
+    # The summit rule finds the hill: nothing higher within 1 km of it.
+    x, y = highest_summit(r, 0.0, 0.0)
+    assert abs(x + 3000) < 150 and abs(y) < 150
+    # On a bare slope there is no summit at all.
+    r.data = 0.02 * xs[None, :] + 0 * ys[:, None]
+    assert highest_summit(r, 0.0, 0.0) is None

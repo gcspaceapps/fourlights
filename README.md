@@ -6,8 +6,8 @@ Our entry for the [NASA Space Apps Challenge 2026](https://www.spaceappschalleng
 
 **Live demo:** _URL added on Sunday evening_
 
-![The Slip Planner after a 3-day slip: three sites go red, Peak near Shackleton stays green](stages/02_build/output/media/screenshot.png)
-_Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, de Gerlache rim and Peak near Cabeus B lose power, Peak near Shackleton still works, and Shackleton rim comes good._
+![The Slip Planner after a 3-day slip: four sites go red, two stay green](stages/02_build/output/media/screenshot.png)
+_Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B lose power, Peak near Shackleton and Slater Plain still work, and Shackleton rim comes good._
 
 ## What it does
 - **Sun-Path Chart:** stand at a site and look around: a 360° skyline from NASA's LOLA terrain, with the Sun's and Earth's paths traced over it and a time slider.
@@ -59,6 +59,7 @@ make validate        # Connecting Ridge 2024-2026 against Barker et al. 2021
 - **JPL Horizons** (NASA JPL Solar System Dynamics): Sun and Earth positions from each site, https://ssd.jpl.nasa.gov/horizons/ . NASA open data.
 - **NAIF SPICE kernels** (NASA JPL): DE440s, Moon frames, DSN stations, https://naif.jpl.nasa.gov/ . NASA open data.
 - **Artemis candidate regions** (USGS, for NASA): LGRS navigational grids, https://doi.org/10.5066/P1MEQ6UK . Public domain.
+- **Photographs** (NASA Image and Video Library, public domain): Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493, NASA/GRC/Bridget Caswell) and the Apollo 11 lunar module (AS11-40-5927), https://images.nasa.gov .
 - **Icons:** [Phosphor Icons](https://phosphoricons.com) (MIT licence).
 - Validation: Barker et al. 2021, Mazarico et al. 2011, LOLA and LROC polar illumination maps (`_shared/validation.md`).
 Full cards: [`_datasets/`](_datasets/_index.md).

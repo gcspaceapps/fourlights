@@ -1,6 +1,7 @@
 // Survive the Night: battery state of charge through the mission window, from the Sun light.
-// A deliberately simple energy balance, hour by hour: in sunlight the array runs the day load
-// and charges the battery with what is left; in the dark the battery runs the survival load.
+// A deliberately simple energy balance, hour by hour: in sunlight the array (scaled by the share
+// of the Sun's disc in view) runs the day load and charges the battery with what is left; with
+// the Sun fully hidden the battery runs the survival load.
 // The presets are illustrative round numbers, not real vehicle specifications.
 import { lightsAt } from './lights';
 import type { HorizonProfile, SiteData } from './types';
@@ -16,10 +17,26 @@ export interface PowerPreset {
   darkLoadW: number;
   /** Usable battery capacity, Wh. */
   batteryWh: number;
+  /** A NASA photograph of a real vehicle of this class. The numbers above are NOT that vehicle's. */
+  photo: { src: string; alt: string; caption: string; credit: string };
 }
 
 export const PRESETS: readonly PowerPreset[] = [
-  { id: 'small', name: 'Small lander', arrayW: 600, dayLoadW: 300, darkLoadW: 60, batteryWh: 3000 },
+  {
+    id: 'small',
+    name: 'Small lander',
+    arrayW: 600,
+    dayLoadW: 300,
+    darkLoadW: 60,
+    batteryWh: 3000,
+    photo: {
+      src: '/img/surveyor-3.jpg',
+      alt: 'A small robotic lander on the lunar surface, its solar panel raised on a mast',
+      caption:
+        'A lander of this kind: Surveyor 3 on the Moon, photographed by the Apollo 12 crew in 1969.',
+      credit: 'NASA, AS12-48-7121',
+    },
+  },
   {
     id: 'rover',
     name: 'Hibernating rover',
@@ -27,6 +44,13 @@ export const PRESETS: readonly PowerPreset[] = [
     dayLoadW: 200,
     darkLoadW: 25,
     batteryWh: 5000,
+    photo: {
+      src: '/img/viper-prototype.jpg',
+      alt: 'A four-wheeled rover prototype on sand in a test laboratory',
+      caption:
+        "A rover of this kind: a prototype of NASA's VIPER polar rover in mobility tests, 2021.",
+      credit: 'NASA/GRC/Bridget Caswell, GRC-2021-C-00493',
+    },
   },
   {
     id: 'crew',
@@ -35,6 +59,12 @@ export const PRESETS: readonly PowerPreset[] = [
     dayLoadW: 3000,
     darkLoadW: 1500,
     batteryWh: 100_000,
+    photo: {
+      src: '/img/apollo-11-lunar-module.jpg',
+      alt: 'The Apollo 11 lunar module on the Moon with an astronaut working beside it',
+      caption: 'A lander of this kind: the Apollo 11 lunar module on the Moon, 1969.',
+      credit: 'NASA, AS11-40-5927',
+    },
   },
 ];
 
@@ -49,7 +79,7 @@ export interface BatteryRun {
   /** Whether each hour was sunlit. */
   lit: boolean[];
   minSoc: number;
-  /** Hours spent with a flat battery in the dark. */
+  /** Hours spent with a flat battery. */
   flatHours: number;
   /** Index (within the window) of the first flat hour, or -1. */
   firstFlat: number;
@@ -73,17 +103,15 @@ export function simulateBattery(
   const soc: number[] = [];
   const lit: boolean[] = [];
   for (let i = start; i < end; i++) {
-    const sun = lightsAt(site, h, i).sun;
+    const { sun, sunFraction } = lightsAt(site, h, i);
     lit.push(sun);
-    if (sun) {
-      wh = Math.min(p.batteryWh, wh + (p.arrayW - p.dayLoadW) * stepH);
-    } else {
-      wh -= p.darkLoadW * stepH;
-      if (wh <= 0) {
-        wh = 0;
-        flatHours += stepH;
-        if (firstFlat < 0) firstFlat = i - start;
-      }
+    // The array's output scales with the share of the Sun's disc in view.
+    wh += sun ? (p.arrayW * sunFraction - p.dayLoadW) * stepH : -p.darkLoadW * stepH;
+    wh = Math.min(p.batteryWh, wh);
+    if (wh <= 0) {
+      wh = 0;
+      flatHours += stepH;
+      if (firstFlat < 0) firstFlat = i - start;
     }
     const s = wh / p.batteryWh;
     minSoc = Math.min(minSoc, s);

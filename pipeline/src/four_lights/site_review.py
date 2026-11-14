@@ -21,6 +21,7 @@ from datetime import UTC, datetime
 import numpy as np
 
 from four_lights.paths import PUBLIC_DATA
+from four_lights.validate import visible_fraction
 
 MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 ACCOUNT_ID = "e3cb8bffb3a1a6e6009c50fdf0bc6b82"
@@ -35,7 +36,10 @@ SYSTEM = (
     "pole, for a mission planner. Use ONLY the facts given. Do not add any other number, name, "
     "history, mission or claim. Do not give advice or a recommendation. Plain English, no "
     "headings, no lists, no markdown, at most 90 words. Write numbers exactly as given, with "
-    "their units."
+    "their units. Begin the paragraph with the site's name, exactly as given, and what stands "
+    "out about it compared with the other sites (its ranks), then give the key figures: "
+    "sunlight, longest night, Earth visibility and communications. Mention it if the terrain "
+    "data is approximate."
 )
 
 
@@ -47,7 +51,8 @@ def longest_run(mask: np.ndarray) -> int:
     return best
 
 
-def facts_for(summary: dict, d: dict) -> dict[str, str]:
+def facts_for(summary: dict, d: dict) -> tuple[dict[str, str], dict[str, float]]:
+    """(facts shown to the model, raw metrics for ranking the sites against each other)."""
     h = next(p for p in d["horizons"] if p["height_m"] == HEIGHT_M)
     terrain = np.asarray(h["elev_deg"])
 
@@ -55,7 +60,8 @@ def facts_for(summary: dict, d: dict) -> dict[str, str]:
         a = np.asarray(az)
         return terrain[(np.floor((a % 360) / h["step_deg"]).astype(int)) % terrain.size]
 
-    sun = np.asarray(d["sun"]["el"]) > under(d["sun"]["az"])
+    sun_share = visible_fraction(np.asarray(d["sun"]["el"]) - under(d["sun"]["az"]))
+    sun = sun_share > 0
     earth_clear = np.asarray(d["earth"]["el"]) - under(d["earth"]["az"])
     comms = earth_clear >= COMMS_MARGIN_DEG
     if "stations" in d:
@@ -64,12 +70,17 @@ def facts_for(summary: dict, d: dict) -> dict[str, str]:
     lon = summary["lon_e"]
     ground = d["site"]["elev_m"]
     finest = d["meta"]["dem_rings"][0]
+    metrics = {
+        "sunlit": float(sun_share.mean()),
+        "night": longest_run(~sun) / 24,
+        "comms": float(comms.mean()),
+    }
     return {
         "name": summary["name"],
         "position": f"{lat:.2f}°S, {abs(lon):.1f}°{'E' if lon >= 0 else 'W'}",
         "ground height": f"{ground:.0f} m relative to the Moon's reference sphere",
         "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
-        "sunlit": f"{sun.mean() * 100:.0f}% of the time",
+        "sunlit": f"{sun_share.mean() * 100:.0f}% of the time",
         "longest night": f"{longest_run(~sun) / 24:.1f} days",
         "longest unbroken sunlight": f"{longest_run(sun) / 24:.0f} days",
         "Earth above the terrain": f"{(earth_clear > 0).mean() * 100:.0f}% of the time",
@@ -79,7 +90,26 @@ def facts_for(summary: dict, d: dict) -> dict[str, str]:
             f"{finest['res_m']:g} m per pixel LOLA elevation model"
             + (" (approximate: no 5 m data here)" if summary["approx"] else "")
         ),
-    }
+    }, metrics
+
+
+def ordinal(n: int) -> str:
+    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def add_ranks(
+    all_facts: dict[str, dict[str, str]], all_metrics: dict[str, dict[str, float]]
+) -> None:
+    """Add each site's standing among the sites: most sunlight, shortest night, most comms."""
+    n = len(all_metrics)
+    for key, label, best_is_high in (
+        ("sunlit", "rank for sunlight among the sites", True),
+        ("night", "rank for shortest longest night among the sites", False),
+        ("comms", "rank for communications among the sites", True),
+    ):
+        order = sorted(all_metrics, key=lambda s: all_metrics[s][key], reverse=best_is_high)
+        for i, sid in enumerate(order, start=1):
+            all_facts[sid][label] = f"{ordinal(i)} of {n} (1st is best)"
 
 
 def numbers(text: str) -> set[str]:
@@ -138,11 +168,16 @@ def main(argv: list[str] | None = None) -> None:
     existing = json.loads(OUT.read_text()) if OUT.exists() else {"sites": {}}
     reviews: dict[str, dict] = existing.get("sites", {})
     failed = []
+    all_facts: dict[str, dict[str, str]] = {}
+    all_metrics: dict[str, dict[str, float]] = {}
+    for s in index:
+        d = json.loads((PUBLIC_DATA / "sites" / f"{s['id']}.json").read_text())
+        all_facts[s["id"]], all_metrics[s["id"]] = facts_for(s, d)
+    add_ranks(all_facts, all_metrics)
     for s in index:
         if a.sites and s["id"] not in a.sites:
             continue
-        d = json.loads((PUBLIC_DATA / "sites" / f"{s['id']}.json").read_text())
-        facts = facts_for(s, d)
+        facts = all_facts[s["id"]]
         for attempt in range(1, ATTEMPTS + 1):
             text = ask(facts)
             why = check(text, facts)

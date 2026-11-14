@@ -50,6 +50,9 @@ const ui = {
   reviewNote: $('review-note'),
   preset: $('preset') as HTMLSelectElement,
   customise: $('customise') as HTMLDetailsElement,
+  presetImg: $('preset-img') as HTMLImageElement,
+  presetCap: $('preset-cap'),
+  presetCredit: $('preset-credit'),
   pArray: $('p-array') as HTMLInputElement,
   pDay: $('p-day') as HTMLInputElement,
   pDark: $('p-dark') as HTMLInputElement,
@@ -106,10 +109,10 @@ function writeHash(): void {
 
 /** Where each light comes from, shown in its info tip. */
 const LIGHT_SOURCES: Record<LightName, string> = {
-  sun: "The Sun's centre (NASA JPL Horizons, hourly) against the highest terrain in its direction (our horizon from NASA LOLA elevation models). The Sun is treated as a point, not a disc.",
+  sun: "The Sun's position (NASA JPL Horizons, hourly) against the highest terrain in its direction (our horizon from NASA LOLA elevation models). The Sun is a 0.53° disc; the light is on when any of it shows, and partial sunlight counts in proportion. The terrain is taken as level across the disc's width.",
   earth:
     "Earth's centre (NASA JPL Horizons, hourly) against the highest terrain in its direction (our horizon from NASA LOLA elevation models).",
-  power: `Our definition, for the whole mission window: sunlit at least ${POWER_MIN_SUNLIT_FRACTION * 100}% of the time and never dark for more than ${POWER_MAX_DARK_HOURS} hours. The thresholds are ours, checked against 8,688 real site-windows; they are not a NASA requirement.`,
+  power: `Our definition, for the whole mission window: the share of the Sun's disc in view averages at least ${POWER_MIN_SUNLIT_FRACTION * 100}%, and the Sun is never fully hidden for more than ${POWER_MAX_DARK_HOURS} hours. The thresholds are ours, checked against 8,688 real site-windows; they are not a NASA requirement.`,
   comms: `Earth's centre at least ${COMMS_MARGIN_DEG}° above the terrain (our margin), and a Deep Space Network 70 m station with the Moon at least 10° up (the DSN's transmit limit, handbook 810-005; station positions from NASA NAIF).`,
 };
 
@@ -201,7 +204,15 @@ function render(): void {
   const sunEl = at(site.sun.el, cursor).toFixed(2);
   const earthEl = at(site.earth.el, cursor).toFixed(2);
   ui.lights.replaceChildren(
-    light('Sun', now.sun, `Sun's centre ${sunEl}° up, ${now.sun ? 'above' : 'below'} the terrain`),
+    light(
+      'Sun',
+      now.sun,
+      now.sunFraction >= 1
+        ? `whole disc above the terrain (centre ${sunEl}° up)`
+        : now.sun
+          ? `${(now.sunFraction * 100).toFixed(0)}% of the disc above the terrain (centre ${sunEl}° up)`
+          : `hidden behind the terrain (centre ${sunEl}° up)`,
+    ),
     light(
       'Earth',
       now.earth,
@@ -217,12 +228,16 @@ function render(): void {
   ui.window.textContent = `Usable days in this ${days}-day window (Sun and Comms both on): ${w.usableDays.toFixed(1)}`;
   ui.window.appendChild(
     infoTip(
-      'Our measure: the hours in the mission window with the Sun light and the Comms light both on, divided by 24.',
+      'Our measure: the hours in the mission window with the Comms light on, each counted by the share of the Sun in view (half the disc showing counts as half an hour), divided by 24.',
     ),
   );
 
   const preset = currentPowerSystem();
   if (preset) {
+    if (!ui.presetImg.src.endsWith(preset.photo.src)) ui.presetImg.src = preset.photo.src;
+    ui.presetImg.alt = preset.photo.alt;
+    ui.presetCap.textContent = preset.photo.caption;
+    ui.presetCredit.textContent = ` Photo: ${preset.photo.credit}.`;
     const run = simulateBattery(site, profile, start, hours, preset);
     renderBattery(ui.battery, run, cursor - start);
     const spec = `${preset.name}: ${preset.arrayW} W array, ${preset.dayLoadW} W by day, ${preset.darkLoadW} W in the dark, ${preset.batteryWh / 1000} kWh battery (${darkEnduranceHours(preset).toFixed(0)} h of darkness from full).`;

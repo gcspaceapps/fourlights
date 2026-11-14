@@ -10,7 +10,7 @@ A launch slips three days. Which lunar south-pole landing site still works?
 
 Near the Moon's south pole the Sun stays within a degree or two of the horizon, so a ridge 100 km away decides whether a lander has power, and a hill decides whether it can see Earth. Four Lights answers the planner's question with real terrain. For 12 candidate sites it works out, hour by hour for 2028 and 2029, where the Sun and Earth sit against each site's actual skyline from NASA's LOLA elevation data, and reduces that to four lights: **Sun**, **Earth**, **Power** and **Comms**. The Slip Planner shows every site against every landing date as one number, usable days. Slide the date and watch sites go red and green.
 
-In our demo scenario, a landing planned for 19 April 2028 slips to 22 April. Connecting Ridge, de Gerlache rim and Peak near Cabeus B lose power. Peak near Shackleton still gives 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. The slip cuts both ways, and that is why a planner needs to see it.
+In our demo scenario, a landing planned for 19 April 2028 slips to 22 April. Six sites work on the 19th. After the slip, four of them lose power: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B. Peak near Shackleton and Slater Plain still give 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. The slip cuts both ways, and that is why a planner needs to see it.
 
 ## Project demo (link)
 _Public link to the video (30 seconds or less) or slides (7 or fewer): added Sunday._
@@ -32,9 +32,9 @@ _Public link to the video (30 seconds or less) or slides (7 or fewer): added Sun
 **How it works.** A Python pipeline reads NASA's LOLA elevation models, from 5 m per pixel at the site out to 240 m per pixel 650 km away, and for each site finds the highest terrain in each of 720 half-degree directions, in true 3D geometry on the Moon's sphere. It pulls the Sun's and Earth's positions for every hour of 2028 and 2029 from JPL Horizons. The results are small files, about half a megabyte per site. The browser compares the two and computes the lights, so the app is instant and runs from one Cloudflare Worker serving static files.
 
 **The four lights.**
-- **Sun:** the Sun's centre is above the terrain in its direction.
+- **Sun:** any part of the Sun's disc is above the terrain in its direction; partial sunlight counts in proportion.
 - **Earth:** Earth's centre is above the terrain.
-- **Power:** over the mission window, the site is sunlit at least 70% of the time and never dark for more than 48 hours.
+- **Power:** over the mission window, the share of the Sun in view averages at least 70%, and the Sun is never fully hidden for more than 48 hours.
 - **Comms:** Earth's centre is at least 1° above the terrain, and a DSN station can see the Moon.
 
 **How we know it is right.**
@@ -45,13 +45,13 @@ _Public link to the video (30 seconds or less) or slides (7 or fewer): added Sun
 - Against NASA Goddard's published values for Connecting Ridge (Barker et al. 2021, 2024 to 2026): our longest night falls within their range at both 1 m and 5 m above the ground (ours 13.5 to 21.2 days and 4.5 to 8.0 days across nine nearby points; theirs 13 to 22 and 4 to 8). Our average illumination is a few points higher than theirs (73.8 to 83.2% against 67 to 71% at 1 m), which is the expected direction: they report a deliberately cautious figure, the 1st percentile across 100 terrain variants, and we use the best-estimate terrain. We do not claim the illumination matches.
 
 **Limits, stated plainly.**
-- The Sun and Earth are treated as points at their centres, not discs.
+- The Sun is a 0.53° disc, with the terrain taken as level across its width. Earth is taken at its centre, though it is about 1.9° wide from the Moon.
 - Each site is one point, and at 1 m above the ground the result changes by several points between spots 20 m apart.
 - Three sites (Nobile Rim 1, Nobile Rim 2, Peak near Cabeus B) have no 5 m terrain under them and are labelled approximate.
-- The six Artemis-region sites are placed at the highest point within 2 km of the region's centre, which is not necessarily where a mission would land; two of them sit on slopes.
+- The six Artemis-region sites are placed at the highest summit within 8 km of the region's centre, which is not necessarily where a mission would land.
 - The battery presets are round illustrative numbers, not real vehicles.
 
-**What we would do next.** Custom coordinates (compute a horizon for any point), a scored grid to find new sites, a 3D view of the terrain under the real Sun direction, and the Sun as a disc.
+**What we would do next.** Custom coordinates (compute a horizon for any point), a scored grid to find new sites, a 3D view of the terrain under the real Sun direction, and the true skyline across the Sun's and Earth's discs.
 
 **How we built it.** The repository is laid out so a coding agent can walk it: numbered stages with a contract and an output folder each, shared facts in one place, one card per dataset. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours.
 
@@ -60,6 +60,7 @@ _Public link to the video (30 seconds or less) or slides (7 or fewer): added Sun
 - **JPL Horizons** (NASA JPL Solar System Dynamics), https://ssd.jpl.nasa.gov/horizons/ : the Sun's and Earth's direction from each site for every hour of 2028 and 2029, and the Moon's elevation from the DSN stations as a check.
 - **NAIF SPICE kernels** (NASA JPL), https://naif.jpl.nasa.gov/ : an independent check on Horizons, and the DSN station positions for Canberra Link.
 - **Artemis candidate landing regions** (USGS, for NASA), https://doi.org/10.5066/P1MEQ6UK : the centres of six of our sites.
+- **NASA Image and Video Library**, https://images.nasa.gov : three photographs (Surveyor 3, AS12-48-7121; a VIPER rover prototype, GRC-2021-C-00493; the Apollo 11 lunar module, AS11-40-5927) shown as examples of vehicle classes.
 
 ## Use of AI
 _For the form's AI-use question; reword to match the guide's exact prompt._

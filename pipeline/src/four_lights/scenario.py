@@ -3,11 +3,12 @@
     python -m four_lights.scenario [--slip 3] [--days 7]
 
 Uses exactly the rules in web/src/lights.ts and web/src/planner.ts (2 m observer):
-Sun on = Sun's centre above the terrain; Comms on = Earth's centre >= 1° above the terrain and
-(Canberra Link) a DSN station sees the Moon;
-Power = sunlit >= 70% of the window and no dark spell > 48 h; usable days = hours with Sun and
-Comms on / 24, to one decimal; green = Power on and usable >= 50% of the window, amber = Power on,
-red = Power off. Fixture (fake-*) sites are ignored.
+- Sun: the share of the Sun's 0.53° disc above the terrain (the light is on if any shows).
+- Comms: Earth's centre >= 1° above the terrain and (Canberra Link) a DSN station sees the Moon.
+- Power: the average share >= 70% over the window and no fully dark spell > 48 h.
+- Usable days: hours with Comms on, each weighted by the Sun's share, / 24, to one decimal.
+- Green = Power on and usable >= 50% of the window; amber = Power on; red = Power off.
+Fixture (fake-*) sites are ignored.
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from datetime import datetime, timedelta
 import numpy as np
 
 from four_lights.paths import PUBLIC_DATA
+from four_lights.validate import visible_fraction
 
 POWER_MIN_SUNLIT_FRACTION = 0.7
 POWER_MAX_DARK_HOURS = 48
@@ -47,7 +49,8 @@ def hourly_flags(d: dict) -> tuple[np.ndarray, np.ndarray]:
         a = np.asarray(az)
         return terrain[(np.floor((a % 360) / h["step_deg"]).astype(int)) % terrain.size]
 
-    sun = np.asarray(d["sun"]["el"]) > under(d["sun"]["az"])
+    # Share of the Sun's 0.53° disc above the terrain, 0..1 (as web/src/lights.ts discFraction).
+    sun = visible_fraction(np.asarray(d["sun"]["el"]) - under(d["sun"]["az"]))
     comms = np.asarray(d["earth"]["el"]) - under(d["earth"]["az"]) >= COMMS_MARGIN_DEG
     if "stations" in d:  # Canberra Link: a DSN station must also see the Moon
         comms &= np.asarray(d["stations"]) > 0
@@ -60,9 +63,9 @@ def window(sun: np.ndarray, comms: np.ndarray, start: int, hours: int) -> tuple[
     lit = float(s.mean())
     longest = run = 0
     for v in s:
-        run = 0 if v else run + 1
+        run = 0 if v > 0 else run + 1
         longest = max(longest, run)
-    usable = round(float((s & comms[start : start + hours]).sum()) / 24, 1)
+    usable = round(float((s * comms[start : start + hours]).sum()) / 24, 1)
     return lit, longest, usable
 
 

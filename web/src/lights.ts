@@ -2,15 +2,27 @@
 // Every threshold is a named constant here and nowhere else.
 import { STATION_BITS, at, type HorizonProfile, type SiteData } from './types';
 
-/** Power: the site must be sunlit at least this fraction of the mission window... */
+/** Power: the average share of the Sun's disc in view over the mission window must reach this... */
 export const POWER_MIN_SUNLIT_FRACTION = 0.7;
-/** ...and never dark for longer than this many hours in a row. */
+/** ...and the Sun must never be fully hidden for longer than this many hours in a row. */
 export const POWER_MAX_DARK_HOURS = 48;
 /**
  * Comms: Earth's centre must be at least this far above the terrain, and (Canberra Link) a DSN
  * 70 m station must have the Moon at least 10° up. The 10° mask is applied in the pipeline.
  */
 export const COMMS_MARGIN_DEG = 1;
+/** The Sun's angular radius from the Moon, degrees (a 0.53° disc). */
+export const SUN_RADIUS_DEG = 0.2666;
+
+/**
+ * Share of a disc of radius `r` that shows above a straight horizon, when the disc's centre is
+ * `clearDeg` above it (negative = below). 0 = hidden, 0.5 = centre on the horizon, 1 = all clear.
+ */
+export function discFraction(clearDeg: number, r: number = SUN_RADIUS_DEG): number {
+  const x = Math.max(-1, Math.min(1, clearDeg / r));
+  return 1 - (Math.acos(x) - x * Math.sqrt(1 - x * x)) / Math.PI;
+}
+
 /** Mission window lengths offered (days); the first is the default. */
 export const WINDOW_DAYS = [7, 14, 30] as const;
 /** Observer height used unless the user picks another (metres). */
@@ -30,7 +42,10 @@ export function profileFor(site: SiteData, heightM: number): HorizonProfile {
 }
 
 export interface InstantLights {
+  /** Any part of the Sun's disc is above the terrain. */
   sun: boolean;
+  /** Share of the Sun's disc above the terrain, 0..1 (terrain taken as level across the disc). */
+  sunFraction: number;
   earth: boolean;
   comms: boolean;
   /** Earth clears the terrain by the Comms margin (before the DSN station test). */
@@ -51,9 +66,11 @@ export function stationsAt(site: SiteData, i: number): StationName[] | null {
 export function lightsAt(site: SiteData, h: HorizonProfile, i: number): InstantLights {
   const earthClear = at(site.earth.el, i) - terrainAt(h, at(site.earth.az, i));
   const stations = stationsAt(site, i);
+  const sunFraction = discFraction(at(site.sun.el, i) - terrainAt(h, at(site.sun.az, i)));
   const earthClearForComms = earthClear >= COMMS_MARGIN_DEG;
   return {
-    sun: at(site.sun.el, i) > terrainAt(h, at(site.sun.az, i)),
+    sun: sunFraction > 0,
+    sunFraction,
     earth: earthClear > 0,
     // Canberra Link: with station data, a DSN station must also see the Moon.
     comms: earthClearForComms && (stations === null || stations.length > 0),
@@ -85,14 +102,15 @@ export function windowSummary(
   let longestDark = 0;
   for (let i = start; i < end; i++) {
     const l = lightsAt(site, h, i);
+    lit += l.sunFraction;
     if (l.sun) {
-      lit++;
       dark = 0;
     } else {
       dark++;
       longestDark = Math.max(longestDark, dark);
     }
-    if (l.sun && l.comms) usable++;
+    // An hour with half the Sun showing counts as half an hour.
+    if (l.comms) usable += l.sunFraction;
   }
   const n = Math.max(1, end - start);
   const sunlitFraction = lit / n;

@@ -4,7 +4,15 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseIntent } from '../../api/src/intent';
 import { PRESETS, darkEnduranceHours, simulateBattery } from '../src/battery';
-import { indexAt, lightsAt, profileFor, terrainAt, windowSummary } from '../src/lights';
+import {
+  SUN_RADIUS_DEG,
+  discFraction,
+  indexAt,
+  lightsAt,
+  profileFor,
+  terrainAt,
+  windowSummary,
+} from '../src/lights';
 import { answerText, verdict } from '../src/planner';
 import type { SiteData } from '../src/types';
 
@@ -43,6 +51,22 @@ describe('four lights', () => {
       comms: true,
       stations: null,
     });
+  });
+
+  it('the Sun is a disc: partial sunlight counts in proportion', () => {
+    expect(discFraction(-SUN_RADIUS_DEG)).toBe(0);
+    expect(discFraction(0)).toBeCloseTo(0.5);
+    expect(discFraction(SUN_RADIUS_DEG)).toBe(1);
+    expect(discFraction(SUN_RADIUS_DEG / 2)).toBeCloseTo(0.8045, 3);
+    // Centre exactly on a level horizon for 4 hours, with Comms on: half of 4 h usable.
+    const s = site([0, 0, 0, 0], [5, 5, 5, 5]);
+    const h = profileFor(s, 2);
+    expect(lightsAt(s, h, 0)).toMatchObject({ sun: true });
+    expect(lightsAt(s, h, 0).sunFraction).toBeCloseTo(0.5);
+    const w = windowSummary(s, h, 0, 4);
+    expect(w.sunlitFraction).toBeCloseTo(0.5);
+    expect(w.longestDarkHours).toBe(0);
+    expect(w.usableDays).toBe(0.1); // 2 h / 24
   });
 
   it('Power needs 70% sunlit and no dark spell over 48 h', () => {
@@ -147,24 +171,32 @@ describe('demo scenario on the published data (_shared/concept.md)', () => {
     return verdict(w.power, w.usableDays, 7);
   };
 
-  it('planned 19 Apr 2028: four sites work', () => {
-    for (const id of [
-      'connecting-ridge',
-      'de-gerlache-rim',
-      'peak-near-cabeus-b',
-      'peak-near-shackleton',
-    ]) {
-      expect(at(id, '2028-04-19'), id).toBe('green');
-    }
+  const GREEN_BEFORE = [
+    'connecting-ridge',
+    'peak-near-shackleton',
+    'de-gerlache-rim',
+    'de-gerlache-rim-2',
+    'slater-plain',
+    'peak-near-cabeus-b',
+  ];
+
+  it('planned 19 Apr 2028: six sites work', () => {
+    for (const id of GREEN_BEFORE) expect(at(id, '2028-04-19'), id).toBe('green');
     expect(at('shackleton-rim', '2028-04-19')).toBe('red');
   });
 
-  it('slipped to 22 Apr: three go red, Peak near Shackleton stays green, Shackleton rim turns green', () => {
-    for (const id of ['connecting-ridge', 'de-gerlache-rim', 'peak-near-cabeus-b']) {
+  it('slipped to 22 Apr: four go red, two stay green, Shackleton rim turns green', () => {
+    for (const id of [
+      'connecting-ridge',
+      'de-gerlache-rim',
+      'de-gerlache-rim-2',
+      'peak-near-cabeus-b',
+    ]) {
       expect(at(id, '2028-04-22'), id).toBe('red');
     }
-    expect(at('peak-near-shackleton', '2028-04-22')).toBe('green');
-    expect(at('shackleton-rim', '2028-04-22')).toBe('green');
+    for (const id of ['peak-near-shackleton', 'slater-plain', 'shackleton-rim']) {
+      expect(at(id, '2028-04-22'), id).toBe('green');
+    }
   });
 });
 
