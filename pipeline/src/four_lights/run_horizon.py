@@ -22,6 +22,7 @@ from four_lights.horizon import (
     Ring,
     compute_horizon,
     ring_overlap_check,
+    site_ground,
 )
 from four_lights.manifest import log_run
 from four_lights.paths import HORIZON_OUT, MEDIA, RAW_LOLA
@@ -83,6 +84,13 @@ def check_overlaps(res: HorizonResult, rings: list[Ring]) -> list[dict[str, obje
         ):
             raise SystemExit(f"DEMs disagree: {row}")
     return out
+
+
+def ground_source(rings: list[Ring], x: float, y: float) -> dict[str, object]:
+    """The DEM the site's own ground (and near field) comes from: decides `approx`."""
+    _, name = site_ground(rings, x, y)
+    r = next(r.raster for r in rings if r.raster.name == name)
+    return {"source": name, "res_m": r.res_m}
 
 
 def to_json(spec: SiteSpec, pt: SitePoint, res: HorizonResult, overlaps: list) -> dict:
@@ -167,7 +175,9 @@ def run(site_id: str, *, write_plot: bool = True, log: bool = True) -> Path:
     overlaps = check_overlaps(res, rings)
     out = HORIZON_OUT / f"{spec.id}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(to_json(spec, pt, res, overlaps), indent=1) + "\n")
+    doc = to_json(spec, pt, res, overlaps)
+    doc["ground_source"] = ground_source(rings, pt.x, pt.y)
+    out.write_text(json.dumps(doc, indent=1) + "\n")
     outputs = [out]
     if write_plot:
         png = MEDIA / f"skyline-{spec.id}.png"

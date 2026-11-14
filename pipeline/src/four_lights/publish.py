@@ -50,8 +50,20 @@ def _site_file(hz: dict, ep: dict, rng_name: str, heights: list[float] | None = 
     }
 
 
+def _ground_source(site_id: str, hz: dict) -> dict:
+    """The DEM under the site; filled in (and saved) for horizon files made before it existed."""
+    if "ground_source" not in hz:
+        from four_lights.run_horizon import build_rings, ground_source
+        from four_lights.sites import SITES
+
+        rings, _ = build_rings(SITES[site_id])
+        hz["ground_source"] = ground_source(rings, hz["ps_x_m"], hz["ps_y_m"])
+        (HORIZON_OUT / f"{site_id}.json").write_text(json.dumps(hz, indent=1) + "\n")
+    return hz["ground_source"]
+
+
 def _summary(hz: dict) -> dict:
-    finest = hz["meta"]["dem_rings"][0]["res_m"]
+    finest = _ground_source(hz["id"], hz)["res_m"]
     return {
         "id": hz["id"],
         "name": hz["name"],

@@ -11,6 +11,127 @@
     "approx": false
   },
   {
+    "id": "connecting-ridge",
+    "name": "Connecting Ridge",
+    "lat": -89.43904,
+    "lon_e": -137.10831,
+    "ps_x_m": -11577.5,
+    "ps_y_m": -12462.5,
+    "source": "PGDA Site01",
+    "point_rule": "Barker et al. 2021 region centroid (-11.58, -12.46) km, snapped to its pixel centre",
+    "approx": false
+  },
+  {
+    "id": "peak-near-shackleton",
+    "name": "Peak near Shackleton",
+    "lat": -88.80815,
+    "lon_e": 123.71755,
+    "ps_x_m": 30062.5,
+    "ps_y_m": -20062.5,
+    "source": "PGDA Site07",
+    "point_rule": "highest 5 m pixel within 2 km of the PGDA Site07 tile centre (30.00, -20.00) km",
+    "approx": false
+  },
+  {
+    "id": "de-gerlache-rim",
+    "name": "de Gerlache rim",
+    "lat": -88.66394,
+    "lon_e": -68.38832,
+    "ps_x_m": -37667.5,
+    "ps_y_m": 14922.5,
+    "source": "PGDA Site11",
+    "point_rule": "highest 5 m pixel within 2 km of the PGDA Site11 tile centre (-37.00, 15.00) km",
+    "approx": false
+  },
+  {
+    "id": "de-gerlache-rim-2",
+    "name": "de Gerlache Rim 2",
+    "lat": -88.2826,
+    "lon_e": -66.24164,
+    "ps_x_m": -47667.5,
+    "ps_y_m": 20982.5,
+    "source": "Artemis region (USGS grid)",
+    "point_rule": "highest 5 m pixel (LDEM_87S_5MPP) within 2 km of the USGS de_Gerlache_Rim_2 grid centre (-48.79, 22.64) km",
+    "approx": false
+  },
+  {
+    "id": "slater-plain",
+    "name": "Slater Plain",
+    "lat": -87.1977,
+    "lon_e": 126.67406,
+    "ps_x_m": 68167.5,
+    "ps_y_m": -50762.5,
+    "source": "Artemis region (USGS grid)",
+    "point_rule": "highest 5 m pixel (LDEM_87S_5MPP) within 2 km of the USGS Slater_Plain grid centre (69.92, -49.80) km",
+    "approx": false
+  },
+  {
+    "id": "haworth",
+    "name": "Haworth",
+    "lat": -86.80324,
+    "lon_e": -21.6722,
+    "ps_x_m": -35807.5,
+    "ps_y_m": 90107.5,
+    "source": "Artemis region (USGS grid)",
+    "point_rule": "highest 5 m pixel (LDEM_87S_5MPP) within 2 km of the USGS Haworth grid centre (-37.73, 90.54) km",
+    "approx": false
+  },
+  {
+    "id": "malapert-massif",
+    "name": "Malapert Massif",
+    "lat": -85.98111,
+    "lon_e": 0.68028,
+    "ps_x_m": 1447.5,
+    "ps_y_m": 121907.5,
+    "source": "PGDA Site23 = Artemis region",
+    "point_rule": "highest 5 m pixel within 2 km of the PGDA Site23 = Artemis region tile centre (-0.50, 121.50) km",
+    "approx": false
+  },
+  {
+    "id": "mons-mouton",
+    "name": "Mons Mouton",
+    "lat": -85.40462,
+    "lon_e": 31.70732,
+    "ps_x_m": 73277.5,
+    "ps_y_m": 118612.5,
+    "source": "PGDA Site20 = Artemis region",
+    "point_rule": "highest 5 m pixel within 2 km of the PGDA Site20 = Artemis region tile centre (73.00, 118.00) km",
+    "approx": false
+  },
+  {
+    "id": "nobile-rim-1",
+    "name": "Nobile Rim 1",
+    "lat": -85.37313,
+    "lon_e": 37.01438,
+    "ps_x_m": 84510.0,
+    "ps_y_m": 112090.0,
+    "source": "Artemis region (USGS grid)",
+    "point_rule": "highest 20 m pixel (LDEM_85S_20M) within 2 km of the USGS Nobile_Rim_1 grid centre (84.00, 110.16) km",
+    "approx": true
+  },
+  {
+    "id": "nobile-rim-2",
+    "name": "Nobile Rim 2",
+    "lat": -84.01136,
+    "lon_e": 59.10436,
+    "ps_x_m": 155970.0,
+    "ps_y_m": 93330.0,
+    "source": "Artemis region (USGS grid)",
+    "point_rule": "highest 60 m pixel (LDEM_75S_60M) within 2 km of the USGS Nobile_Rim_2 grid centre (156.94, 95.07) km",
+    "approx": true
+  },
+  {
+    "id": "peak-near-cabeus-b",
+    "name": "Peak near Cabeus B",
+    "lat": -83.61335,
+    "lon_e": -68.60856,
+    "ps_x_m": -180510.0,
+    "ps_y_m": 70710.0,
+    "source": "Artemis region (USGS grid)",
+    "point_rule": "highest 60 m pixel (LDEM_75S_60M) within 2 km of the USGS Peak_Near_Cabeus_B grid centre (-179.58, 69.92) km",
+    "approx": true
+  },
+  {
     "id": "fake-a",
     "name": "Fake A (stays lit)",
     "lat": -89.5,

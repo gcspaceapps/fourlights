@@ -1,23 +1,25 @@
 # The 12 curated sites
 
-**The centres below are provisional.** S4 recomputes every centre by script from the raw files (GeoTIFF headers, the USGS region grids, the Site07 point cloud), and only that output is used. Polar stereographic X/Y are metres in `IAU_2015:30135` (Moon south polar stereographic, R = 1737.4 km).
+Every centre and site point below is computed by script from the raw files (`cd pipeline && make sites`, then `python -m four_lights.sites_table` rewrites this table). Centres: PGDA tiles from their GeoTIFF bounds (Site07's tile is checked against its point cloud); Artemis regions from the USGS 1 km grids, converted from the grids' own projection (500 km false origin, scale 0.994) to `IAU_2015:30135`. Polar stereographic X/Y are km in `IAU_2015:30135` (Moon south polar stereographic, R = 1737.4 km). "Finest DEM under it" is the DEM the site's ground height and near field come from; `approx` = no 5 m terrain under the site.
 
-| # | id | Name | Source | Provisional centre (PS X, Y m) | Approx. lat, E-lon | Best DEM under it |
-|---|---|---|---|---|---|---|
-| 1 | `connecting-ridge` | Connecting Ridge | PGDA Site01 | −11 000, −12 000 | 89.46°S, 137.49°W | 5 m site tile |
-| 2 | `shackleton-rim` | Shackleton rim | PGDA Site04 | −1 000, −7 000 | 89.77°S, 171.87°W | 5 m site tile |
-| 3 | `peak-near-shackleton` | Peak near Shackleton | PGDA Site07 (tile has no georeferencing; centre from its point cloud) | ≈ 30 000, −20 000 | ≈ 88.81°S, 123.69°E | 5 m site tile |
-| 4 | `de-gerlache-rim` | de Gerlache rim | PGDA Site11 | −37 000, 15 000 | 88.68°S, 67.93°W | 5 m site tile |
-| 5 | `mons-mouton` | Mons Mouton (was Leibnitz beta plateau) | PGDA Site20 = Artemis region | 73 000, 118 000 | 85.43°S, 31.74°E | 5 m site tile |
-| 6 | `malapert-massif` | Malapert Massif | PGDA Site23 = Artemis region | −500, 121 500 | 86.00°S, 0.24°W | 5 m site tile |
-| 7 | `de-gerlache-rim-2` | de Gerlache Rim 2 | Artemis region (USGS grid) | −48 793, 22 636 | 88.23°S, 65.11°W | 87S 5 m mosaic |
-| 8 | `haworth` | Haworth | Artemis region | −37 726, 90 543 | 86.77°S, 22.62°W | `LDEM_85S_20M` |
-| 9 | `nobile-rim-1` | Nobile Rim 1 | Artemis region | 84 004, 110 161 | 85.43°S, 37.33°E | `LDEM_85S_20M` |
-| 10 | `nobile-rim-2` | Nobile Rim 2 | Artemis region | 156 942, 95 070 | 83.95°S, 58.79°E | `LDEM_75S_60M` (outside every 20 m product) |
-| 11 | `peak-near-cabeus-b` | Peak near Cabeus B | Artemis region | −179 577, 69 920 | 83.65°S, 68.73°W | `LDEM_75S_60M` (outside every 20 m product) |
-| 12 | `slater-plain` | Slater Plain | Artemis region | 69 920, −49 799 | 87.17°S, 125.46°E | 87S 5 m mosaic or `LDEM_85S_20M` |
+<!-- BEGIN computed sites (python -m four_lights.sites_table) -->
+| # | id | Name | Source | Centre (PS km) | Site point (PS km) | Lat, E-lon | Ground | Finest DEM under it | approx |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | `connecting-ridge` | Connecting Ridge | PGDA Site01 | -11.58, -12.46 | -11.58, -12.46 | -89.439°, -137.11° | 1958 m | PGDA Site01 5 m (5 m) | no |
+| 2 | `shackleton-rim` | Shackleton rim | PGDA Site04 | -1.00, -7.00 | -2.69, -6.09 | -89.780°, -156.20° | 1739 m | PGDA Site04 5 m (5 m) | no |
+| 3 | `peak-near-shackleton` | Peak near Shackleton | PGDA Site07 | 30.00, -20.00 | 30.06, -20.06 | -88.808°, 123.72° | 1649 m | PGDA Site07 5 m (5 m) | no |
+| 4 | `de-gerlache-rim` | de Gerlache rim | PGDA Site11 | -37.00, 15.00 | -37.67, 14.92 | -88.664°, -68.39° | 1816 m | PGDA Site11 5 m (5 m) | no |
+| 5 | `mons-mouton` | Mons Mouton | PGDA Site20 = Artemis region | 73.00, 118.00 | 73.28, 118.61 | -85.405°, 31.71° | 6464 m | PGDA Site20 5 m (5 m) | no |
+| 6 | `malapert-massif` | Malapert Massif | PGDA Site23 = Artemis region | -0.50, 121.50 | 1.45, 121.91 | -85.981°, 0.68° | 4886 m | PGDA Site23 5 m (5 m) | no |
+| 7 | `de-gerlache-rim-2` | de Gerlache Rim 2 | Artemis region (USGS grid) | -48.79, 22.64 | -47.67, 20.98 | -88.283°, -66.24° | 319 m | LDEM_87S_5MPP (5 m) | no |
+| 8 | `haworth` | Haworth | Artemis region (USGS grid) | -37.73, 90.54 | -35.81, 90.11 | -86.803°, -21.67° | 1820 m | LDEM_87S_5MPP (5 m) | no |
+| 9 | `nobile-rim-1` | Nobile Rim 1 | Artemis region (USGS grid) | 84.00, 110.16 | 84.51, 112.09 | -85.373°, 37.01° | 6220 m | LDEM_85S_20M (20 m) | yes |
+| 10 | `nobile-rim-2` | Nobile Rim 2 | Artemis region (USGS grid) | 156.94, 95.07 | 155.97, 93.33 | -84.011°, 59.10° | 1262 m | LDEM_75S_60M (60 m) | yes |
+| 11 | `peak-near-cabeus-b` | Peak near Cabeus B | Artemis region (USGS grid) | -179.58, 69.92 | -180.51, 70.71 | -83.613°, -68.61° | 4595 m | LDEM_75S_60M (60 m) | yes |
+| 12 | `slater-plain` | Slater Plain | Artemis region (USGS grid) | 69.92, -49.80 | 68.17, -50.76 | -87.198°, 126.67° | 290 m | LDEM_87S_5MPP (5 m) | no |
+<!-- END computed sites -->
 
-Left out: **Mons Mouton Plateau** (its region file sits behind a login; it adjoins Mons Mouton). Peak near Cabeus B's Y and Slater Plain's X are both 69 920 m: probably coincidence, re-check in S4.
+Left out: **Mons Mouton Plateau** (its region file sits behind a login; it adjoins Mons Mouton). Peak near Cabeus B's centre Y and Slater Plain's centre X are both 69.92 km: a real coincidence (both raw USGS grid values are exactly 569 500 m), checked by a test.
 
 Cross-checks: Malapert Massif's region centre is within 250 m of Site23's tile centre, and Mons Mouton's within 250 m of Site20's, so those two 5 m tiles cover Artemis regions.
 
