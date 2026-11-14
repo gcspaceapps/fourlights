@@ -87,10 +87,10 @@ describe('four lights', () => {
   it('the planner answers in a sentence', () => {
     const text = answerText(
       [
-        { name: 'A', verdict: 'green', usableDays: 5.2 },
-        { name: 'B', verdict: 'red', usableDays: 4.5 },
-        { name: 'C', verdict: 'green', usableDays: 7 },
-        { name: 'D', verdict: 'amber', usableDays: 1 },
+        { id: 'a', name: 'A', verdict: 'green', usableDays: 5.2 },
+        { id: 'b', name: 'B', verdict: 'red', usableDays: 4.5 },
+        { id: 'c', name: 'C', verdict: 'green', usableDays: 7 },
+        { id: 'd', name: 'D', verdict: 'amber', usableDays: 1 },
       ],
       new Date('2028-04-22T00:00:00Z'),
       7,

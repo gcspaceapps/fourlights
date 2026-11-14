@@ -1,6 +1,7 @@
 import './style.css';
 import { PRESETS, darkEnduranceHours, renderBattery, simulateBattery } from './battery';
 import { renderChart } from './chart';
+import { renderMap } from './map';
 import { answerText, renderPlanner } from './planner';
 import { loadSite, loadSites } from './data';
 import {
@@ -45,6 +46,7 @@ const ui = {
   slipOn: $('slip-on') as HTMLButtonElement,
   planner: $('planner') as HTMLTableElement,
   answer: $('answer'),
+  map: $('map') as unknown as SVGSVGElement,
   chartSection: $('chart-title'),
 };
 
@@ -220,6 +222,18 @@ async function selectSite(id: string): Promise<void> {
   render();
 }
 
+/** Show a site and landing date in the Sun-Path Chart (from a planner cell or a map marker). */
+function openChart(siteId: string, date: string, days: number): void {
+  ui.site.value = siteId;
+  ui.date.value = date;
+  ui.days.value = String(days);
+  ui.time.value = '0';
+  void selectSite(siteId).then(() => {
+    ui.chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    ui.site.focus({ preventScroll: true });
+  });
+}
+
 function drawPlanner(): void {
   renderPlanner({
     table: ui.planner,
@@ -229,17 +243,11 @@ function drawPlanner(): void {
     onAnswer: (results) => {
       const planned = new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`);
       ui.answer.textContent = answerText(results, planned, Number(ui.planDays.value));
+      renderMap(ui.map, sites, results, (siteId) =>
+        openChart(siteId, ui.plan.value || DEFAULT_PLAN, Number(ui.planDays.value)),
+      );
     },
-    onOpen: (siteId, date, days) => {
-      ui.site.value = siteId;
-      ui.date.value = date;
-      ui.days.value = String(days);
-      ui.time.value = '0';
-      void selectSite(siteId).then(() => {
-        ui.chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        ui.site.focus({ preventScroll: true });
-      });
-    },
+    onOpen: openChart,
   });
   writeHash();
 }

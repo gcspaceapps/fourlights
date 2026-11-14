@@ -62,6 +62,7 @@ function cellFor(
 }
 
 export interface PlannedResult {
+  id: string;
   name: string;
   verdict: Verdict | null;
   usableDays: number;
@@ -141,6 +142,7 @@ export function renderPlanner(o: PlannerOptions): void {
           const c = cellFor(site, d, windowDays);
           if (k === DAYS_BEFORE) {
             plannedResults.push({
+              id: s.id,
               name: s.name,
               verdict: c.verdict,
               usableDays: Number(c.text) || 0,

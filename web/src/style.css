@@ -602,6 +602,96 @@ h3 {
   color: var(--nogo-fg);
 }
 
+/* Map */
+.map {
+  margin: 0;
+  max-width: 44rem;
+}
+
+.map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--sky);
+}
+
+.map figcaption {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.relief {
+  filter: brightness(0.55) contrast(1.1);
+}
+
+:root[data-theme='light'] .relief {
+  filter: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .relief {
+    filter: none;
+  }
+}
+
+.lat {
+  fill: none;
+  stroke: var(--text);
+  stroke-opacity: 0.55;
+  stroke-dasharray: 5 7;
+}
+
+.pole {
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.map-note {
+  fill: var(--text);
+  font: 14px var(--mono);
+  paint-order: stroke;
+  stroke: var(--sky);
+  stroke-width: 4px;
+}
+
+.site {
+  cursor: pointer;
+}
+
+.site circle {
+  stroke: var(--sky);
+  stroke-width: 3;
+  fill: var(--muted);
+}
+
+.site.green circle {
+  fill: var(--go-fg);
+}
+
+.site.amber circle {
+  fill: var(--warn-fg);
+}
+
+.site.red circle {
+  fill: var(--nogo-fg);
+}
+
+.site text {
+  fill: var(--text);
+  font: 600 15px var(--font);
+  paint-order: stroke;
+  stroke: var(--sky);
+  stroke-width: 5px;
+}
+
+.site:focus-visible circle,
+.site:hover circle {
+  stroke: var(--accent);
+}
+
 /* Site info */
 .site-info dl {
   display: grid;

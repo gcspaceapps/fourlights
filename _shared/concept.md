@@ -36,7 +36,7 @@ Power thresholds checked on the real data (S6): 7-day windows are nearly all-or-
 6. Plain-English query
 7. **Site Review:** a one-paragraph AI write-up of a chosen site from our own numbers, on Claude, written ahead for the demo sites (no live call on stage)
 8. **Ask the Navigator:** an MCP server plus Durable Objects so any AI chat drives the live page (covers 6)
-9. **3D view (Matt's idea, three.js):** the terrain around a site, or the polar region with the 12 sites, as a 3D scene with the Sun and Earth directions. A later stretch; nothing depends on it. The data is ready for it: site points and DEM rings are in `data/derived/` (`make qgis`), the LOLA tiles in `data/raw/lola/`
+9. **3D view (Matt's idea, three.js):** (its 2D precursor, the site map, was built Sat 14 Nov: `web/src/map.ts`) the terrain around a site, or the polar region with the 12 sites, as a 3D scene with the Sun and Earth directions. A later stretch; nothing depends on it. The data is ready for it: site points and DEM rings are in `data/derived/` (`make qgis`), the LOLA tiles in `data/raw/lola/`
 
 Moon photo check (optional, Matt, Saturday evening): if a photo of the south polar limb is taken, raw timestamped images are published openly with a licence and a `_datasets/` card (GPS stripped from the EXIF), and compared with our prediction for that minute. If cloudy, a Stellarium view of the same time checks the Sun/Earth geometry (not the terrain shadows). Bonus only; nothing waits on it.
 
