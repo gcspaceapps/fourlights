@@ -1737,3 +1737,111 @@ html[data-nodata='true'] .needs-data > :not(.nodata-note, h2, h3) {
   text-decoration: none;
   font-size: var(--fs-sm);
 }
+
+/* ── Share Project: the header button and its dialog ── */
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.share-dot {
+  display: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.share-btn[data-state='live'] .share-dot,
+.share-btn[data-state='offline'] .share-dot {
+  display: block;
+}
+
+.share-btn[data-state='live'] .share-dot {
+  background: var(--go-edge);
+}
+
+.share-btn[data-state='offline'] .share-dot {
+  background: var(--warn-edge);
+}
+
+#share label:not(.visually-hidden, .share-follow) {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0.75rem 0;
+}
+
+#share input[type='text'],
+#share input:not([type]) {
+  min-height: 2.2rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+}
+
+.share-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.share-row input,
+.share-row code {
+  flex: 1;
+  min-width: 0;
+}
+
+.share-row code {
+  overflow-wrap: anywhere;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+}
+
+.share-note {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+.share-error {
+  color: var(--nogo-fg);
+}
+
+.share-follow {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin: 1rem 0;
+  font-size: var(--fs-sm);
+}
+
+.share-mine {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.share-mine li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+}
+
+#share section,
+#share-open-form {
+  margin-top: 1.25rem;
+}

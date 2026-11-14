@@ -11,6 +11,10 @@
     // Every request goes through the Worker so the weekend password covers pages and data too.
     "run_worker_first": true,
   },
+  // One Durable Object per shared project: its state and its live WebSockets (api/src/project.ts).
+  // SQLite-backed, so it runs on the Workers Free plan.
+  "durable_objects": { "bindings": [{ "name": "PROJECTS", "class_name": "Project" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Project"] }],
   "observability": { "enabled": true },
   // Workers AI: only /api/ask uses it, to turn a typed question into planner settings.
   "ai": { "binding": "AI" },

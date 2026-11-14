@@ -31,6 +31,22 @@ import { segmented, syncSegmented } from './segmented';
 import { key, setupShortcuts, type Shortcut } from './shortcuts';
 import { activeTab, refreshTabs, setupTabs, showTab, stepTab } from './tabs';
 import { at, type SiteData, type SiteSummary } from './types';
+import { setupShare } from './share';
+import {
+  PROJECT_ID,
+  SyncClient,
+  createProject,
+  fetchProject,
+  remember,
+  type Snapshot,
+  type SyncStatus,
+} from './sync';
+import type {
+  DataState,
+  Event as ProjectEvent,
+  ProjectSite,
+  ViewState,
+} from '../../api/src/project-state';
 
 function $(id: string): HTMLElement {
   const e = document.getElementById(id);
@@ -92,6 +108,7 @@ const mapTab = setupMap(
   (siteId) => chooseSite(siteId),
   (name, lat, lon) => addUserSite(name, lat, lon),
   (siteId) => removeUserSite(siteId),
+  { onLook: () => queuePush() },
 );
 let lastResults: PlannedResult[] = [];
 let sites: SiteSummary[] = [];
@@ -122,7 +139,9 @@ function writeHash(): void {
     tab: activeTab(),
     v: document.documentElement.dataset.view ?? 'explore',
   });
+  if (project) p.set('project', project.id);
   history.replaceState(null, '', `#${p.toString()}`);
+  queuePush();
 }
 
 /** Where each light comes from, shown in its info tip. */
@@ -373,6 +392,12 @@ function sitesChanged(select?: string): void {
 }
 
 function addUserSite(name: string, lat: number, lon: number): void {
+  if (project) {
+    // The project is the one place that names and keeps its sites; everyone, this page too, gets
+    // the new list back from it.
+    client?.send({ t: 'addSite', name, lat, lon_e: lon, avoid: published.map((s) => s.id) });
+    return;
+  }
   const mine = sites.filter((s) => s.user);
   const site = makeUserSite(
     name,
@@ -386,6 +411,10 @@ function addUserSite(name: string, lat: number, lon: number): void {
 }
 
 function removeUserSite(id: string): void {
+  if (project) {
+    client?.send({ t: 'removeSite', id, fallback: DEMO_SITE });
+    return;
+  }
   const mine = sites.filter((s) => s.user && s.id !== id);
   saveUserSites(mine);
   sites = mergeSites(published, mine);
@@ -465,10 +494,289 @@ function slip(days: number): void {
   drawPlanner();
 }
 
+// ───────────────────────────── shared project ─────────────────────────────
+// A project is a Durable Object that every page on it talks to (sync.ts, api/src/project.ts).
+// Two kinds of state travel: DATA (the selected site, date, window, height, power system, the
+// sites) always, and VIEW (tab, Mission/Explore/Learn, chart centre and time, the Moon's layer,
+// graticule and camera) while "follow the group's view" is on. A page reports a change by
+// comparing what it shows now with what it last sent or received (`lastData`, `lastView`), so
+// applying someone else's change never echoes back, and each existing handler needs no hook:
+// `writeHash` already runs after every change.
+let project: { id: string; name: string } | null = null;
+let projectSites: ProjectSite[] = [];
+let client: SyncClient | null = null;
+let syncStatus: SyncStatus = 'connecting';
+let peerCount = 1;
+/** True while a change from someone else is being put on the page. */
+let applying = false;
+let lastData: Partial<DataState> = {};
+let lastView: Partial<ViewState> = {};
+/** Where the group is looking, kept even while this person is not following. */
+let groupView: Partial<ViewState> = {};
+let pushTimer = 0;
+const FOLLOW_KEY = 'fourlights.follow';
+let follow = ((): boolean => {
+  try {
+    return localStorage.getItem(FOLLOW_KEY) !== '0';
+  } catch {
+    return true;
+  }
+})();
+
+const fromProject = (list: ProjectSite[]): SiteSummary[] =>
+  list.map((s) => ({
+    ...makeUserSite(s.name, s.lat, s.lon_e, []),
+    id: s.id,
+    source: 'Added to this shared project',
+  }));
+const mySites = (): SiteSummary[] => (project ? fromProject(projectSites) : loadUserSites());
+
+function basePreset(): PowerPreset | undefined {
+  return PRESETS.find((p) => p.id === ui.preset.value) ?? PRESETS[0];
+}
+
+function collectData(): DataState {
+  const pw = [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value];
+  const custom =
+    currentPowerSystem()?.id === 'custom' &&
+    pw.every((v) => v !== '' && Number.isFinite(Number(v)));
+  return {
+    site: ui.site.value,
+    date: ui.date.value,
+    days: ui.days.value,
+    height: ui.height.value,
+    preset: ui.preset.value,
+    power: custom ? pw.join('_') : '',
+  };
+}
+
+function collectView(): ViewState {
+  const look = mapTab.getLook();
+  return {
+    tab: activeTab(),
+    mode: (document.documentElement.dataset.view as View | undefined) ?? 'explore',
+    centre: ui.centre.value,
+    time: ui.time.value,
+    layer: look.layer,
+    grid: look.grid,
+    cam: look.cam
+      ? {
+          lon: look.cam.lon,
+          lat: look.cam.lat,
+          D: look.cam.D,
+          bearing: look.cam.bearing,
+          pitch: look.cam.pitch,
+        }
+      : null,
+  };
+}
+
+/** The keys of `now` whose values differ from `last`. */
+function differing<T extends object>(now: T, last: Partial<T>): Partial<T> {
+  const out: Partial<T> = {};
+  for (const k of Object.keys(now) as (keyof T)[]) {
+    if (JSON.stringify(now[k]) !== JSON.stringify(last[k])) out[k] = now[k];
+  }
+  return out;
+}
+
+/** Send what changed, at most ten times a second (a slider or the Moon turning is a stream). */
+function queuePush(): void {
+  if (!client || applying || pushTimer) return;
+  pushTimer = window.setTimeout(() => {
+    pushTimer = 0;
+    if (!client?.live || applying) return;
+    const data = differing(collectData(), lastData);
+    const view = follow ? differing(collectView(), lastView) : {};
+    const hasData = Object.keys(data).length > 0;
+    const hasView = Object.keys(view).length > 0;
+    if (!hasData && !hasView) return;
+    client.send({ t: 'set', ...(hasData ? { data } : {}), ...(hasView ? { view } : {}) });
+    Object.assign(lastData, data);
+    Object.assign(lastView, view);
+  }, 100);
+}
+
+/** Put someone else's data change on the page. Only what differs from what is showing. */
+function applyData(d: Partial<DataState>): void {
+  const cur = collectData();
+  const has = (k: keyof DataState): boolean => d[k] !== undefined && d[k] !== cur[k];
+  const power = d.power ?? lastData.power ?? cur.power;
+  const powerChanged = d.power !== undefined && d.power !== cur.power;
+  const presetChanged = has('preset') && d.preset !== '' && PRESETS.some((p) => p.id === d.preset);
+  const siteChanged = has('site') && sites.some((x) => x.id === d.site);
+  const plannerChanged = has('date') || has('days');
+  if (!siteChanged && !plannerChanged && !has('height') && !presetChanged && !powerChanged) {
+    Object.assign(lastData, d);
+    return;
+  }
+  applying = true;
+  try {
+    if (has('date') && d.date) ui.date.value = d.date;
+    if (has('days') && d.days) ui.days.value = d.days;
+    if (has('height') && d.height) {
+      if (![...ui.height.options].some((o) => o.value === d.height)) {
+        ui.height.add(new Option(d.height, d.height));
+      }
+      ui.height.value = d.height;
+    }
+    if (presetChanged && d.preset) ui.preset.value = d.preset;
+    if (presetChanged || powerChanged) {
+      // The preset's own values, then any adjusted ones on top (as when a link is opened).
+      const base = basePreset();
+      if (base) fillPowerInputs(base);
+      const pw = power.split('_');
+      if (pw.length === 4 && pw.every((v) => v !== '' && Number.isFinite(Number(v)))) {
+        [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value] = pw as [
+          string,
+          string,
+          string,
+          string,
+        ];
+        ui.customise.open = true;
+      }
+    }
+    syncSegmented();
+    if (plannerChanged) drawPlanner();
+    if (siteChanged && d.site) {
+      ui.site.value = d.site;
+      ui.site.dispatchEvent(new Event('change'));
+    } else {
+      render();
+    }
+  } finally {
+    applying = false;
+  }
+  Object.assign(lastData, d);
+}
+
+/** Put someone else's view on the page: the tab, the chart's cursor, the Moon. */
+function applyView(v: Partial<ViewState>): void {
+  const cur = collectView();
+  applying = true;
+  try {
+    // The mode first: a Learn-only tab does not exist in the other modes.
+    if (v.mode && v.mode !== cur.mode) setView(v.mode, false);
+    if (v.tab && v.tab !== cur.tab) showTab(v.tab);
+    let redraw = false;
+    if (v.centre !== undefined && v.centre !== cur.centre) {
+      ui.centre.value = v.centre;
+      redraw = true;
+    }
+    if (v.time !== undefined && v.time !== cur.time) {
+      ui.time.value = v.time;
+      redraw = true;
+    }
+    syncSegmented();
+    if (redraw) render();
+    mapTab.setLook({ layer: v.layer, grid: v.grid, cam: v.cam });
+  } finally {
+    applying = false;
+  }
+  Object.assign(lastView, v);
+}
+
+function setProjectSites(list: ProjectSite[], data?: Partial<DataState>): void {
+  projectSites = list;
+  sites = mergeSites(published, fromProject(list));
+  if (data) Object.assign(lastData, data);
+  applying = true;
+  try {
+    sitesChanged(data?.site);
+  } finally {
+    applying = false;
+  }
+}
+
+function startSync(snap: Snapshot): void {
+  lastData = { ...snap.data };
+  lastView = { ...snap.view };
+  groupView = { ...snap.view };
+  client = new SyncClient(snap.id, {
+    snapshot: (s, peers) => {
+      peerCount = peers;
+      share.setStatus(syncStatus, peers);
+      groupView = { ...s.view };
+      if (JSON.stringify(s.sites) !== JSON.stringify(projectSites)) setProjectSites(s.sites);
+      applyData(s.data);
+      if (follow) applyView(s.view);
+    },
+    event: (e: ProjectEvent) => {
+      if (e.t === 'sites') {
+        setProjectSites(e.sites, e.data);
+        if (e.data) applyData(e.data);
+        return;
+      }
+      if (e.data) applyData(e.data);
+      if (e.view) {
+        Object.assign(groupView, e.view);
+        if (follow) applyView(e.view);
+      }
+    },
+    peers: (n) => {
+      peerCount = n;
+      share.setStatus(syncStatus, n);
+    },
+    status: (st) => {
+      syncStatus = st;
+      share.setStatus(st, peerCount);
+    },
+    gone: () => leaveProject(),
+  });
+}
+
+/** The link's state, as the hash keys the page already reads at start-up. */
+function seedHash(hash: URLSearchParams, snap: Snapshot): void {
+  const { data: d, view: v } = snap;
+  hash.set('site', d.site);
+  hash.set('date', d.date);
+  hash.set('days', d.days);
+  hash.set('h', d.height);
+  if (d.preset) hash.set('ps', d.preset);
+  if (d.power) hash.set('pw', d.power);
+  else hash.delete('pw');
+  hash.set('c', v.centre);
+  hash.set('t', v.time);
+  hash.set('v', v.mode);
+  if (follow) hash.set('tab', v.tab);
+}
+
+function leaveProject(): void {
+  client?.close();
+  const p = readHash();
+  p.delete('project');
+  history.replaceState(null, '', `#${p.toString()}`);
+  location.reload();
+}
+
+async function createShared(name: string): Promise<{ id: string; name: string }> {
+  const mine = loadUserSites().map(({ id, name: n, lat, lon_e }) => ({ id, name: n, lat, lon_e }));
+  const snap = await createProject({ name, sites: mine, data: collectData(), view: collectView() });
+  project = { id: snap.id, name: snap.name };
+  remember(project);
+  setProjectSites(snap.sites);
+  writeHash();
+  startSync(snap);
+  share.setProject(project);
+  return project;
+}
+
 async function init(): Promise<void> {
   published = await loadSites();
-  sites = mergeSites(published, loadUserSites());
   const hash = readHash();
+  // A project in the link: its state wins over whatever else the link says.
+  const joinId = hash.get('project');
+  let joined: Snapshot | null = null;
+  if (joinId && PROJECT_ID.test(joinId)) joined = await fetchProject(joinId);
+  if (joined) {
+    project = { id: joined.id, name: joined.name };
+    projectSites = joined.sites;
+    remember(project);
+    seedHash(hash, joined);
+  } else if (joinId) {
+    hash.delete('project');
+  }
+  sites = mergeSites(published, mySites());
   fillSiteOptions();
   ui.planDays.replaceChildren(...WINDOW_DAYS.map((d) => new Option(String(d), String(d))));
   // Old links carried a planner date (plan, pdays) and a chart date (date, days); the chart's wins.
@@ -490,8 +798,6 @@ async function init(): Promise<void> {
   });
   ui.preset.replaceChildren(...PRESETS.map((p) => new Option(p.name, p.id)));
   ui.preset.value = hash.get('ps') ?? PRESETS[0]?.id ?? '';
-  const basePreset = (): PowerPreset | undefined =>
-    PRESETS.find((p) => p.id === ui.preset.value) ?? PRESETS[0];
   const first = basePreset();
   if (first) fillPowerInputs(first);
   // Adjusted values from a shared link: array_day_dark_battery.
@@ -528,6 +834,13 @@ async function init(): Promise<void> {
   // On a phone the panorama scrolls: start with the chosen centre azimuth in view.
   const scroller = ui.chart.parentElement;
   if (scroller) scroller.scrollLeft = (scroller.scrollWidth - scroller.clientWidth) / 2;
+  if (joined) {
+    share.setProject(project);
+    startSync(joined);
+  } else if (joinId) {
+    ui.askNote.textContent = 'That shared project does not exist, so this is your own copy.';
+    writeHash();
+  }
 }
 
 async function showHealth(): Promise<void> {
@@ -828,6 +1141,23 @@ const SHORTCUTS: Shortcut[] = [
     run: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
   },
 ];
+
+const share = setupShare({
+  uploadCount: () => loadUserSites().length,
+  create: createShared,
+  follow: () => follow,
+  setFollow: (on) => {
+    follow = on;
+    try {
+      localStorage.setItem(FOLLOW_KEY, on ? '1' : '0');
+    } catch {
+      // storage blocked: lasts for this page only
+    }
+    // Switching it on joins the group where it is now.
+    if (on) applyView(groupView);
+  },
+  leave: leaveProject,
+});
 
 setupViews();
 setupTabs($('tabs'), readHash().get('tab'), (slug) => {

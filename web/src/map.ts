@@ -3,6 +3,7 @@
 // is a picture. three.js and the tiles load only when the tab is first shown, and the WebGL
 // context is given back when the tab is left (see globe/globe.ts).
 import type { Globe, GlobeSite, LayerId } from './globe/globe';
+import type { View } from './globe/math';
 import type { PlannedResult } from './planner';
 import type { SiteSummary } from './types';
 
@@ -17,6 +18,15 @@ export interface MapTab {
   /** The selected site changed (from anywhere): highlight it. */
   setSelected(id: string | null): void;
   setActive(on: boolean): void;
+  /** What this person is looking at (shared projects): the layer, the graticule and the camera. */
+  getLook(): { layer: LayerId; grid: boolean; cam: View | null };
+  /** Show what someone else is looking at. Only the keys given change. */
+  setLook(look: { layer?: LayerId; grid?: boolean; cam?: View | null }): void;
+}
+
+/** Tells the page when this person changed the layer, the graticule or the camera. */
+export interface MapHooks {
+  onLook: () => void;
 }
 
 const byId = <T extends HTMLElement>(root: HTMLElement, id: string): T => {
@@ -37,6 +47,7 @@ export function setupMap(
   onSelect: (siteId: string) => void,
   onAdd: (name: string, lat: number, lon: number) => void,
   onRemove: (siteId: string) => void,
+  hooks: MapHooks = { onLook: () => {} },
 ): MapTab {
   const view = byId(root, 'globe-view');
   const tip = byId(root, 'globe-tip');
@@ -61,6 +72,8 @@ export function setupMap(
   let userPicked = false;
   let token = 0;
   let selected: string | null = null;
+  /** The camera last seen (ours or another person's), for when the globe is not showing. */
+  let cam: View | null = null;
 
   // The browser restores form state on reload, so read it rather than assume the defaults.
   const layerNow = (): LayerId =>
@@ -233,6 +246,10 @@ export function setupMap(
         // A click on a marker only selects the site: the user can already see it, and zooms or
         // turns the Moon themselves. The list's site buttons are the ones that fly.
         onOpen: onSelect,
+        onCamera: (v) => {
+          cam = v;
+          hooks.onLook();
+        },
         onPick: (lat, lon) => {
           fLat.value = lat.toFixed(4);
           fLon.value = lon.toFixed(4);
@@ -255,6 +272,7 @@ export function setupMap(
     globe.setSites(globeSites());
     globe.setSelected(selected);
     globe.setPicking(!form.hidden);
+    if (cam) globe.setView(cam);
   }
 
   function stop(): void {
@@ -264,12 +282,18 @@ export function setupMap(
     readout.textContent = 'Cursor: move over the Moon';
   }
 
-  layer.addEventListener('change', () => globe?.setLayer(layerNow()));
+  layer.addEventListener('change', () => {
+    globe?.setLayer(layerNow());
+    hooks.onLook();
+  });
   // A click on one of the layer buttons is the user's own choice; our own setLayer is not.
   byId(root, 'globe-controls').addEventListener('click', (e) => {
     if ((e.target as HTMLElement).closest('.segmented button')) userPicked = true;
   });
-  grid.addEventListener('change', () => globe?.setGrid(grid.checked));
+  grid.addEventListener('change', () => {
+    globe?.setGrid(grid.checked);
+    hooks.onLook();
+  });
   byId(root, 'globe-zoom-in').addEventListener('click', () => globe?.zoomBy(0.5));
   byId(root, 'globe-zoom-out').addEventListener('click', () => globe?.zoomBy(2));
   byId(root, 'globe-moon').addEventListener('click', () => globe?.goTo('moon'));
@@ -296,6 +320,20 @@ export function setupMap(
         li.querySelector('.globe-fly')?.toggleAttribute('aria-current', on);
       }
       globe?.setSelected(id);
+    },
+    getLook() {
+      return { layer: layerNow(), grid: grid.checked, cam };
+    },
+    setLook(look) {
+      if (look.layer && LAYERS.includes(look.layer)) setLayer(look.layer, false);
+      if (look.grid !== undefined && grid.checked !== look.grid) {
+        grid.checked = look.grid;
+        globe?.setGrid(look.grid);
+      }
+      if (look.cam !== undefined) {
+        cam = look.cam;
+        if (cam) globe?.setView(cam);
+      }
     },
     setActive(on) {
       if (on === active) return;

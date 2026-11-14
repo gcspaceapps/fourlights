@@ -57,6 +57,8 @@ export interface GlobeOptions {
   onHover: (id: string | null) => void;
   /** In add-a-site mode: an empty spot on the Moon was clicked. */
   onPick?: (lat: number, lon: number) => void;
+  /** The camera moved because of this person (not the idle spin, not another person's move). */
+  onCamera?: (view: View) => void;
 }
 
 const FOV = 45;
@@ -227,6 +229,9 @@ export class Globe {
   private targetD: number;
   private flight: { from: View; to: View; t: number; dur: number } | null = null;
   private spinning: boolean;
+  /** True while the camera is following someone else's: it must not be reported back. */
+  private quiet = false;
+  private reported = '';
   private raf = 0;
   private running = false;
   private last = 0;
@@ -409,6 +414,11 @@ export class Globe {
     this.startFlight(
       where === 'moon' ? { ...INITIAL } : { lon: 0, lat: -88, D: 0.5, bearing: 0, pitch: 0 },
     );
+  }
+
+  /** Another person moved the camera: glide to where they are. Not reported back. */
+  setView(v: View): void {
+    this.startFlight({ ...v }, true);
   }
 
   /** Re-read the theme's colours (markers). */
@@ -685,6 +695,7 @@ export class Globe {
   }
 
   private interacted(): void {
+    this.quiet = false;
     this.spinning = false;
     this.flight = null;
   }
@@ -866,12 +877,14 @@ export class Globe {
     else this.running = false;
   };
 
-  private startFlight(to: View): void {
+  private startFlight(to: View, followed = false): void {
     this.spinning = false;
+    this.quiet = followed;
     this.targetD = to.D;
     const from = { ...this.view };
     const dist = angleBetween(surf(from.lon, from.lat), surf(to.lon, to.lat));
-    const dur = this.reduced ? 0.2 : clamp(0.8 + dist * 0.9, 0.8, 2.4);
+    // Following someone: a short glide between the positions they send a few times a second.
+    const dur = followed ? 0.15 : this.reduced ? 0.2 : clamp(0.8 + dist * 0.9, 0.8, 2.4);
     this.flight = { from, to, t: 0, dur };
     this.invalidate();
   }
@@ -937,6 +950,16 @@ export class Globe {
     this.updateGrid(now);
     this.updateMarkers(pose.position);
     this.renderer.render(this.scene, this.camera);
+    this.reportCamera();
+  }
+
+  private reportCamera(): void {
+    if (this.quiet || this.spinning || !this.opts.onCamera) return;
+    const v = this.view;
+    const key = [v.lon, v.lat, v.D, v.bearing, v.pitch].map((n) => n.toFixed(5)).join(',');
+    if (key === this.reported) return;
+    this.reported = key;
+    this.opts.onCamera({ ...v });
   }
 
   private retire(force: boolean): void {

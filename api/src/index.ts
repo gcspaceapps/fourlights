@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { basicAuth } from 'hono/basic-auth';
 import { serveTile } from './etiles';
+import type { Project } from './project';
+import { MAX_MESSAGE_BYTES } from './project-state';
 import { ASK_MODEL, MAX_QUESTION_CHARS, parseIntent, systemPrompt, type SiteName } from './intent';
 
 type Env = {
@@ -9,7 +11,11 @@ type Env = {
   AI: Ai;
   /** Weekend-only password gate. Unset (wrangler secret delete SITE_PASSWORD) and the site is open. */
   SITE_PASSWORD?: string;
+  /** One Durable Object per shared project, named by its uuid (project.ts). */
+  PROJECTS: DurableObjectNamespace<Project>;
 };
+
+export { Project } from './project';
 
 /** The published data covers these landing dates (see _shared/stack.md). */
 const FIRST_DAY = '2028-01-01';
@@ -60,6 +66,75 @@ app.post('/api/ask', async (c) => {
       503,
     );
   }
+});
+
+// ── Shared projects (see project.ts). The uuid is the key: whoever holds it can open the project. ──
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+/** An uploaded project (its name, added sites and starting state) stays small. */
+const MAX_CREATE_BYTES = 65_536;
+
+/** The published sites' ids, so a site added to a project never takes one of their ids. */
+async function publishedIds(c: { env: Env; req: { url: string } }): Promise<string[]> {
+  const res = await c.env.ASSETS.fetch(new Request(new URL('/data/sites.json', c.req.url)));
+  return res.ok ? ((await res.json()) as SiteName[]).map((s) => s.id) : [];
+}
+
+app.post('/api/projects', async (c) => {
+  const text = await c.req.text();
+  if (text.length > MAX_CREATE_BYTES) return c.json({ ok: false, error: 'Too large.' }, 413);
+  let body: unknown = null;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    // falls through to the 400 below
+  }
+  if (typeof body !== 'object' || body === null) {
+    return c.json({ ok: false, error: 'Send a JSON body with a name.' }, 400);
+  }
+  const id = crypto.randomUUID();
+  const made = await c.env.PROJECTS.getByName(id).create(id, body);
+  if (!made) {
+    return c.json({ ok: false, error: 'A project needs a name of up to 60 characters.' }, 400);
+  }
+  return c.json({ ok: true, project: made }, 201);
+});
+
+app.get('/api/projects/:id', async (c) => {
+  const id = c.req.param('id');
+  if (!UUID.test(id)) return c.json({ ok: false, error: 'Not a project id.' }, 400);
+  const project = await c.env.PROJECTS.getByName(id).snapshot();
+  return project
+    ? c.json({ ok: true, project })
+    : c.json({ ok: false, error: 'No such project.' }, 404);
+});
+
+/**
+ * Anything that is not a browser (an AI agent's MCP tool, a script) changes a project here, with
+ * the same commands the browsers send down their WebSocket; everyone connected sees the change.
+ */
+app.post('/api/projects/:id/commands', async (c) => {
+  const id = c.req.param('id');
+  if (!UUID.test(id)) return c.json({ ok: false, error: 'Not a project id.' }, 400);
+  const text = await c.req.text();
+  if (text.length > MAX_MESSAGE_BYTES) return c.json({ ok: false, error: 'Too large.' }, 413);
+  let cmd: unknown;
+  try {
+    cmd = JSON.parse(text);
+  } catch {
+    return c.json({ ok: false, error: 'Not JSON.' }, 400);
+  }
+  if (typeof cmd === 'object' && cmd !== null && (cmd as { t?: unknown }).t === 'addSite') {
+    (cmd as { avoid?: unknown }).avoid = await publishedIds(c);
+  }
+  const stub = c.env.PROJECTS.getByName(id);
+  const res = await stub.command(cmd);
+  return c.json(res, res.ok ? 200 : 400);
+});
+
+app.get('/api/projects/:id/ws', (c) => {
+  const id = c.req.param('id');
+  if (!UUID.test(id)) return c.json({ ok: false, error: 'Not a project id.' }, 400);
+  return c.env.PROJECTS.getByName(id).fetch(c.req.raw);
 });
 
 app.get('/etiles/:layer/:z/:row/:col', (c) =>

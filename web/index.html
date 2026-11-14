@@ -74,6 +74,10 @@
               <span class="theme-icon" data-icon="moon" aria-hidden="true"></span>
               <span class="visually-hidden">Dark mode</span>
             </button>
+            <button type="button" class="share-btn" id="share-open" aria-haspopup="dialog">
+              <span class="share-dot" aria-hidden="true"></span>
+              <span id="share-open-label">Share Project</span>
+            </button>
           </div>
         </div>
         <p class="tagline">
@@ -682,6 +686,74 @@
           </dd>
         </dl>
       </section>
+
+      <dialog id="share" aria-labelledby="share-title">
+        <h2 id="share-title">Share this project</h2>
+
+        <form id="share-create">
+          <p>
+            Make a shared project and anyone you give its ID to sees what you see, live: the tab you
+            are on, the selected site, the date, the Moon as you turn it, and any site you add. Your
+            project keeps your changes, so you can come back to it later with the same ID.
+          </p>
+          <label
+            >Project name <input id="share-name" required maxlength="60" autocomplete="off"
+          /></label>
+          <p class="share-note" id="share-upload"></p>
+          <p class="share-note">
+            <strong>The ID is the only key.</strong> There is no list of projects and no password:
+            anyone who has the ID can see and change the project, and nobody can find it without it.
+            Share it only with people you want in.
+          </p>
+          <p class="share-error" id="share-error" role="alert" hidden></p>
+          <button type="submit" id="share-create-btn">Create shared project</button>
+        </form>
+
+        <div id="share-live" hidden>
+          <p class="share-project">
+            <strong id="share-live-name"></strong> <span id="share-status"></span>
+          </p>
+          <p class="share-note">
+            Keep this ID: it is how you, or someone you give it to, comes back to this project.
+          </p>
+          <div class="share-row">
+            <code id="share-id"></code>
+            <button type="button" id="share-copy-id">Copy ID</button>
+          </div>
+          <div class="share-row">
+            <input id="share-link" readonly aria-label="Link to this project" />
+            <button type="button" id="share-copy-link">Copy link</button>
+          </div>
+          <label class="share-follow">
+            <input type="checkbox" id="share-follow" checked />
+            <span>
+              <strong>Follow the group's view.</strong> Your tab, the Moon's camera and the chart's
+              cursor move with everyone else's, and yours move theirs. Turn it off to look around by
+              yourself: sites, the selected site and dates still stay in step.
+            </span>
+          </label>
+          <button type="button" id="share-leave">Leave this project</button>
+        </div>
+
+        <section id="share-mine-box" hidden>
+          <h3>Your projects (remembered in this browser)</h3>
+          <ul class="share-mine" id="share-mine"></ul>
+        </section>
+
+        <form id="share-open-form" class="share-row">
+          <label class="visually-hidden" for="share-open-id">Project ID</label>
+          <input
+            id="share-open-id"
+            placeholder="Open a project by its ID"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button type="submit">Open</button>
+        </form>
+        <p class="share-error" id="share-open-error" role="alert" hidden></p>
+
+        <button type="button" id="share-close">Close</button>
+      </dialog>
 
       <dialog id="shortcuts" aria-labelledby="shortcuts-title">
         <form method="dialog">
