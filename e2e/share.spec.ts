@@ -1,6 +1,11 @@
 // Shared projects: two browsers on one Durable Object, and an outside caller (what an AI agent's
 // MCP tool will be) changing it through the REST route.
-import { expect, test, type Browser, type Page } from '@playwright/test';
+import { expect as baseExpect, test, type Browser, type Page } from '@playwright/test';
+
+// Two browsers, a WebSocket and a 3D canvas each: slower than the single-page tests, more so when
+// the suite runs in parallel. A change has 15 s to arrive, and each test up to 2 minutes.
+const expect = baseExpect.configure({ timeout: 15_000 });
+test.describe.configure({ timeout: 120_000 });
 
 const tab = (page: Page, slug: string) => page.locator(`#tab-${slug}`);
 
@@ -97,8 +102,12 @@ test('the Moon turns for everyone following', async ({ browser, baseURL }) => {
       return cam?.lat;
     })
     .toBeLessThan(-80);
+  // One screenshot of the WebGL canvas can take several seconds without a GPU, so this poll gets
+  // a long time: it is the Moon moving that is being tested, not how fast it is photographed.
   await expect
-    .poll(async () => (await b.locator('#globe-view canvas').screenshot()).equals(before))
+    .poll(async () => (await b.locator('#globe-view canvas').screenshot()).equals(before), {
+      timeout: 60_000,
+    })
     .toBe(false);
 
   // The layer is shared too (the hidden select is the source of truth).
