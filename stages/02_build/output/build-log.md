@@ -6,6 +6,17 @@
 - **Next (Matt, from 17:30):** read this log, start M2 (published numbers table, by 20:30); ~18:45 Stellarium view (or telescope if clear); 20:30 cold run of the demo from the README
 - **Blocked:** none
 
+## Results
+
+**S7: Connecting Ridge vs Barker et al. 2021, 2024–2026** (`make validate`)
+
+| Height | Sun as | Average illumination (Barker 1 m 67–71%, 5 m 83–89%) | Longest sunlit (Barker 1 m 63–142 d) | Longest dark (Barker 1 m 13–22 d, 5 m 4–8 d) |
+|---|---|---|---|---|
+| 1 m | centre | 81.7% | 175.9 d | 13.9 d (within) |
+| 1 m | disc | 81.6% | 205.0 d | 12.0 d |
+| 5 m | centre | 90.9% | 205.1 d | 4.9 d (within) |
+| 5 m | disc | 91.0% | 232.4 d | 4.0 d (within) |
+
 ## Log (AEST, one line per block)
 | Time | Who | What changed | Blocked |
 |---|---|---|---|
@@ -19,12 +30,3 @@
 | 10:24 Sat | Steve + agent | M1 first cut, built in the main session while S4 runs: the Sun-Path Chart works on REAL data for Shackleton rim. It has a 360° panorama from true north (centre selectable), the filled LOLA skyline, Sun and Earth tracks over the mission window (a dot every 24 h), a time slider, the four lights (Sun/Earth/Comms at the slider time, Power for the window), usable days, and a site panel naming every dataset. The view is kept in the URL hash, ready for Slip Planner links. Controls are native and keyboard-usable; on a phone the panorama scrolls sideways. Screenshot: `media/sun-path-chart-shackleton.png`. Shackleton rim, 21–28 Jan 2028: Power on (sunlit 83%, longest dark 29 h) but only 1.2 usable days, because Earth is below the terrain most of that week | none |
 | 10:27 Sat | Steve + agent | S5 first cut: Slip Planner above the chart. Rows = sites (real first, fixtures labelled), columns = landing dates −2 to +11 days around the planned date, cell = usable days for the window, ● works / ▲ marginal / ✕ no power (Power on and ≥ 50% usable = green; threshold a named constant). `Slip + 1 day` moves the plan; clicking a cell opens that site and window in the Sun-Path Chart. Site files load lazily per row. Screenshot: `media/slip-planner.png`. Early real result: for a 21 Jan 2028 landing, Shackleton rim / Connecting Ridge / Peak near Shackleton are marginal (Earth low, so little Comms) and turn green after a 3-day slip, while de Gerlache rim goes red from +4 days. A candidate demo story | none |
 | 10:28 Sat | Steve + agent | S7 first pass (`make validate`): Connecting Ridge, 2024-01-01 to 2026-01-01, vs Barker et al. 2021 Table 2. **Longest dark is consistent**: 13.9 d at 1 m (Barker 13–22 d), 4.0–4.9 d at 5 m (Barker 4–8 d). **Average illumination is higher than Barker's**: 81.7% at 1 m (Barker 67–71%) and 91% at 5 m (83–89%). The direction is expected (theirs is the 1st percentile of 100 DEM clones, region-averaged; ours is one point on the best-estimate DEM), but the ~11–15 point gap at 1 m isn't fully explained; one candidate is our 240 m far field beyond 150 km. Treating the Sun as a disc instead of its centre changes little. Don't claim a match on illumination. Table below | none |
-
-**S7 table (Connecting Ridge, 2024–2026)**
-
-| Height | Sun as | Average illumination (Barker 1 m 67–71%, 5 m 83–89%) | Longest sunlit (Barker 1 m 63–142 d) | Longest dark (Barker 1 m 13–22 d, 5 m 4–8 d) |
-|---|---|---|---|---|
-| 1 m | centre | 81.7% | 175.9 d | 13.9 d (within) |
-| 1 m | disc | 81.6% | 205.0 d | 12.0 d |
-| 5 m | centre | 90.9% | 205.1 d | 4.9 d (within) |
-| 5 m | disc | 91.0% | 232.4 d | 4.0 d (within) |
