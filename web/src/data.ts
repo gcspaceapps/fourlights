@@ -13,6 +13,21 @@ export function loadSites(): Promise<SitesIndex> {
   return getJson<SitesIndex>('/data/sites.json');
 }
 
+export interface Reviews {
+  model: string;
+  provider: string;
+  generated_utc: string;
+  sites: Record<string, { text: string }>;
+}
+
+let reviews: Promise<Reviews | null> | undefined;
+
+/** AI-written site summaries, generated ahead of time; null if the file is missing. */
+export function loadReviews(): Promise<Reviews | null> {
+  reviews ??= getJson<Reviews>('/data/reviews.json').catch(() => null);
+  return reviews;
+}
+
 export function loadSite(id: string): Promise<SiteData> {
   let p = siteCache.get(id);
   if (!p) {

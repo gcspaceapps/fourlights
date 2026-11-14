@@ -1,0 +1,200 @@
+{
+ "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+ "provider": "Cloudflare Workers AI",
+ "generated_utc": "2026-11-14T02:01:39Z",
+ "note": "AI-written from the facts listed with each review; every number in a review is checked against those facts.",
+ "sites": {
+  "shackleton-rim": {
+   "text": "The Shackleton rim is at 89.78°S, 156.2°W, with a ground height of 1739 m. It is sunlit 85% of the time, with a longest night of 5.0 days and longest unbroken sunlight of 147 days. Earth is above the terrain 55% of the time, with communications possible 50% of the time, and terrain data is from a 5 m per pixel LOLA elevation model.",
+   "facts": {
+    "name": "Shackleton rim",
+    "position": "89.78°S, 156.2°W",
+    "ground height": "1739 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "85% of the time",
+    "longest night": "5.0 days",
+    "longest unbroken sunlight": "147 days",
+    "Earth above the terrain": "55% of the time",
+    "communications possible": "50% of the time",
+    "highest terrain on the horizon": "1.0° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "connecting-ridge": {
+   "text": "Connecting Ridge is at 89.44°S, 137.1°W, with a ground height of 1958 m. It is sunlit 85% of the time, with a longest night of 11.3 days and longest unbroken sunlight of 205 days. Earth is above the terrain 57% of the time, with communications possible 52% of the time, and terrain data is from a 5 m per pixel LOLA elevation model.",
+   "facts": {
+    "name": "Connecting Ridge",
+    "position": "89.44°S, 137.1°W",
+    "ground height": "1958 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "85% of the time",
+    "longest night": "11.3 days",
+    "longest unbroken sunlight": "205 days",
+    "Earth above the terrain": "57% of the time",
+    "communications possible": "52% of the time",
+    "highest terrain on the horizon": "-0.5° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "peak-near-shackleton": {
+   "text": "The Peak near Shackleton is at 88.81°S, 123.7°E with a ground height of 1649 m. It is sunlit 84% of the time, with a longest night of 10.9 days and longest unbroken sunlight of 146 days, and has terrain data from a 5 m per pixel LOLA elevation model.",
+   "facts": {
+    "name": "Peak near Shackleton",
+    "position": "88.81°S, 123.7°E",
+    "ground height": "1649 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "84% of the time",
+    "longest night": "10.9 days",
+    "longest unbroken sunlight": "146 days",
+    "Earth above the terrain": "56% of the time",
+    "communications possible": "52% of the time",
+    "highest terrain on the horizon": "-0.3° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "de-gerlache-rim": {
+   "text": "The de Gerlache rim is at 88.66°S, 68.4°W, with a ground height of 1816 m. It is sunlit 82% of the time, with a longest night of 11.2 days and longest unbroken sunlight of 146 days. Earth is above the terrain 60% of the time, and communications are possible 55% of the time, with terrain data from a 5 m per pixel LOLA elevation model.",
+   "facts": {
+    "name": "de Gerlache rim",
+    "position": "88.66°S, 68.4°W",
+    "ground height": "1816 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "82% of the time",
+    "longest night": "11.2 days",
+    "longest unbroken sunlight": "146 days",
+    "Earth above the terrain": "60% of the time",
+    "communications possible": "55% of the time",
+    "highest terrain on the horizon": "-0.2° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "de-gerlache-rim-2": {
+   "text": "The de Gerlache Rim 2 site is at 88.28°S, 66.2°W, with a ground height of 319 m. It is sunlit 39% of the time, with a longest night of 21.5 days and longest unbroken sunlight of 15 days. Earth is above the terrain 55% of the time, and communications are possible 50% of the time, with terrain data from a 5 m per pixel LOLA elevation model.",
+   "facts": {
+    "name": "de Gerlache Rim 2",
+    "position": "88.28°S, 66.2°W",
+    "ground height": "319 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "39% of the time",
+    "longest night": "21.5 days",
+    "longest unbroken sunlight": "15 days",
+    "Earth above the terrain": "55% of the time",
+    "communications possible": "50% of the time",
+    "highest terrain on the horizon": "19.0° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "slater-plain": {
+   "text": "Slater Plain is at 87.20°S, 126.7°E, with a ground height of 290 m. It is sunlit 44% of the time, with a longest night of 19.2 days and longest unbroken sunlight of 17 days. Earth is above the terrain 46% of the time, with communications possible 41% of the time.",
+   "facts": {
+    "name": "Slater Plain",
+    "position": "87.20°S, 126.7°E",
+    "ground height": "290 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "44% of the time",
+    "longest night": "19.2 days",
+    "longest unbroken sunlight": "17 days",
+    "Earth above the terrain": "46% of the time",
+    "communications possible": "41% of the time",
+    "highest terrain on the horizon": "13.4° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "haworth": {
+   "text": "Haworth is at 86.80°S, 21.7°W with a ground height of 1820 m, and is sunlit 48% of the time, with the Earth above the terrain 63% of the time and communications possible 57% of the time.",
+   "facts": {
+    "name": "Haworth",
+    "position": "86.80°S, 21.7°W",
+    "ground height": "1820 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "48% of the time",
+    "longest night": "17.5 days",
+    "longest unbroken sunlight": "16 days",
+    "Earth above the terrain": "63% of the time",
+    "communications possible": "57% of the time",
+    "highest terrain on the horizon": "4.2° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "malapert-massif": {
+   "text": "The Malapert Massif is at 85.98°S, 0.7°E with a ground height of 4886 m. It is sunlit 46% of the time, with a longest night of 19.5 days and longest unbroken sunlight of 19 days. Earth is above the terrain 85% of the time and communications are possible 77% of the time.",
+   "facts": {
+    "name": "Malapert Massif",
+    "position": "85.98°S, 0.7°E",
+    "ground height": "4886 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "46% of the time",
+    "longest night": "19.5 days",
+    "longest unbroken sunlight": "19 days",
+    "Earth above the terrain": "85% of the time",
+    "communications possible": "77% of the time",
+    "highest terrain on the horizon": "6.2° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "mons-mouton": {
+   "text": "Mons Mouton is at 85.40°S, 31.7°E with a ground height of 6464 m, it is sunlit 68% of the time, with the Earth above the terrain 87% of the time and communications possible 78% of the time.",
+   "facts": {
+    "name": "Mons Mouton",
+    "position": "85.40°S, 31.7°E",
+    "ground height": "6464 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "68% of the time",
+    "longest night": "12.7 days",
+    "longest unbroken sunlight": "26 days",
+    "Earth above the terrain": "87% of the time",
+    "communications possible": "78% of the time",
+    "highest terrain on the horizon": "1.2° above level",
+    "terrain data under the site": "5 m per pixel LOLA elevation model"
+   }
+  },
+  "nobile-rim-1": {
+   "text": "Nobile Rim 1 is at 85.37°S, 37.0°E with a ground height of 6220 m, and is sunlit 34% of the time, with longest night of 24.1 days and longest unbroken sunlight of 8 days.",
+   "facts": {
+    "name": "Nobile Rim 1",
+    "position": "85.37°S, 37.0°E",
+    "ground height": "6220 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "34% of the time",
+    "longest night": "24.1 days",
+    "longest unbroken sunlight": "8 days",
+    "Earth above the terrain": "0% of the time",
+    "communications possible": "0% of the time",
+    "highest terrain on the horizon": "18.9° above level",
+    "terrain data under the site": "20 m per pixel LOLA elevation model (approximate: no 5 m data here)"
+   }
+  },
+  "nobile-rim-2": {
+   "text": "Nobile Rim 2 is at 84.01°S, 59.1°E, with a ground height of 1262 m. It is sunlit 46% of the time, with a longest night of 16.5 days and longest unbroken sunlight of 15 days. Earth is above the terrain 72% of the time, and communications are possible 66% of the time.",
+   "facts": {
+    "name": "Nobile Rim 2",
+    "position": "84.01°S, 59.1°E",
+    "ground height": "1262 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "46% of the time",
+    "longest night": "16.5 days",
+    "longest unbroken sunlight": "15 days",
+    "Earth above the terrain": "72% of the time",
+    "communications possible": "66% of the time",
+    "highest terrain on the horizon": "10.0° above level",
+    "terrain data under the site": "20 m per pixel LOLA elevation model (approximate: no 5 m data here)"
+   }
+  },
+  "peak-near-cabeus-b": {
+   "text": "The Peak near Cabeus B is at 83.61°S, 68.6°W with a ground height of 4595 m. It is sunlit 68% of the time, with the longest night being 12.2 days and longest unbroken sunlight being 22 days. Earth is above the terrain 75% of the time, with communications possible 69% of the time.",
+   "facts": {
+    "name": "Peak near Cabeus B",
+    "position": "83.61°S, 68.6°W",
+    "ground height": "4595 m relative to the Moon's reference sphere",
+    "period analysed": "2028 and 2029, hourly, observer 2 m above the ground",
+    "sunlit": "68% of the time",
+    "longest night": "12.2 days",
+    "longest unbroken sunlight": "22 days",
+    "Earth above the terrain": "75% of the time",
+    "communications possible": "69% of the time",
+    "highest terrain on the horizon": "0.1° above level",
+    "terrain data under the site": "20 m per pixel LOLA elevation model (approximate: no 5 m data here)"
+   }
+  }
+ }
+}

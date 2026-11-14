@@ -27,8 +27,8 @@ We're two experienced developers, 30 years and 20+ years in, and we intend to do
 - Start coarse and prove it end to end, then refine. Precompute what's slow; keep the UI instant.
 - **Judges only ever see real NASA data.** Fake sites are Saturday-morning scaffolding; no fake file ships: `npm run check:real-data` fails if one is left in `web/public/data/`, and runs before the real demo is deployed. The UI names each dataset on screen.
 
-## AI: Claude for everything AI, ICM for everything we do with it
-- Any AI in the product uses Claude via the Anthropic API, behind AI Gateway, with a spend-capped key held as a Worker secret. Pick the model and API usage with the claude-api skill at the time, never from memory. AI is only in the product if it helps the named user make the decision.
+## AI: Workers AI in the product, Claude Code to build, ICM for everything we do with it
+- **AI inside the product: Cloudflare Workers AI is the first port of call** (Steve, Sat 14 Nov): cheap or free, in the same account, no key to manage. Another provider only if Workers AI can't do the job, and then behind AI Gateway with a spend-capped key held as a Worker secret. We use Claude for code generation only. AI is only in the product if it helps the named user make the decision, it is labelled on screen as AI-written, and anything it writes from our numbers is checked against them (see `pipeline/src/four_lights/site_review.py`). Prefer generating ahead of time over live calls.
 - We build with Claude Code, and the repo is an ICM workspace on purpose: folders are the architecture, each folder has a `CONTEXT.md` contract, outputs are plain files a human reads before the next step, status is whatever exists in `stages/*/output/`, one home per fact. A new folder gets its `CONTEXT.md` in the same commit.
 - The ICM is part of the story we tell judges (README "How we built it"), so it stays clean.
 

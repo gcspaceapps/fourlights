@@ -3,7 +3,7 @@ import { PRESETS, darkEnduranceHours, renderBattery, simulateBattery } from './b
 import { renderChart } from './chart';
 import { renderMap } from './map';
 import { answerText, renderPlanner } from './planner';
-import { loadSite, loadSites } from './data';
+import { loadReviews, loadSite, loadSites } from './data';
 import {
   COMMS_MARGIN_DEG,
   DEFAULT_HEIGHT_M,
@@ -37,6 +37,9 @@ const ui = {
   lights: $('lights'),
   window: $('window'),
   info: $('site-info'),
+  review: $('review'),
+  reviewText: $('review-text'),
+  reviewNote: $('review-note'),
   preset: $('preset') as HTMLSelectElement,
   battery: $('battery') as unknown as SVGSVGElement,
   batterySummary: $('battery-summary'),
@@ -163,6 +166,14 @@ function render(): void {
   }
 
   const s = sites.find((x) => x.id === site.id);
+  void loadReviews().then((r) => {
+    if (current?.id !== site.id) return;
+    const review = r?.sites[site.id];
+    ui.review.hidden = !review;
+    if (!r || !review) return;
+    ui.reviewText.textContent = review.text;
+    ui.reviewNote.textContent = `Site review: AI-written (${r.provider}, ${r.model.split('/').pop() ?? r.model}) on ${r.generated_utc.slice(0, 10)} from this site's computed numbers for a 2 m observer; every number is checked against them.`;
+  });
   const all = windowSummary(site, profile, 0, site.times.n);
   let earthUp = 0;
   let commsOn = 0;
