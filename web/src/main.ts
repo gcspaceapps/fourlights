@@ -102,6 +102,7 @@ function writeHash(): void {
     ps: ui.preset.value,
     pw: [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value].join('_'),
     plan: ui.plan.value,
+    v: document.documentElement.dataset.view ?? 'explore',
     pdays: ui.planDays.value,
   });
   history.replaceState(null, '', `#${p.toString()}`);
@@ -517,6 +518,50 @@ function setupAsk(): void {
   });
 }
 
+const VIEWS = ['mission', 'explore', 'learn'] as const;
+type View = (typeof VIEWS)[number];
+
+/**
+ * Three views of the same data: Mission (no explanation, shortcuts in sight), Explore (the
+ * default) and Learn (teaching panels). In the URL as `v`, and remembered in this browser.
+ */
+function setView(v: View, remember = true): void {
+  document.documentElement.dataset.view = v;
+  for (const r of document.querySelectorAll<HTMLInputElement>('input[name="view"]')) {
+    r.checked = r.value === v;
+  }
+  if (remember) {
+    try {
+      localStorage.setItem('view', v);
+    } catch {
+      // storage blocked: lasts for this page only
+    }
+    writeHash();
+  }
+}
+
+function setupViews(): void {
+  const isView = (x: string | null): x is View => VIEWS.includes(x as View);
+  let saved: string | null = null;
+  try {
+    saved = localStorage.getItem('view');
+  } catch {
+    // storage blocked
+  }
+  const fromUrl = readHash().get('v');
+  setView(isView(fromUrl) ? fromUrl : isView(saved) ? saved : 'explore', false);
+  for (const r of document.querySelectorAll<HTMLInputElement>('input[name="view"]')) {
+    r.addEventListener('change', () => {
+      if (r.checked && isView(r.value)) setView(r.value);
+    });
+  }
+}
+
+function nextView(): void {
+  const cur = document.documentElement.dataset.view as View;
+  setView(VIEWS[(VIEWS.indexOf(cur) + 1) % VIEWS.length] ?? 'explore');
+}
+
 /** The map is tucked away by default; remember whether this browser had it open. */
 function setupMapToggle(): void {
   const d = document.getElementById('map-details') as HTMLDetailsElement | null;
@@ -647,6 +692,13 @@ const SHORTCUTS: Shortcut[] = [
   },
   {
     group: 'Page',
+    keys: ['V'],
+    what: 'Next view: Mission, Explore, Learn',
+    match: key('v', 'V'),
+    run: nextView,
+  },
+  {
+    group: 'Page',
     keys: ['T'],
     what: 'Switch between dark and light',
     match: key('t', 'T'),
@@ -661,6 +713,7 @@ const SHORTCUTS: Shortcut[] = [
   },
 ];
 
+setupViews();
 upgradeInfoTips();
 setupShortcuts(SHORTCUTS, $('shortcuts') as HTMLDialogElement);
 setupAsk();

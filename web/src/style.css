@@ -114,7 +114,7 @@ main {
 header {
   position: relative;
   margin-bottom: 1rem;
-  padding-right: 6rem;
+  padding-right: 21rem;
 }
 
 h1 {
@@ -144,6 +144,122 @@ h2 {
 section > p {
   color: var(--muted);
   max-width: 60rem;
+}
+
+/* Views: Mission (terse), Explore (default), Learn (teaching panels) */
+.v-mission,
+.v-learn {
+  display: none;
+}
+
+:root[data-view='mission'] .v-mission,
+:root[data-view='learn'] .v-learn {
+  display: revert;
+}
+
+:root[data-view='mission'] .v-explore,
+:root[data-view='mission'] .legend,
+:root[data-view='mission'] .tagline {
+  display: none;
+}
+
+:root[data-view='mission'] h2 {
+  margin-top: 1.25rem;
+}
+
+:root[data-view='mission'] main {
+  padding-top: 1rem;
+}
+
+:root[data-view='mission'] h1 {
+  font-size: 1.5rem;
+}
+
+.view-switch {
+  position: absolute;
+  top: 0.6rem;
+  right: 6.5rem;
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+
+.view-switch input {
+  position: absolute;
+  opacity: 0;
+}
+
+.view-switch span {
+  display: block;
+  padding: 0.35rem 0.8rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.view-switch input:checked + span {
+  background: var(--sun);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.view-switch input:focus-visible + span {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.keys-strip {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.learn {
+  border-left: 4px solid var(--earth);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.75rem 1.1rem;
+  margin: 1rem 0;
+  max-width: 68rem;
+}
+
+.learn h2 {
+  margin-top: 0.25rem;
+}
+
+.learn h3 {
+  margin-top: 0.5rem;
+}
+
+.learn p,
+.learn li {
+  color: var(--text);
+  max-width: 62rem;
+}
+
+.learn li {
+  margin-bottom: 0.4rem;
+}
+
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.5rem 1.5rem;
+}
+
+.glossary {
+  display: grid;
+  grid-template-columns: minmax(10rem, max-content) 1fr;
+  gap: 0.35rem 1rem;
+}
+
+.glossary dt {
+  font-weight: 600;
+}
+
+.glossary dd {
+  margin: 0;
 }
 
 /* Controls */
@@ -998,6 +1114,16 @@ footer p {
 }
 
 @media (width <= 40rem) {
+  header {
+    padding-right: 0;
+    padding-top: 3rem;
+  }
+
+  .view-switch {
+    right: auto;
+    left: 0;
+  }
+
   /* A 360° panorama needs width: on a phone it scrolls sideways instead of shrinking. */
   .chart svg {
     min-width: 56rem;

@@ -6,6 +6,8 @@
 
 **Run / test:** `npm run dev` at the repo root (build + `wrangler dev`), or `npm run dev -w web` for Vite alone. `npm run check` before every commit. `npm run check:real-data` (part of `npm run deploy`) fails if any `fake-` fixture is in `public/data/`; `npm run fake-data` regenerates the three fixtures for UI work, never to be committed.
 
+**Views:** `data-view` on `<html>` is `mission`, `explore` or `learn` (switch in the header, `V` key, `v=` in the URL, remembered per browser). Mark content with class `v-explore` (hidden in Mission), `v-learn` (Learn only) or `v-mission` (Mission only); the rules are in `style.css`. Teaching text lives in `index.html` and must stay factual and sourced from the same data.
+
 **Rules:** the four lights, mission window and usable days follow `../_shared/concept.md` exactly; thresholds are named constants in one file. The browser does the maths (the Worker can't: 10 ms CPU). Its own clean design (Space Apps colours not required, see `../_shared/brand.md`), 4.5:1 contrast, keyboard-usable. Phones are a design goal, not a priority: nothing should break, wide views scroll sideways. Each NASA dataset is named on screen, and anything that is our own definition or an illustrative number says so in its info tip.
 
 **Touches:** `public/data/` is written by `pipeline/` (see `../_datasets/`). If you change the data shape, change `../_shared/stack.md`, `src/types.ts` and the pipeline together.

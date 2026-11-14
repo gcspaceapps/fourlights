@@ -6,6 +6,7 @@ Working product name: **Four Lights** (final name picked at submission).
 - **Named user:** a mission planner whose launch has slipped and who has to re-pick a south-pole site or date fast.
 - **The decision:** "Launch slipped 3 days. Which site still works?"
 - Secondary: educators and the public, through the same sun-path view (the format solar installers use on Earth).
+- **Three views of the same page (Sat 14 Nov):** Mission for the planner (no explanation, shortcuts in sight), Explore for the public and judges (the default), Learn for classrooms (why the pole is different, how to read the chart, what the lights mean, things to try, a glossary).
 
 ## The four lights (per site and time)
 - **Sun:** any part of the Sun's 0.53° disc is above the terrain horizon at its azimuth. The share of the disc in view (0 to 1, terrain taken as level across the disc) is used wherever sunlight is counted. (Was centre-only until Sat 14 Nov.)

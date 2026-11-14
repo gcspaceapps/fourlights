@@ -17,6 +17,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 - **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.
 - **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
 - **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
+- **Three views:** Mission (terse, shortcuts in sight), Explore (the default) and Learn (teaching panels, a glossary and things to try), for planners, the public and classrooms.
 - **Keyboard shortcuts:** `]` and `[` slip the date, arrows move the time, `J`/`K` change site; `Ctrl` `/` (or `?`) lists them all.
 - **Where it comes from:** an info button beside each view, light and number says which NASA dataset or which of our own definitions is behind it.
 - 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.

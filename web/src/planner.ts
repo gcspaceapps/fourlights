@@ -71,7 +71,9 @@ export interface PlannedResult {
 /** The planner's answer in a sentence: which sites work for the planned landing. */
 export function answerText(results: PlannedResult[], planned: Date, windowDays: number): string {
   const by = (v: Verdict): PlannedResult[] =>
-    results.filter((r) => r.verdict === v).sort((a, b) => b.usableDays - a.usableDays);
+    results
+      .filter((r) => r.verdict === v)
+      .sort((a, b) => b.usableDays - a.usableDays || a.name.localeCompare(b.name));
   const list = (rs: PlannedResult[]): string =>
     rs.map((r) => `${r.name} (${r.usableDays.toFixed(1)} usable days)`).join(', ');
   const green = by('green');

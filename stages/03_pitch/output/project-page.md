@@ -20,7 +20,7 @@ _Public link to the video (30 seconds or less) or slides (7 or fewer): added Sun
 - Code and data: https://github.com/gcspaceapps/fourlights
 
 ## Project details
-**Who it is for.** A mission planner whose launch date has moved and who has to re-pick a site or a date quickly. Educators and the public get the same view: a sun-path chart, the format solar installers use on Earth, drawn for the Moon.
+**Who it is for.** A mission planner whose launch date has moved and who has to re-pick a site or a date quickly. Educators and the public get the same data in their own views: the page switches between Mission (terse, keyboard-driven), Explore (the default) and Learn (short explanations of why the pole is different, how to read the chart, a glossary and classroom activities).
 
 **What it does.**
 - **Slip Planner.** Sites down the side, landing dates across, usable days in each cell: the hours in the mission window with the Sun up and a link to Earth, divided by 24. Green works, amber is marginal, red has no power. One button slips the date a day. A sentence above the grid states the answer.
