@@ -5,7 +5,10 @@
 export function segmented(select: HTMLSelectElement): void {
   const label = select.closest('label');
   if (!label) return;
-  const name = (label.textContent ?? '').replace(/\s+/g, ' ').trim();
+  // The label's own words, without the select's option texts or an info tip's text.
+  const words = label.cloneNode(true) as HTMLElement;
+  for (const extra of words.querySelectorAll('select, .info')) extra.remove();
+  const name = (words.textContent ?? '').replace(/\s+/g, ' ').trim();
 
   const field = document.createElement('div');
   field.className = 'field';
