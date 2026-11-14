@@ -83,6 +83,10 @@ function renderHelp(shortcuts: Shortcut[], dialog: HTMLDialogElement): void {
       dd.textContent = s.what;
       dl.append(dt, dd);
     }
-    body.append(h, dl);
+    // Each group stays whole, so the dialog can lay the groups out in two columns.
+    const box = document.createElement('div');
+    box.className = 'shortcut-group';
+    box.append(h, dl);
+    body.append(box);
   }
 }

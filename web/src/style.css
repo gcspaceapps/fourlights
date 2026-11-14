@@ -1802,6 +1802,35 @@ dialog button[type='submit'] {
   margin-top: 1.25rem;
 }
 
+/* Keyboard shortcuts: two columns of groups where there is room, so it rarely needs to scroll */
+#shortcuts {
+  width: min(58rem, 94vw);
+}
+
+.shortcut-list {
+  columns: 2 22rem;
+  column-gap: 2.5rem;
+}
+
+.shortcut-group {
+  break-inside: avoid;
+}
+
+.shortcut-group h3 {
+  margin-top: 0;
+}
+
+.shortcut-group dt {
+  white-space: nowrap;
+  min-width: 5rem;
+}
+
+.shortcut-group dl {
+  grid-template-columns: 9.5rem 1fr;
+  gap: 0.3rem 1rem;
+  margin-bottom: 1rem;
+}
+
 .link-button {
   min-height: 0;
   padding: 0;
@@ -1911,7 +1940,7 @@ html[data-nodata='true'] .needs-data > :not(.nodata-note, h2, h3) {
 
 #share input[type='text'],
 #share input:not([type]) {
-  min-height: 2.2rem;
+  min-height: 2.5rem;
   padding: 0 0.6rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1925,6 +1954,20 @@ html[data-nodata='true'] .needs-data > :not(.nodata-note, h2, h3) {
   gap: 0.5rem;
   align-items: center;
   margin: 0.5rem 0;
+}
+
+/* A button beside a field lines up with it: no top margin, same height. */
+#share .share-row button {
+  margin-top: 0;
+  flex: none;
+}
+
+#share-create button[type='submit'] {
+  margin-top: 0.5rem;
+}
+
+#share-close {
+  margin-top: 0.75rem;
 }
 
 .share-row input,
