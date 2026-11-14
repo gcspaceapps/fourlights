@@ -105,7 +105,7 @@ const DEMO_SITE = 'peak-near-shackleton';
 const mapTab = setupMap(
   $('map-tab'),
   (siteId) => openChart(siteId, ui.plan.value || DEFAULT_PLAN, Number(ui.planDays.value)),
-  (siteId) => chooseSite(siteId),
+  (siteId) => chooseSite(siteId, false),
   (name, lat, lon) => addUserSite(name, lat, lon),
   (siteId) => removeUserSite(siteId),
   { onLook: () => queuePush() },
@@ -422,7 +422,9 @@ function removeUserSite(id: string): void {
 }
 
 /** Make a site the selected one everywhere: the chart, the planner row, the map and the bar. */
-function chooseSite(id: string): void {
+function chooseSite(id: string, turnMap = true): void {
+  // Chosen outside the map, the Moon turns to show it; a marker click leaves the view alone.
+  if (turnMap) mapTab.showSite(id);
   if (ui.site.value === id) {
     showSelected();
     return;
@@ -451,6 +453,7 @@ function showSelected(): void {
 /** Show a site and landing date in the Sun-Path Chart (from a planner cell or a map marker). */
 function openChart(siteId: string, date: string, days: number): void {
   ui.site.value = siteId;
+  mapTab.showSite(siteId);
   showSelected();
   const moved = ui.date.value !== date || ui.days.value !== String(days);
   ui.date.value = date;
@@ -792,7 +795,9 @@ async function init(): Promise<void> {
   ui.time.value = hash.get('t') ?? '0';
   if (hash.get('h')) ui.height.replaceChildren(new Option('', hash.get('h') ?? ''));
 
-  ui.site.addEventListener('change', () => {
+  ui.site.addEventListener('change', (e) => {
+    // Picked from the dropdown by this person (not set by code or by someone else on the project).
+    if (e.isTrusted) mapTab.showSite(ui.site.value);
     showSelected();
     void selectSite(ui.site.value);
   });
@@ -1074,7 +1079,10 @@ const SHORTCUTS: Shortcut[] = [
     keys: ['J', 'K'],
     what: 'Next or previous site',
     match: key('j', 'J', 'k', 'K'),
-    run: (e) => stepSelect(ui.site, e.key.toLowerCase() === 'j' ? 1 : -1),
+    run: (e) => {
+      stepSelect(ui.site, e.key.toLowerCase() === 'j' ? 1 : -1);
+      mapTab.showSite(ui.site.value);
+    },
   },
   {
     group: 'Sun-Path Chart',

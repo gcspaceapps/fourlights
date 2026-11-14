@@ -24,6 +24,8 @@ export interface MapTab {
   /** The tab was shown or left. */
   /** The selected site changed (from anywhere): highlight it. */
   setSelected(id: string | null): void;
+  /** This person chose a site outside the map: turn the Moon to it (now, or when the map opens). */
+  showSite(id: string): void;
   setActive(on: boolean): void;
   /** What this person is looking at (shared projects): the layer, the graticule and the camera. */
   getLook(): { layer: LayerId; grid: boolean; cam: View | null };
@@ -124,12 +126,25 @@ export function setupMap(
     }
   };
 
-  const fly = (id: string): void => {
+  /** A site to turn to once the map is showing (chosen while another tab was open). */
+  let turnWhenShown: string | null = null;
+
+  /** Turn the Moon to a site, or remember to when the map is next shown. */
+  const turnTo = (id: string): void => {
+    if (!globe) {
+      turnWhenShown = id;
+      return;
+    }
+    turnWhenShown = null;
     const s = sites.find((x) => x.id === id);
     // Near the pole the hillshade is the sharpest picture we have, so show it unless the user chose.
     if (s && s.lat < -83 && !userPicked) setLayer('hillshade', false);
+    globe.flyToSite(id);
+  };
+
+  const fly = (id: string): void => {
     onSelect(id);
-    globe?.flyToSite(id);
+    turnTo(id);
   };
 
   function drawList(): void {
@@ -281,6 +296,7 @@ export function setupMap(
     globe.setSelected(selected);
     globe.setPicking(!form.hidden);
     if (cam) globe.setView(cam);
+    if (turnWhenShown) turnTo(turnWhenShown);
   }
 
   function stop(): void {
@@ -333,6 +349,9 @@ export function setupMap(
         li.querySelector('.globe-fly')?.toggleAttribute('aria-current', on);
       }
       globe?.setSelected(id);
+    },
+    showSite(id) {
+      turnTo(id);
     },
     getLook() {
       return { layer: layerNow(), grid: grid.checked, cam };
