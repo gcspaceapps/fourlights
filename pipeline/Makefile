@@ -1,6 +1,6 @@
 # Four Lights precompute. Data targets log their runs in stages/01_data/output/data-manifest.md.
 # SITE defaults to Shackleton rim; FETCH_FLAGS=--cache-first takes files from $NASA_CACHE first.
-.PHONY: venv test lint fetch fetch-spice fetch-usgs horizon bruteforce grass ephem publish regions sites
+.PHONY: venv test lint fetch fetch-spice fetch-usgs horizon bruteforce grass ephem publish regions sites validate
 
 PY := .venv/bin/python
 SITE ?= shackleton-rim
@@ -48,3 +48,7 @@ JOBS ?= 1
 sites: fetch-spice fetch-usgs
 	$(PY) -m four_lights.fetch --all $(FETCH_FLAGS)
 	$(PY) -m four_lights.run_sites --jobs $(JOBS)
+
+# S7: Connecting Ridge 2024-2026 vs Barker et al. 2021 Table 2.
+validate:
+	$(PY) -m four_lights.validate
