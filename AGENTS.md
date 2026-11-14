@@ -12,12 +12,14 @@ This repo stands on its own. Everything a task needs is in it; don't read or ref
 | `_datasets/` | one card per dataset; `_index.md` lists them |
 | `stages/01_data` … `04_submit` | the process, in order; each has a `CONTEXT.md` contract and an `output/` |
 | `pipeline/` · `api/` · `web/` | code; each has a `CONTEXT.md` map |
+| `ops/` | one-command scripts: `./ops/dev` (run the app locally), `./ops/data` (build the site data, add a site); map in `ops/CONTEXT.md` |
 | `data/raw/` | raw downloads only (gitignored) |
 
 ## Route by task
 | Task | Go to |
 |---|---|
-| start or rerun the precompute | `stages/01_data/CONTEXT.md` |
+| start or rerun the precompute | `stages/01_data/CONTEXT.md`; run it with `./ops/data` |
+| add a landing site | `stages/01_data/CONTEXT.md`, "Adding a site" |
 | add a dataset | copy `_templates/dataset-card.md` into `_datasets/`, add a line to `_index.md` and the README credits |
 | build or fix the app | `stages/02_build/CONTEXT.md` (starter prompts there), then `web/CONTEXT.md` / `api/CONTEXT.md` |
 | write the pitch or project page | `stages/03_pitch/CONTEXT.md` |
