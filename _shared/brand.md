@@ -1,5 +1,7 @@
 # Brand
 
+**Scope (Steve, Sat 14 Nov):** these Space Apps rules apply to Space Apps material: logos, the submission page, slides and video. **The app itself doesn't need Space Apps colours**: give it its own clean, good-looking design (still 4.5:1 contrast, keyboard-usable, works on a phone). If the Space Apps logo appears in the app, the logo rules below still apply.
+
 Space Apps brand rules, from https://www.spaceappschallenge.org/brand/ and the Brand Guide PDF (https://assets.spaceappschallenge.org/media/documents/Space_Apps_Brand_Guide_VUGpVJm.pdf).
 
 ## Logos
