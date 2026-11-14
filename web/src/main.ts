@@ -359,7 +359,24 @@ async function selectSite(id: string): Promise<void> {
     writeHash();
     return;
   }
-  current = await loadSite(id);
+  // Say so if the site's file takes a moment, instead of leaving the chart and lights empty.
+  const notes = document.querySelectorAll('.nodata-note');
+  const slow = window.setTimeout(() => {
+    for (const el of notes) el.textContent = `Loading the data for ${mine?.name ?? 'this site'}…`;
+    document.documentElement.dataset.nodata = 'true';
+  }, 200);
+  try {
+    current = await loadSite(id);
+  } catch (err) {
+    window.clearTimeout(slow);
+    for (const el of notes) {
+      el.textContent = `The data for ${mine?.name ?? 'this site'} could not be loaded. Check the connection, then choose the site again.`;
+    }
+    document.documentElement.dataset.nodata = 'true';
+    throw err;
+  }
+  window.clearTimeout(slow);
+  document.documentElement.dataset.nodata = 'false';
   const first = timeAt(current, 0);
   const last = timeAt(current, current.times.n - 1);
   renderSunYear($('learn-sun') as unknown as SVGSVGElement, current);
@@ -525,6 +542,7 @@ function drawPlanner(): void {
   const slipped = slipDays;
   renderPlanner({
     table: ui.planner,
+    why: document.getElementById('cell-why'),
     sites,
     planned,
     slipDays: slipped,

@@ -90,9 +90,19 @@ export function setupShare(deps: ShareDeps): ShareUi {
     el<HTMLInputElement>('share-link').value = projectLink(project.id);
   };
 
+  /** Open a project if it exists; if not, say so here instead of reloading into nothing. */
   const openProject = (id: string): void => {
-    location.hash = `project=${id}`;
-    location.reload();
+    void fetch(`/api/projects/${id}`).then(
+      (res) => {
+        if (res.status === 404) {
+          errorIn('share-open-error', 'No project has that ID. Check it and try again.');
+          return;
+        }
+        location.hash = `project=${id}`;
+        location.reload();
+      },
+      () => errorIn('share-open-error', 'Could not reach the server. Try again in a moment.'),
+    );
   };
 
   const errorIn = (id: string, msg: string): void => {

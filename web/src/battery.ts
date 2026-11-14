@@ -157,8 +157,16 @@ export function renderBattery(svg: SVGSVGElement, run: BatteryRun, cursor: numbe
     add('line', { x1: M.left, x2: W - M.right, y1: y(s), y2: y(s), class: 'grid' });
     add('text', { x: M.left - 6, y: y(s) + 4, class: 'tick', 'text-anchor': 'end' }, `${s * 100}%`);
   }
-  for (let d = 0; d * 24 <= n; d++) {
-    add('text', { x: x(d * 24), y: H - 6, class: 'tick', 'text-anchor': 'middle' }, `d${d + 1}`);
+  // One label per day of the window, under the middle of that day (every fifth on a long window).
+  const days = Math.ceil(n / 24);
+  const every = days > 14 ? 5 : 1;
+  for (let d = 0; d < days; d++) {
+    if (d !== 0 && (d + 1) % every !== 0) continue;
+    add(
+      'text',
+      { x: x(Math.min(n, d * 24 + 12)), y: H - 6, class: 'tick', 'text-anchor': 'middle' },
+      d === 0 ? 'day 1' : String(d + 1),
+    );
   }
   const pts = [`${x(0)},${y(0)}`, `${x(0)},${y(1)}`];
   run.soc.forEach((s, i) => pts.push(`${x(i + 1).toFixed(1)},${y(s).toFixed(1)}`));

@@ -82,6 +82,17 @@ test.describe('the demo scenario', () => {
     await expect(page.locator('#plan-note')).toBeEmpty();
   });
 
+  test('the reason for a cell is written under the table for keyboard users', async ({ page }) => {
+    await open(page);
+    const why = page.locator('#cell-why');
+    await expect(why).toContainText('Point at a cell');
+    await cell(page, 'Connecting Ridge').locator('button').focus();
+    await expect(why).toContainText('Connecting Ridge, landing 19 Apr: 6.9 usable days, works');
+    await cell(page, 'Shackleton rim').locator('button').hover();
+    await expect(why).toContainText('Shackleton rim, landing 19 Apr');
+    await expect(why).toContainText('no power');
+  });
+
   test('approximate terrain is marked in the row and in the answer', async ({ page }) => {
     await open(page, '#date=2028-04-26');
     await expect(row(page, 'Nobile Rim 2').getByRole('rowheader')).toContainText('approx. terrain');

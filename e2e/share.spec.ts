@@ -92,16 +92,17 @@ test('the Moon turns for everyone following', async ({ browser, baseURL }) => {
   await b.waitForTimeout(1500);
   const before = await b.locator('#globe-view canvas').screenshot();
 
-  // A flies to the pole: the project's camera moves and B's picture of the Moon changes.
-  await a.locator('#globe-pole').click();
+  // The map opens over the pole. A flies out to the whole Moon: the project's camera moves and
+  // B's picture of the Moon changes.
+  await a.locator('#globe-moon').click();
   await expect
     .poll(async () => {
       const r = await a.request.get(`${baseURL}/api/projects/${id}`);
       const cam = ((await r.json()) as { project: { view: { cam: { lat: number } | null } } })
         .project.view.cam;
-      return cam?.lat;
+      return cam?.lat ?? -90;
     })
-    .toBeLessThan(-80);
+    .toBeGreaterThan(-80);
   // One screenshot of the WebGL canvas can take several seconds without a GPU, so this poll gets
   // a long time: it is the Moon moving that is being tested, not how fast it is photographed.
   await expect

@@ -84,7 +84,7 @@ export const DEFAULT_VIEW: ViewState = {
   mode: 'explore',
   centre: '0',
   time: '0',
-  layer: 'wac',
+  layer: 'hillshade',
   grid: true,
   cam: null,
 };

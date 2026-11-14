@@ -36,6 +36,8 @@ export interface PlannerOptions {
   slipDays?: number;
   windowDays: number;
   onOpen: (siteId: string, date: string, windowDays: number) => void;
+  /** Where the reason for the cell under the pointer or the keyboard focus is written. */
+  why?: HTMLElement | null;
   /** The site's name was chosen: make it the selected site. */
   onSelect?: (siteId: string) => void;
   /**
@@ -272,6 +274,12 @@ export function renderPlanner(o: PlannerOptions): void {
           b.setAttribute('aria-label', `${s.name}, landing ${ymd(d)}: ${c.label}. Open the chart.`);
           b.title = c.label;
           b.addEventListener('click', () => o.onOpen(s.id, ymd(d), windowDays));
+          // The same words as the tooltip, where a keyboard or touch user can see them.
+          const say = (): void => {
+            if (o.why) o.why.textContent = `${s.name}, landing ${short(d)}: ${c.label}.`;
+          };
+          b.addEventListener('focus', say);
+          b.addEventListener('pointerenter', say);
           td.appendChild(b);
         });
         done();

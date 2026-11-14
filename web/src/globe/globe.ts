@@ -69,7 +69,11 @@ const HILLSHADE_URL = '/map/south-pole-hillshade.jpg';
 /** Labels show below this distance (Moon radii), or for a highlighted site. */
 const LABEL_D = 0.9;
 const SPIN_DEG_PER_S = 3;
-const INITIAL: View = { lon: 0, lat: -62, D: 1.7, bearing: 0, pitch: 0 };
+/** The whole Moon, tipped to show the south. */
+const WHOLE: View = { lon: 0, lat: -62, D: 1.7, bearing: 0, pitch: 0 };
+/** Over the south pole, close enough to tell the sites apart: where the map opens. */
+const POLE: View = { lon: 0, lat: -88, D: 0.5, bearing: 0, pitch: 0 };
+const INITIAL: View = POLE;
 
 /** Last camera, so coming back to the tab resumes where the user left. */
 let saved: View | null = null;
@@ -251,7 +255,8 @@ export class Globe {
   constructor(opts: GlobeOptions) {
     this.opts = opts;
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    this.spinning = !this.reduced && !saved;
+    // The map opens over the pole, where a slow spin would only turn the sites round and round.
+    this.spinning = false;
     this.view = { ...(saved ?? INITIAL) };
     this.targetD = this.view.D;
 
@@ -412,9 +417,7 @@ export class Globe {
   /** Back to the whole Moon, or down onto the south pole. */
   goTo(where: 'moon' | 'pole'): void {
     this.interacted();
-    this.startFlight(
-      where === 'moon' ? { ...INITIAL } : { lon: 0, lat: -88, D: 0.5, bearing: 0, pitch: 0 },
-    );
+    this.startFlight(where === 'moon' ? { ...WHOLE } : { ...POLE });
   }
 
   /** Another person moved the camera: glide to where they are. Not reported back. */
