@@ -602,7 +602,28 @@ h3 {
   color: var(--nogo-fg);
 }
 
-/* Map */
+/* Map (collapsible) */
+.map-details {
+  margin: 1.25rem 0 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.map-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.6rem 0.9rem;
+}
+
+.map-details[open] {
+  padding-bottom: 0.9rem;
+}
+
+.map-details .map {
+  margin: 0 0.9rem;
+}
+
 .map {
   margin: 0;
   max-width: 44rem;

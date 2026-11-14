@@ -343,6 +343,25 @@ function setupTheme(): void {
   });
 }
 
+/** The map is tucked away by default; remember whether this browser had it open. */
+function setupMapToggle(): void {
+  const d = document.getElementById('map-details') as HTMLDetailsElement | null;
+  if (!d) return;
+  try {
+    d.open = localStorage.getItem('map') === 'open';
+  } catch {
+    // storage blocked: stay closed
+  }
+  d.addEventListener('toggle', () => {
+    try {
+      localStorage.setItem('map', d.open ? 'open' : 'closed');
+    } catch {
+      // storage blocked
+    }
+  });
+}
+
+setupMapToggle();
 setupTheme();
 void showHealth();
 init().catch((e: unknown) => {
