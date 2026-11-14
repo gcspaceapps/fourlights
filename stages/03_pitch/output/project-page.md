@@ -56,6 +56,8 @@ _Public link to the video (30 seconds or less) or slides (7 or fewer): added Sun
 **How we built it.** The repository is laid out so a coding agent can walk it: numbered stages with a contract and an output folder each, shared facts in one place, one card per dataset. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours.
 
 ## Use of NASA data (every dataset, linked)
+_The app has its own data-sources page with the same information in more depth: https://fourlights.gcsa.space/sources_
+
 - **LRO LOLA south-pole elevation models** (NASA GSFC Planetary Geodesy Data Archive and PDS): the 5 m site models and the 87°S mosaic, https://pgda.gsfc.nasa.gov/products/78 and https://pgda.gsfc.nasa.gov/products/81 ; the polar gridded models at 20, 60 and 240 m, https://imbrium.mit.edu/DATA/LOLA_GDR/POLAR/ . Every horizon in the app comes from these.
 - **JPL Horizons** (NASA JPL Solar System Dynamics), https://ssd.jpl.nasa.gov/horizons/ : the Sun's and Earth's direction from each site for every hour of 2028 and 2029, and the Moon's elevation from the DSN stations as a check.
 - **NAIF SPICE kernels** (NASA JPL), https://naif.jpl.nasa.gov/ : an independent check on Horizons, and the DSN station positions for Canberra Link.

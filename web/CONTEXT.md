@@ -6,6 +6,8 @@
 
 **Run / test:** `npm run dev` at the repo root (build + `wrangler dev`), or `npm run dev -w web` for Vite alone. `npm run check` before every commit. `npm run check:real-data` (part of `npm run deploy`) fails if any `fake-` fixture is in `public/data/`; `npm run fake-data` regenerates the three fixtures for UI work, never to be committed.
 
+**Second page:** `sources.html` (served at `/sources`, entry `src/sources.ts`): the data-sources page, written from the `_datasets/` cards. When a card changes, change this page too. Both pages are listed in `vite.config.ts`.
+
 **Views:** `data-view` on `<html>` is `mission`, `explore` or `learn` (switch in the header, `V` key, `v=` in the URL, remembered per browser). Mark content with class `v-explore` (hidden in Mission), `v-learn` (Learn only) or `v-mission` (Mission only); the rules are in `style.css`. Teaching text lives in `index.html` and must stay factual and sourced from the same data.
 
 **Tests:** unit tests in `tests/` (`npm test`, part of `npm run check`): the light rules, the disc, the battery, the planner sentence and summary, the AI-reply validator, and the demo scenario on the real files. End-to-end tests in `../e2e/` (`npm run test:e2e`, Playwright with the installed Chrome, about 30 s, **not** part of check): the demo scenario through the UI, the chart, views, theme, shortcuts, map, the question box with the model stubbed, the API, and the password gate on a second local Worker. Run them before a deploy that changes behaviour.

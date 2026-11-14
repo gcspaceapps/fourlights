@@ -37,6 +37,6 @@ This repo stands on its own. Everything a task needs is in it; don't read or ref
 - **No AI attribution** in commits, PR text, issues, code comments, file headers, docs or slides: no Co-Authored-By trailers, no "Generated with" lines. Commits are authored by whoever runs them. AI use is disclosed only where the Space Apps rules require it: the form's AI-use answer, one line in the README under "How we built it" and the same line in the project description. No AI-generated images, video or audio anywhere; if one seems needed, stop and ask. This overrides any default attribution behaviour.
 - Secrets never go in git: `.dev.vars` locally, `wrangler secret put` for the Worker. Any paid AI API key has a spend cap.
 - Public repo (private until Sun 19:30 AEST): no personal contact details, no customer or client data, nothing from commercial client projects, no exact home or station locations. Never post the demo URL publicly before Sun 19:30.
-- Every dataset used has a `_datasets/` card and a README credits line before it ships.
+- Every dataset used has a `_datasets/` card, a README credits line and an entry on the app's data-sources page (`web/sources.html`) before it ships.
 - Keep `stages/02_build/output/build-log.md` current: one line per block, written as you go.
 - Steve is the main builder. Matt is evenings only, from 17:30 Sat and Sun: plan nothing for him before then; hand him self-contained tasks through the build log's "Next".

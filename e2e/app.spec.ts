@@ -278,3 +278,40 @@ test.describe('page health', () => {
     expect(siteFiles).toHaveLength(1); // only the site shown in the chart
   });
 });
+
+test.describe('data sources page', () => {
+  test('lists every dataset with its use, citation and a working link back', async ({ page }) => {
+    await open(page);
+    await page.getByRole('link', { name: 'Data sources', exact: true }).click();
+    await expect(page).toHaveURL(/\/sources/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Data sources');
+    for (const id of [
+      'lola',
+      'horizons',
+      'spice',
+      'usgs',
+      'images',
+      'compare',
+      'ours',
+      'download',
+    ]) {
+      await expect(page.locator(`#${id}`), id).toBeVisible();
+    }
+    await expect(page.locator('section[aria-labelledby="lola"]')).toContainText('LDEM_75S_240M');
+    await expect(page.locator('section[aria-labelledby="horizons"]')).toContainText('17,544');
+    await expect(page.locator('section[aria-labelledby="ours"]')).toContainText(
+      'not NASA requirements',
+    );
+    await page.getByRole('link', { name: '← Back to Four Lights' }).first().click();
+    await expect(answer(page)).toContainText('sites work');
+  });
+
+  test('its download links serve the data', async ({ page, request }) => {
+    await page.goto('/sources');
+    const hrefs = await page
+      .locator('section[aria-labelledby="download"] a[href^="/data/"]')
+      .evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).getAttribute('href') ?? ''));
+    expect(hrefs.length).toBeGreaterThanOrEqual(5);
+    for (const href of hrefs) expect((await request.get(href)).status(), href).toBe(200);
+  });
+});

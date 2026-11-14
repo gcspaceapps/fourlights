@@ -19,6 +19,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 - **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
 - **Three views:** Mission (terse, shortcuts in sight), Explore (the default) and Learn (teaching panels, a glossary and things to try), for planners, the public and classrooms.
 - **Keyboard shortcuts:** `]` and `[` slip the date, arrows move the time, `J`/`K` change site; `Ctrl` `/` (or `?`) lists them all.
+- **Data sources page** (`/sources`): every dataset, what the app uses it for, what we did to it, how we checked it, its limits, licence and citation, plus links to download our derived files.
 - **Where it comes from:** an info button beside each view, light and number says which NASA dataset or which of our own definitions is behind it.
 - 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
 

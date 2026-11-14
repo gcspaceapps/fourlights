@@ -1188,6 +1188,87 @@ section > .window {
   margin: 0;
 }
 
+/* Data-sources page */
+.sources-link,
+.back {
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 1rem 0 0;
+  font-size: var(--fs-sm);
+}
+
+.dataset {
+  max-width: var(--measure);
+}
+
+.dataset .who {
+  margin: 0 0 0.6rem;
+  color: var(--muted);
+}
+
+.dataset > p {
+  color: var(--text);
+}
+
+.dataset dl {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) 1fr;
+  gap: 0.6rem 1.25rem;
+  margin: 0;
+}
+
+.dataset dt {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.dataset dd {
+  margin: 0;
+}
+
+.dataset code {
+  font: var(--fs-sm) var(--mono);
+}
+
+.data-table {
+  border-collapse: collapse;
+  max-width: var(--measure);
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.5rem 0.9rem 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table thead th {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.data-table tbody th {
+  font-weight: 600;
+}
+
+@media (width <= 40rem) {
+  .dataset dl {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .dataset dd {
+    margin-bottom: 0.6rem;
+  }
+}
+
 /* Keyboard shortcuts */
 kbd {
   display: inline-block;

@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Data sources · Four Lights</title>
+    <meta
+      name="description"
+      content="Every dataset behind Four Lights: what it is, who made it, what the app uses it for, how it was processed and checked, and how to cite it."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="sources">
+      <header>
+        <div class="title-row">
+          <h1>Data sources</h1>
+          <div class="header-tools">
+            <a class="back" href="/">← Back to Four Lights</a>
+          </div>
+        </div>
+        <p class="tagline">Every number in Four Lights starts as open NASA data.</p>
+        <p class="intro">
+          This page lists each dataset: what it is, who made it, what the app uses it for, what we
+          did to it, how we checked it, and how to cite it. Nothing in the app is simulated or
+          invented. Where a figure is our own definition or an illustrative value, the app says so
+          beside it.
+        </p>
+      </header>
+
+      <nav aria-label="On this page" class="toc">
+        <a href="#lola">LOLA terrain</a>
+        <a href="#horizons">JPL Horizons</a>
+        <a href="#spice">NAIF SPICE</a>
+        <a href="#usgs">Artemis regions</a>
+        <a href="#images">NASA photographs</a>
+        <a href="#compare">What we compare against</a>
+        <a href="#ours">What we computed</a>
+        <a href="#download">Download our data</a>
+      </nav>
+
+      <section aria-labelledby="summary-title">
+        <h2 id="summary-title">At a glance</h2>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Dataset</th>
+                <th scope="col">From</th>
+                <th scope="col">Used for</th>
+                <th scope="col">Where you see it</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row"><a href="#lola">LOLA elevation models</a></th>
+                <td>NASA Goddard, PDS</td>
+                <td>The terrain horizon at every site</td>
+                <td>The skyline in the Sun-Path Chart; every light; the map shading</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="#horizons">JPL Horizons</a></th>
+                <td>NASA JPL</td>
+                <td>Where the Sun and Earth are, each hour</td>
+                <td>The gold and blue tracks; every light</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="#spice">NAIF SPICE kernels</a></th>
+                <td>NASA JPL</td>
+                <td>An independent check; Deep Space Network station positions</td>
+                <td>The Comms light's station ("link via Canberra")</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="#usgs">Artemis candidate regions</a></th>
+                <td>USGS, for NASA</td>
+                <td>The centres of six of the twelve sites</td>
+                <td>The site list and the map</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="#images">NASA Image Library</a></th>
+                <td>NASA</td>
+                <td>Three photographs of real vehicles</td>
+                <td>Beside the power systems in Survive the Night</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="dataset" aria-labelledby="lola">
+        <h2 id="lola">LOLA elevation models of the south pole</h2>
+        <p class="who">
+          NASA Lunar Reconnaissance Orbiter, Lunar Orbiter Laser Altimeter (LOLA). NASA Goddard
+          Planetary Geodesy Data Archive and the Planetary Data System.
+        </p>
+        <dl>
+          <dt>What it is</dt>
+          <dd>
+            The shape of the Moon's surface, measured by timing laser pulses from orbit since 2009.
+            We use six elevation models, from 5 m per pixel at the sites to 240 m per pixel across
+            the whole polar region.
+          </dd>
+          <dt>Products used</dt>
+          <dd>
+            Six 5 m site models (PGDA product 78: Sites 01, 04, 07, 11, 20 and 23); the 87°S 5 m
+            mosaic (PGDA product 81); and the polar gridded models <code>LDEM_875S_20M</code>,
+            <code>LDEM_85S_20M</code>, <code>LDEM_75S_60M</code> and
+            <code>LDEM_75S_240M</code> (PDS). About 5 GB in all.
+          </dd>
+          <dt>What the app uses it for</dt>
+          <dd>
+            The skyline. For each site we find the highest ground in each of 720 half-degree
+            directions, using the finest model that covers each point: 5 m terrain near the site,
+            then 20 m to 60 km, 60 m to 150 km, and 240 m out to about 650 km. That skyline decides
+            every Sun, Earth, Power and Comms light. The map's shading is also made from
+            <code>LDEM_75S_240M</code>.
+          </dd>
+          <dt>What we did to it</dt>
+          <dd>
+            Converted every pixel to a 3D position on the Moon's 1737.4 km sphere and measured its
+            direction and height from the site in a local east-north-up frame, so that "north" is
+            true north and the Moon's curvature is exact. Within about 400 m of the site the terrain
+            is resampled to 0.5 m so nearby ground is not missed.
+          </dd>
+          <dt>How we checked it</dt>
+          <dd>
+            A second calculation written with different mathematics gives identical horizons on
+            eight directions across all six models. Where neighbouring models overlap near
+            Shackleton rim, their heights agree to a median of 0.06 m or better. GRASS GIS finds the
+            same peaks within about 0.1°. Tests with known answers cover true north at the pole, the
+            horizon of a bare sphere, a single-pixel spike, and a smooth dome.
+          </dd>
+          <dt>Limits</dt>
+          <dd>
+            About 90% of 5 m pixels are interpolated between laser tracks. Three sites (Nobile Rim
+            1, Nobile Rim 2 and Peak near Cabeus B) have no 5 m terrain beneath them and are marked
+            approximate.
+          </dd>
+          <dt>Licence</dt>
+          <dd>NASA open data.</dd>
+          <dt>Cite as</dt>
+          <dd>
+            Barker, M. K., et al. (2021), Improved LOLA elevation maps for south pole landing sites,
+            <cite>Planetary and Space Science</cite> 203, 105119. Site numbering from Mazarico, E.,
+            et al. (2011), <cite>Icarus</cite> 211, 1066–1081. LOLA PDS archive (Smith et al.).
+          </dd>
+          <dt>Links</dt>
+          <dd>
+            <a href="https://pgda.gsfc.nasa.gov/products/78" target="_blank" rel="noopener"
+              >5 m site models</a
+            >
+            ·
+            <a href="https://pgda.gsfc.nasa.gov/products/81" target="_blank" rel="noopener"
+              >87°S mosaic</a
+            >
+            ·
+            <a href="https://imbrium.mit.edu/DATA/LOLA_GDR/POLAR/" target="_blank" rel="noopener"
+              >polar gridded models</a
+            >
+            ·
+            <a href="https://science.nasa.gov/mission/lro/" target="_blank" rel="noopener"
+              >about the mission</a
+            >
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="horizons">
+        <h2 id="horizons">JPL Horizons ephemerides</h2>
+        <p class="who">NASA Jet Propulsion Laboratory, Solar System Dynamics.</p>
+        <dl>
+          <dt>What it is</dt>
+          <dd>
+            NASA's service for the positions of Solar System bodies, as seen from any observer,
+            including a point on the Moon's surface.
+          </dd>
+          <dt>What the app uses it for</dt>
+          <dd>
+            The direction of the Sun and of Earth from each site (azimuth and elevation of the
+            body's centre) for every hour of 2028 and 2029: 17,544 steps per site. These are the
+            gold and blue tracks in the Sun-Path Chart, and half of every light.
+          </dd>
+          <dt>What we did to it</dt>
+          <dd>
+            One request per site and body, with the observer placed at the site's longitude,
+            latitude and height on the 1737.4 km sphere (ephemeris DE441, the Moon's mean-Earth
+            frame, the same frame family as the terrain). Also pulled: 2024 to 2026 for Connecting
+            Ridge, to compare with published results.
+          </dd>
+          <dt>How we checked it</dt>
+          <dd>
+            The same directions computed with NAIF SPICE agree to about a millionth of a degree.
+            Earth's average direction at every site matches that site's longitude to within 0.2°,
+            which would catch north and south being swapped.
+          </dd>
+          <dt>Limits</dt>
+          <dd>
+            Positions are for the centre of each body. The app treats the Sun as a 0.53° disc using
+            the terrain height at the Sun's direction; Earth is taken at its centre.
+          </dd>
+          <dt>Licence</dt>
+          <dd>NASA open data.</dd>
+          <dt>Cite as</dt>
+          <dd>JPL Horizons On-Line Ephemeris System, NASA/JPL Solar System Dynamics.</dd>
+          <dt>Link</dt>
+          <dd>
+            <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener"
+              >ssd.jpl.nasa.gov/horizons</a
+            >
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="spice">
+        <h2 id="spice">NAIF SPICE kernels</h2>
+        <p class="who">NASA JPL, Navigation and Ancillary Information Facility.</p>
+        <dl>
+          <dt>What it is</dt>
+          <dd>
+            The data files that space missions use for geometry: the planetary ephemeris DE440s, the
+            Moon's orientation and reference frames, Earth's orientation, and the surveyed positions
+            of the Deep Space Network antennas.
+          </dd>
+          <dt>What the app uses it for</dt>
+          <dd>
+            Two things. An independent check on Horizons for every site. And Canberra Link: the
+            Moon's elevation from the 70 m antennas at Goldstone (DSS-14), Canberra (DSS-43) and
+            Madrid (DSS-63) for every hour, so the Comms light can require a station with the Moon
+            at least 10° up, and name it.
+          </dd>
+          <dt>How we checked it</dt>
+          <dd>
+            The Moon's elevation from all three stations matches JPL Horizons to better than 0.001°.
+            At least one station qualifies 98.6% of the time, with gaps of an hour at most.
+          </dd>
+          <dt>Limits</dt>
+          <dd>
+            The Moon's centre stands in for the landing site (at most 0.26° apart from Earth). The
+            10° limit is the network's transmit limit from its handbook; real passes also depend on
+            scheduling, which we do not model. Earth orientation for 2028 and 2029 is NAIF's
+            long-term prediction.
+          </dd>
+          <dt>Licence</dt>
+          <dd>NASA open data.</dd>
+          <dt>Cite as</dt>
+          <dd>
+            Acton, C. H. (1996), Ancillary data services of NASA's Navigation and Ancillary
+            Information Facility, <cite>Planetary and Space Science</cite> 44, 65–70. Elevation
+            limits: DSN Telecommunications Link Design Handbook 810-005, module 301.
+          </dd>
+          <dt>Links</dt>
+          <dd>
+            <a href="https://naif.jpl.nasa.gov/naif/" target="_blank" rel="noopener">NAIF</a> ·
+            <a
+              href="https://www.nasa.gov/communicating-with-missions/dsn/"
+              target="_blank"
+              rel="noopener"
+              >the Deep Space Network</a
+            >
+            ·
+            <a
+              href="https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf"
+              target="_blank"
+              rel="noopener"
+              >handbook module 301</a
+            >
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="usgs">
+        <h2 id="usgs">Artemis candidate landing regions</h2>
+        <p class="who">USGS Astrogeology Science Center, for NASA.</p>
+        <dl>
+          <dt>What it is</dt>
+          <dd>
+            Navigational grids (the Lunar Grid Reference System) for the candidate landing regions
+            NASA named near the south pole in October 2024.
+          </dd>
+          <dt>What the app uses it for</dt>
+          <dd>
+            The centres of six of the twelve sites: de Gerlache Rim 2, Haworth, Nobile Rim 1, Nobile
+            Rim 2, Peak near Cabeus B and Slater Plain. Two more regions, Malapert Massif and Mons
+            Mouton, coincide with NASA Goddard's 5 m site models. The other four sites come from
+            those site models.
+          </dd>
+          <dt>What we did to it</dt>
+          <dd>
+            Took the centre of each region's 1 km grid and converted it from the grid's own map
+            projection to ours. Each region is about 20 km across, so the site is then placed on the
+            highest summit within 8 km of that centre, where a summit is a point with nothing higher
+            within 1 km.
+          </dd>
+          <dt>Limits</dt>
+          <dd>
+            A region is not a landing point. Our site within it is a reasonable high point, not
+            where a mission would necessarily land. One region, Mons Mouton Plateau, is left out
+            because its file was not openly downloadable.
+          </dd>
+          <dt>Licence</dt>
+          <dd>US Government public domain.</dd>
+          <dt>Cite as</dt>
+          <dd>
+            USGS Astrogeology (2024), Lunar Grid Reference System navigational grids for the Artemis
+            III candidate landing regions, doi:10.5066/P1MEQ6UK.
+          </dd>
+          <dt>Link</dt>
+          <dd>
+            <a href="https://doi.org/10.5066/P1MEQ6UK" target="_blank" rel="noopener"
+              >doi.org/10.5066/P1MEQ6UK</a
+            >
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="images">
+        <h2 id="images">NASA Image and Video Library</h2>
+        <p class="who">NASA.</p>
+        <dl>
+          <dt>What the app uses it for</dt>
+          <dd>
+            Three photographs, shown beside the power systems in Survive the Night as examples of
+            each class of vehicle: Surveyor 3 on the Moon (AS12-48-7121, 1969), a prototype of the
+            VIPER polar rover (GRC-2021-C-00493, NASA/GRC/Bridget Caswell, 2021) and the Apollo 11
+            lunar module (AS11-40-5927, 1969).
+          </dd>
+          <dt>Limits</dt>
+          <dd>
+            Illustration only. The power figures beside them are round illustrative values of our
+            own, not those vehicles' specifications.
+          </dd>
+          <dt>Licence</dt>
+          <dd>NASA imagery, public domain; credit NASA.</dd>
+          <dt>Link</dt>
+          <dd>
+            <a href="https://images.nasa.gov" target="_blank" rel="noopener">images.nasa.gov</a>
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="compare">
+        <h2 id="compare">What we compare our results against</h2>
+        <p>Published NASA results we did not use as inputs, only as a check on our own numbers.</p>
+        <dl>
+          <dt>Barker et al. (2021)</dt>
+          <dd>
+            NASA Goddard's illumination study of the same 5 m sites. For Connecting Ridge, 2024 to
+            2026, our longest night falls within their published range at 1 m and at 5 m above the
+            ground. Our average illumination is a few points higher than theirs, which is the
+            expected direction: they report a deliberately cautious figure, and at 1 m the result
+            varies by 9 points between spots 20 m apart. We do not claim the illumination matches.
+            <a href="https://doi.org/10.1016/j.pss.2020.105119" target="_blank" rel="noopener"
+              >doi:10.1016/j.pss.2020.105119</a
+            >
+          </dd>
+          <dt>Mazarico et al. (2011)</dt>
+          <dd>
+            The earlier LOLA illumination study that the site numbering comes from.
+            <a href="https://doi.org/10.1016/j.icarus.2010.10.030" target="_blank" rel="noopener"
+              >doi:10.1016/j.icarus.2010.10.030</a
+            >
+          </dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="ours">
+        <h2 id="ours">What we computed, and what is our own choice</h2>
+        <dl>
+          <dt>Computed from the data above</dt>
+          <dd>
+            Each site's skyline at observer heights of 1, 2 and 5 m; whether the Sun and Earth clear
+            it each hour; the share of the Sun's disc in view; which Deep Space Network station can
+            see the Moon.
+          </dd>
+          <dt>Our own definitions</dt>
+          <dd>
+            <strong>Power</strong> (the Sun in view at least 70% of the mission window on average,
+            and never fully hidden for more than 48 hours), the <strong>1° margin</strong> for
+            Comms, <strong>usable days</strong>, and the green, amber and red rules in the planner.
+            These are planning aids of ours, not NASA requirements.
+          </dd>
+          <dt>Illustrative values</dt>
+          <dd>The three power systems in Survive the Night: round numbers, not real vehicles.</dd>
+          <dt>Written by an AI model</dt>
+          <dd>
+            Only the short "site review" paragraph for each site, from our computed figures, with
+            every number checked; and the translation of a typed question into planner settings. No
+            AI model computes any result.
+          </dd>
+          <dt>Not used</dt>
+          <dd>No simulated, synthetic or generated data, images, video or audio.</dd>
+        </dl>
+      </section>
+
+      <section class="dataset" aria-labelledby="download">
+        <h2 id="download">Download our data</h2>
+        <p>
+          The files the app runs on are open, under
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener"
+            >CC BY 4.0</a
+          >. NASA's source data stays NASA's. Angles are in degrees, azimuth clockwise from true
+          north at the site, times in UTC.
+        </p>
+        <ul>
+          <li>
+            <a href="/data/sites.json">sites.json</a>: the twelve sites and how each point was
+            chosen
+          </li>
+          <li>
+            <code>/data/sites/&lt;id&gt;.json</code>: one file per site (about 470 kB) with the
+            skyline at three heights and the hourly Sun and Earth directions, for example
+            <a href="/data/sites/shackleton-rim.json">shackleton-rim.json</a>
+          </li>
+          <li>
+            <a href="/data/planner.json">planner.json</a>: the planner's figures for every site,
+            window and landing day
+          </li>
+          <li>
+            <a href="/data/validation/connecting-ridge.json">validation/connecting-ridge.json</a>:
+            Connecting Ridge for 2024 to 2026, used for the comparison with Barker et al.
+          </li>
+          <li>
+            <a href="/data/reviews.json">reviews.json</a>: the AI-written site reviews, each with
+            the facts it was checked against
+          </li>
+        </ul>
+        <p>
+          The code that turns NASA's files into these, and the steps to rerun it, are in the
+          project's repository.
+        </p>
+      </section>
+
+      <footer>
+        <p><a href="/">← Back to Four Lights</a></p>
+      </footer>
+    </main>
+    <script type="module" src="/src/sources.ts"></script>
+  </body>
+</html>
