@@ -11,7 +11,7 @@ Space Apps brand rules, from https://www.spaceappschallenge.org/brand/ and the B
 - **Never use NASA's own branding** (the meatball or the worm).
 - On Deep Blue or Electric Blue: `Space Apps Logo Color and White.svg`. On white: `Space Apps Logo Color and Black.svg`. Tight spots: the small or motif versions.
 - Don't tilt, rotate, skew, stretch, recolour, rearrange, outline, or put it on busy imagery.
-- Our team logo may sit alongside it, never in its place.
+- Our team logo may sit alongside it, never in its place. It is `web/public/img/team-logo.svg`: Steve drew it by hand in Inkscape on Sun 15 Nov 2026, to his own concept; no AI image tool was used, so it needs no AI watermark.
 
 ## Colours
 | Name | Hex | Use |
