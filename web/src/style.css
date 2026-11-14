@@ -184,6 +184,13 @@ h1 {
   margin: 0.75rem 0 0;
 }
 
+/* One bold weight across the page: headings, labels and emphasis in running text all use 600. */
+strong,
+b,
+th {
+  font-weight: 600;
+}
+
 h2 {
   font-weight: 600;
   font-size: var(--fs-xl);
@@ -737,7 +744,7 @@ circle.marker.hidden {
 
 .pointing-table tbody th {
   font-family: var(--font);
-  font-weight: 700;
+  font-weight: 600;
   text-align: left;
 }
 
@@ -931,7 +938,7 @@ input[type='number'] {
 }
 
 .lights .name {
-  font-weight: 700;
+  font-weight: 600;
   font-size: var(--fs-lg);
 }
 
@@ -1067,7 +1074,7 @@ section > .window {
 }
 
 .ask-note {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   color: var(--muted);
   margin: 0.35rem 0 0;
 }
@@ -1303,7 +1310,7 @@ section > .window {
 }
 
 .globe-over-zoom button {
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   line-height: 1;
   padding: 0;
 }
@@ -1606,7 +1613,7 @@ section > .window {
 
 .review .review-note {
   margin-top: 0.5rem;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 
