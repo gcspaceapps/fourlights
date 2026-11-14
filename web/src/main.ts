@@ -1,6 +1,13 @@
 import './style.css';
-import { PRESETS, darkEnduranceHours, renderBattery, simulateBattery } from './battery';
+import {
+  PRESETS,
+  darkEnduranceHours,
+  renderBattery,
+  simulateBattery,
+  type PowerPreset,
+} from './battery';
 import { renderChart } from './chart';
+import { infoTip, lightIcon, upgradeInfoTips, type LightName } from './icons';
 import { renderMap } from './map';
 import { answerText, renderPlanner } from './planner';
 import { loadReviews, loadSite, loadSites } from './data';
@@ -41,6 +48,12 @@ const ui = {
   reviewText: $('review-text'),
   reviewNote: $('review-note'),
   preset: $('preset') as HTMLSelectElement,
+  customise: $('customise') as HTMLDetailsElement,
+  pArray: $('p-array') as HTMLInputElement,
+  pDay: $('p-day') as HTMLInputElement,
+  pDark: $('p-dark') as HTMLInputElement,
+  pBatt: $('p-batt') as HTMLInputElement,
+  pReset: $('p-reset') as HTMLButtonElement,
   battery: $('battery') as unknown as SVGSVGElement,
   batterySummary: $('battery-summary'),
   plan: $('plan') as HTMLInputElement,
@@ -81,26 +94,39 @@ function writeHash(): void {
     c: ui.centre.value,
     t: ui.time.value,
     ps: ui.preset.value,
+    pw: [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value].join('_'),
     plan: ui.plan.value,
     pdays: ui.planDays.value,
   });
   history.replaceState(null, '', `#${p.toString()}`);
 }
 
+/** Where each light comes from, shown in its info tip. */
+const LIGHT_SOURCES: Record<LightName, string> = {
+  sun: "The Sun's centre (NASA JPL Horizons, hourly) against the highest terrain in its direction (our horizon from NASA LOLA elevation models). The Sun is treated as a point, not a disc.",
+  earth:
+    "Earth's centre (NASA JPL Horizons, hourly) against the highest terrain in its direction (our horizon from NASA LOLA elevation models).",
+  power: `Our definition, for the whole mission window: sunlit at least ${POWER_MIN_SUNLIT_FRACTION * 100}% of the time and never dark for more than ${POWER_MAX_DARK_HOURS} hours. The thresholds are ours, checked against 8,688 real site-windows; they are not a NASA requirement.`,
+  comms: `Earth's centre at least ${COMMS_MARGIN_DEG}° above the terrain (our margin), and a Deep Space Network 70 m station with the Moon at least 10° up (the DSN's transmit limit, handbook 810-005; station positions from NASA NAIF).`,
+};
+
 function light(name: string, on: boolean, detail: string): HTMLLIElement {
+  const key = name.toLowerCase() as LightName;
   const li = document.createElement('li');
   li.className = on ? 'on' : 'off';
-  li.dataset.light = name.toLowerCase();
-  for (const [cls, text] of [
-    ['name', name],
-    ['state', on ? 'on' : 'off'],
-    ['detail', detail],
-  ] as const) {
-    const span = document.createElement('span');
-    span.className = cls;
-    span.textContent = text;
-    li.appendChild(span);
-  }
+  li.dataset.light = key;
+  li.appendChild(lightIcon(key, on));
+  const head = document.createElement('span');
+  head.className = 'name';
+  head.textContent = name;
+  head.appendChild(infoTip(LIGHT_SOURCES[key]));
+  const state = document.createElement('span');
+  state.className = 'state';
+  state.textContent = on ? 'on' : 'off';
+  const more = document.createElement('span');
+  more.className = 'detail';
+  more.textContent = detail;
+  li.append(head, state, more);
   return li;
 }
 
@@ -111,6 +137,37 @@ function commsDetail(now: InstantLights): string {
   if (now.stations === null) return `Earth at least ${COMMS_MARGIN_DEG}° above the terrain`;
   if (now.stations.length === 0) return 'Earth is clear, but no DSN station sees the Moon';
   return `Earth clear by ${COMMS_MARGIN_DEG}°+; link via ${now.stations.map((s) => STATION_LABELS[s]).join(', ')} (DSN)`;
+}
+
+/** Fill the adjust-the-power-system inputs from a preset. */
+function fillPowerInputs(p: PowerPreset): void {
+  ui.pArray.value = String(p.arrayW);
+  ui.pDay.value = String(p.dayLoadW);
+  ui.pDark.value = String(p.darkLoadW);
+  ui.pBatt.value = String(p.batteryWh / 1000);
+}
+
+/** The chosen preset, with any adjusted values; named "Custom" once it differs. */
+function currentPowerSystem(): PowerPreset | undefined {
+  const base = PRESETS.find((p) => p.id === ui.preset.value) ?? PRESETS[0];
+  if (!base) return undefined;
+  const num = (el: HTMLInputElement, fallback: number, min: number): number => {
+    const v = Number(el.value);
+    return el.value !== '' && Number.isFinite(v) && v >= min ? v : fallback;
+  };
+  const p: PowerPreset = {
+    ...base,
+    arrayW: num(ui.pArray, base.arrayW, 0),
+    dayLoadW: num(ui.pDay, base.dayLoadW, 0),
+    darkLoadW: num(ui.pDark, base.darkLoadW, 1),
+    batteryWh: num(ui.pBatt, base.batteryWh / 1000, 0.1) * 1000,
+  };
+  const changed =
+    p.arrayW !== base.arrayW ||
+    p.dayLoadW !== base.dayLoadW ||
+    p.darkLoadW !== base.darkLoadW ||
+    p.batteryWh !== base.batteryWh;
+  return changed ? { ...p, id: 'custom', name: `Custom (from ${base.name})` } : p;
 }
 
 function render(): void {
@@ -155,8 +212,13 @@ function render(): void {
     light('Comms', now.comms, commsDetail(now)),
   );
   ui.window.textContent = `Usable days in this ${days}-day window (Sun and Comms both on): ${w.usableDays.toFixed(1)}`;
+  ui.window.appendChild(
+    infoTip(
+      'Our measure: the hours in the mission window with the Sun light and the Comms light both on, divided by 24.',
+    ),
+  );
 
-  const preset = PRESETS.find((p) => p.id === ui.preset.value) ?? PRESETS[0];
+  const preset = currentPowerSystem();
   if (preset) {
     const run = simulateBattery(site, profile, start, hours, preset);
     renderBattery(ui.battery, run, cursor - start);
@@ -298,7 +360,33 @@ async function init(): Promise<void> {
   ui.site.addEventListener('change', () => void selectSite(ui.site.value));
   ui.preset.replaceChildren(...PRESETS.map((p) => new Option(p.name, p.id)));
   ui.preset.value = hash.get('ps') ?? PRESETS[0]?.id ?? '';
-  for (const e of [ui.date, ui.days, ui.height, ui.centre, ui.preset]) {
+  const basePreset = (): PowerPreset | undefined =>
+    PRESETS.find((p) => p.id === ui.preset.value) ?? PRESETS[0];
+  const first = basePreset();
+  if (first) fillPowerInputs(first);
+  // Adjusted values from a shared link: array_day_dark_battery.
+  const pw = (hash.get('pw') ?? '').split('_');
+  if (pw.length === 4 && pw.every((v) => v !== '' && Number.isFinite(Number(v)))) {
+    [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value] = pw as [
+      string,
+      string,
+      string,
+      string,
+    ];
+    ui.customise.open = currentPowerSystem()?.id === 'custom';
+  }
+  ui.preset.addEventListener('change', () => {
+    const p = basePreset();
+    if (p) fillPowerInputs(p);
+    render();
+  });
+  ui.pReset.addEventListener('click', () => {
+    const p = basePreset();
+    if (p) fillPowerInputs(p);
+    render();
+  });
+  for (const e of [ui.pArray, ui.pDay, ui.pDark, ui.pBatt]) e.addEventListener('input', render);
+  for (const e of [ui.date, ui.days, ui.height, ui.centre]) {
     e.addEventListener('change', render);
   }
   ui.time.addEventListener('input', render);
@@ -429,6 +517,7 @@ function setupMapToggle(): void {
   });
 }
 
+upgradeInfoTips();
 setupAsk();
 setupMapToggle();
 setupTheme();

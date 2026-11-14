@@ -76,7 +76,7 @@ None beyond NASA and USGS. No space agency partner data is used.
 - Acton, C. H. (1996). Ancillary data services of NASA's Navigation and Ancillary Information Facility. Planetary and Space Science 44, 65–70. (SPICE)
 - USGS Astrogeology (2024). Lunar Grid Reference System navigational grids for the Artemis III candidate landing regions. https://doi.org/10.5066/P1MEQ6UK
 - DSN Telecommunications Link Design Handbook 810-005, module 301 (elevation limits). https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf
-- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, Hono, Vite, Cloudflare Workers and Workers AI.
+- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, Hono, Vite, Cloudflare Workers and Workers AI. Icons: Phosphor Icons (MIT licence).
 
 ## Disclosures
 - **Prepared before the start:** the plan, data contract and build prompts were written before the start, and raw NASA files were mirrored unmodified as an outage fallback; all code and data processing happened after 09:00 Sat 14 Nov 2026 (AEST).

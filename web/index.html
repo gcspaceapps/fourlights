@@ -34,7 +34,12 @@
       </header>
 
       <section aria-labelledby="planner-title">
-        <h2 id="planner-title">Slip Planner</h2>
+        <h2
+          id="planner-title"
+          data-info="Computed in your browser from each site's terrain horizon (NASA LRO LOLA elevation models) and the Sun's and Earth's direction for every hour of 2028 and 2029 (NASA JPL Horizons), for an observer 2 m above the ground. The green, amber and red rules are our own definitions."
+        >
+          Slip Planner
+        </h2>
         <p>
           Usable days (Sun and Comms both on) in the mission window starting each landing date, at a
           2 m observer height. <span class="key-green">● works</span> (Power on, at least half the
@@ -53,7 +58,11 @@
           </div>
         </div>
         <form class="ask" id="ask">
-          <label for="ask-q">Or ask in plain English</label>
+          <label
+            for="ask-q"
+            data-info="A language model on Cloudflare Workers AI (Llama 3.3 70B) returns only a date, a slip, a window and a site. The server checks each one, then the planner computes the answer. The model never sees or produces the numbers."
+            >Or ask in plain English</label
+          >
           <div class="ask-row">
             <input
               type="text"
@@ -76,7 +85,11 @@
       </section>
 
       <details class="map-details" id="map-details">
-        <summary>Map: where the sites are</summary>
+        <summary
+          data-info="Terrain shading made by us with GDAL from NASA's LOLA polar elevation model LDEM_75S_240M (PDS). Site positions come from NASA Goddard's 5 m site models and the USGS grids for the Artemis candidate regions."
+        >
+          Map: where the sites are
+        </summary>
         <figure class="map">
           <svg id="map" role="group" aria-labelledby="map-desc"></svg>
           <figcaption id="map-desc">
@@ -88,7 +101,12 @@
       </details>
 
       <section aria-labelledby="chart-title">
-        <h2 id="chart-title">Sun-Path Chart</h2>
+        <h2
+          id="chart-title"
+          data-info="Skyline: the highest terrain in each half-degree of direction, computed by us from NASA LOLA elevation models, 5 m per pixel at the site out to 240 m per pixel about 650 km away. Sun and Earth: the apparent positions of their centres from NASA JPL Horizons (ephemeris DE441), every hour, checked against NASA NAIF SPICE."
+        >
+          Sun-Path Chart
+        </h2>
         <form class="controls" id="controls">
           <label
             >Site
@@ -138,13 +156,37 @@
         <ul class="lights" id="lights" aria-live="polite"></ul>
         <p class="window" id="window"></p>
 
-        <h3 id="battery-title">Survive the Night</h3>
+        <h3
+          id="battery-title"
+          data-info="A simple hour-by-hour energy balance of our own, driven by the Sun light above: in sunlight the array runs the day load and charges the battery with the surplus; in the dark the battery runs the survival load. It starts full at landing. No thermal model, no panel pointing, no battery ageing."
+        >
+          Survive the Night
+        </h3>
         <div class="controls">
           <label
-            >Power system (illustrative)
+            ><span
+              data-info="Illustrative round numbers chosen by us to show the idea. They are not taken from any real lander, rover or published specification."
+              >Power system (illustrative)</span
+            >
             <select id="preset"></select
           ></label>
         </div>
+        <details class="customise" id="customise">
+          <summary
+            data-info="For planning and for looking back: change the vehicle and see whether it would have made it through this window at this site. Starts from the chosen preset; nothing here changes the four lights or the planner."
+          >
+            Adjust the power system
+          </summary>
+          <div class="controls">
+            <label>Solar array (W) <input type="number" id="p-array" min="0" step="50" /></label>
+            <label>Load in sunlight (W) <input type="number" id="p-day" min="0" step="10" /></label>
+            <label
+              >Survival load in the dark (W) <input type="number" id="p-dark" min="1" step="5"
+            /></label>
+            <label>Battery (kWh) <input type="number" id="p-batt" min="0.1" step="0.5" /></label>
+            <button type="button" id="p-reset">Reset to preset</button>
+          </div>
+        </details>
         <figure class="chart">
           <div class="chart-scroll">
             <svg id="battery" role="img" aria-labelledby="battery-desc"></svg>
@@ -159,7 +201,12 @@
       </section>
 
       <section class="site-info" aria-labelledby="site-title">
-        <h2 id="site-title">About this site</h2>
+        <h2
+          id="site-title"
+          data-info="Position, ground height and terrain come from the NASA LOLA files named below; the site point follows the rule shown. The whole-period figures are computed in your browser from the same data as the chart."
+        >
+          About this site
+        </h2>
         <div class="review" id="review" hidden>
           <p id="review-text"></p>
           <p class="review-note" id="review-note"></p>

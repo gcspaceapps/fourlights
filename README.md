@@ -16,7 +16,8 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, de Gerlac
 - **Site map:** the 12 sites on LOLA terrain shading of the pole, coloured for the planned landing.
 - **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.
 - **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
-- **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells?
+- **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
+- **Where it comes from:** an info button beside each view, light and number says which NASA dataset or which of our own definitions is behind it.
 - 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
 
 ## Run it locally
@@ -57,6 +58,7 @@ make validate        # Connecting Ridge 2024-2026 against Barker et al. 2021
 - **JPL Horizons** (NASA JPL Solar System Dynamics): Sun and Earth positions from each site, https://ssd.jpl.nasa.gov/horizons/ . NASA open data.
 - **NAIF SPICE kernels** (NASA JPL): DE440s, Moon frames, DSN stations, https://naif.jpl.nasa.gov/ . NASA open data.
 - **Artemis candidate regions** (USGS, for NASA): LGRS navigational grids, https://doi.org/10.5066/P1MEQ6UK . Public domain.
+- **Icons:** [Phosphor Icons](https://phosphoricons.com) (MIT licence).
 - Validation: Barker et al. 2021, Mazarico et al. 2011, LOLA and LROC polar illumination maps (`_shared/validation.md`).
 Full cards: [`_datasets/`](_datasets/_index.md).
 
