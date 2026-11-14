@@ -29,7 +29,18 @@ class SiteSpec:
 SITES: dict[str, SiteSpec] = {
     s.id: s
     for s in [
+        SiteSpec(
+            "connecting-ridge",
+            "Connecting Ridge",
+            "PGDA Site01",
+            pgda_site="Site01",
+            # Barker et al. 2021, first region centroid (PS km; the PDF drops the minus signs).
+            fixed_point=(-11_580.0, -12_460.0),
+        ),
         SiteSpec("shackleton-rim", "Shackleton rim", "PGDA Site04", pgda_site="Site04"),
+        SiteSpec(
+            "malapert-massif", "Malapert Massif", "PGDA Site23 = Artemis region", pgda_site="Site23"
+        ),
     ]
 }
 
@@ -70,7 +81,23 @@ def highest_within(
 def site_point(spec: SiteSpec, tile: Raster | None) -> SitePoint:
     if spec.fixed_point is not None:
         x, y = spec.fixed_point
-        return SitePoint(x, y, x, y, f"published point ({x / 1000:.2f}, {y / 1000:.2f}) km")
+        if tile is not None:
+            left, bottom, right, top = bounds(tile)
+            if not (left < x < right and bottom < y < top):
+                raise ValueError(f"{spec.id}: published point ({x}, {y}) is outside {tile.name}")
+            # Snap to the containing pixel's centre, so the observer stands on a DEM sample.
+            sx = tile.left + (np.floor((x - tile.left) / tile.res_m) + 0.5) * tile.res_m
+            sy = tile.top - (np.floor((tile.top - y) / tile.res_m) + 0.5) * tile.res_m
+        else:
+            sx, sy = x, y
+        return SitePoint(
+            float(sx),
+            float(sy),
+            x,
+            y,
+            f"Barker et al. 2021 region centroid ({x / 1000:.2f}, {y / 1000:.2f}) km, "
+            f"snapped to its pixel centre",
+        )
     if tile is None:
         raise ValueError(f"{spec.id}: needs a tile or a fixed point")
     cx, cy = tile_centre(tile)

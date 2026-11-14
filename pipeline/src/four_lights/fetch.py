@@ -19,8 +19,8 @@ import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
-from four_lights.paths import RAW_LOLA
-from four_lights.sources import FILES, RawFile, needed
+from four_lights.paths import RAW
+from four_lights.sources import FILES, SPICE_FILES, RawFile, needed
 
 
 def sha256(path: Path) -> str:
@@ -118,7 +118,7 @@ def fetch(files: list[RawFile], cache_first: bool, refresh: bool = False) -> dic
     """
     got: dict[str, str] = {}
     for f in sorted(files, key=lambda f: f.size) if refresh else files:
-        dest = RAW_LOLA / f.rel
+        dest = RAW / f.raw_subdir / f.rel.removeprefix("spice/")
         dest.parent.mkdir(parents=True, exist_ok=True)
         present = _ok(dest, f)
         if present and refresh and source_of(dest) != "nasa":
@@ -144,11 +144,15 @@ def fetch(files: list[RawFile], cache_first: bool, refresh: bool = False) -> dic
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--site", help="PGDA site tile to include, e.g. Site04")
-    p.add_argument("--all", action="store_true", help="every file in sources.FILES")
+    p.add_argument("--all", action="store_true", help="every LOLA file in sources.FILES")
+    p.add_argument("--spice", action="store_true", help="the SPICE kernels")
     p.add_argument("--cache-first", action="store_true")
     p.add_argument("--refresh", action="store_true", help="re-download from NASA and verify")
     a = p.parse_args(argv)
-    files = list(FILES.values()) if a.all else needed(a.site)
+    if a.spice:
+        files = list(SPICE_FILES.values())
+    else:
+        files = list(FILES.values()) if a.all else needed(a.site)
     for rel, how in fetch(files, a.cache_first, a.refresh).items():
         print(f"{how:18} {rel}")
 

@@ -19,6 +19,11 @@ class RawFile:
     size: int
     sha256: str
 
+    @property
+    def raw_subdir(self) -> str:
+        """Folder under data/raw/ (the mirror keeps the same relative path under $NASA_CACHE)."""
+        return "spice" if self.rel.startswith("spice/") else "lola"
+
 
 def _f(rel: str, url: str, size: int, sha: str) -> RawFile:
     return RawFile(rel, url, size, sha)
@@ -122,6 +127,43 @@ FILES: dict[str, RawFile] = {
             f"{PDS}/LDEM_75S_240M.IMG",
             29062688,
             "d031efe2611b17dfbf3c158f5e15dc04cd5719349dcbf6384bb21fd97697c490",
+        ),
+    ]
+}
+
+NAIF = "https://naif.jpl.nasa.gov/pub/naif/generic_kernels"
+SPICE_FILES: dict[str, RawFile] = {
+    f.rel: f
+    for f in [
+        _f(
+            "spice/naif0012.tls",
+            f"{NAIF}/lsk/naif0012.tls",
+            5257,
+            "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+        ),
+        _f(
+            "spice/pck00011.tpc",
+            f"{NAIF}/pck/pck00011.tpc",
+            131226,
+            "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+        ),
+        _f(
+            "spice/moon_pa_de440_200625.bpc",
+            f"{NAIF}/pck/moon_pa_de440_200625.bpc",
+            12863488,
+            "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+        ),
+        _f(
+            "spice/moon_de440_250416.tf",
+            f"{NAIF}/fk/satellites/moon_de440_250416.tf",
+            19478,
+            "a47c71e9c9f33796bdafb2c9d69a7ee447b6016ecad80f71cd6f3e479f9cf768",
+        ),
+        _f(
+            "spice/de440s.bsp",
+            f"{NAIF}/spk/planets/de440s.bsp",
+            32726016,
+            "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
         ),
     ]
 }

@@ -18,4 +18,5 @@ pyproj==3.8.0
 pytest==9.2.0
 python-dateutil==4.0.0
 rasterio==1.5.2
+spiceypy==8.3.0
 tzdata==2026.6

@@ -18,10 +18,14 @@ def _size(p: Path) -> str:
     return f"{n / 1e6:.1f} MB" if n >= 1e6 else f"{n / 1e3:.0f} kB"
 
 
-def log_run(command: str, inputs: list[RawFile], outputs: list[Path], seconds: float) -> None:
+def log_run(
+    command: str, inputs: list[RawFile], outputs: list[Path], seconds: float, note: str = ""
+) -> None:
     when = datetime.now(AEST).strftime("%a %H:%M")
     machine = f"{platform.node()} ({platform.machine()})"
-    ins = "; ".join(f"{Path(f.rel).name} {f.sha256[:8]}" for f in inputs)
+    ins = "; ".join(
+        [f"{Path(f.rel).name} {f.sha256[:8]}" for f in inputs] + ([note] if note else [])
+    )
     rows = [
         f"| {when} | {machine} | `{command}` | {ins} | `{o.relative_to(REPO)}` | {_size(o)} "
         f"| {seconds:.0f} s |"

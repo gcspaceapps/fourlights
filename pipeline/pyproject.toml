@@ -8,6 +8,7 @@ dependencies = [
     "rasterio==1.5.2",
     "pyproj==3.8.0",
     "matplotlib==3.11.2",
+    "spiceypy==8.3.0",
 ]
 
 [project.optional-dependencies]

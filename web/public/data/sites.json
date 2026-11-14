@@ -1,5 +1,16 @@
 [
   {
+    "id": "shackleton-rim",
+    "name": "Shackleton rim",
+    "lat": -89.7804,
+    "lon_e": -156.19695,
+    "ps_x_m": -2687.5,
+    "ps_y_m": -6092.5,
+    "source": "PGDA Site04",
+    "point_rule": "highest 5 m pixel within 2 km of the PGDA Site04 tile centre (-1.00, -7.00) km",
+    "approx": false
+  },
+  {
     "id": "fake-a",
     "name": "Fake A (stays lit)",
     "lat": -89.5,
