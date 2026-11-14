@@ -1,23 +1,15 @@
 // Slip Planner: rows = sites, columns = landing dates, cell = usable days in the mission window
 // starting that day, coloured by the Power light and usable days. Site files load lazily, row by
 // row. Clicking a cell opens the Sun-Path Chart for that site and window.
-import { loadSite } from './data';
-import { DEFAULT_HEIGHT_M, indexAt, profileFor, windowSummary } from './lights';
-import type { SiteData, SiteSummary } from './types';
+import { loadPlannerSummary, loadSite } from './data';
+import { verdict, type Verdict } from './lights';
+import { buildSummary, cellAt, type PlannerSummary } from './summary';
+import type { SiteSummary } from './types';
 
-/** Green needs Power on and at least this fraction of the window usable. */
-export const GREEN_MIN_USABLE_FRACTION = 0.5;
 /** Landing dates shown: this many days before the planned date... */
 export const DAYS_BEFORE = 2;
 /** ...and this many after it. */
 export const DAYS_AFTER = 11;
-
-export type Verdict = 'green' | 'amber' | 'red';
-
-export function verdict(power: boolean, usableDays: number, windowDays: number): Verdict {
-  if (!power) return 'red';
-  return usableDays >= GREEN_MIN_USABLE_FRACTION * windowDays ? 'green' : 'amber';
-}
 
 const WORDS: Record<Verdict, string> = {
   green: 'works',
@@ -41,23 +33,20 @@ const ymd = (d: Date): string => d.toISOString().slice(0, 10);
 const short = (d: Date): string =>
   d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
-function cellFor(
-  site: SiteData,
-  start: Date,
-  windowDays: number,
-): { text: string; label: string; verdict: Verdict | null } {
-  const first = Date.parse(site.times.start_utc);
-  const lastStart = first + (site.times.n - windowDays * 24) * site.times.step_min * 60_000;
-  if (start.getTime() < first || start.getTime() > lastStart) {
-    return { text: '–', label: 'outside the data range', verdict: null };
-  }
-  const profile = profileFor(site, DEFAULT_HEIGHT_M);
-  const w = windowSummary(site, profile, indexAt(site, start), windowDays * 24);
-  const v = verdict(w.power, w.usableDays, windowDays);
+interface Cell {
+  text: string;
+  label: string;
+  verdict: Verdict | null;
+}
+
+/** One planner cell from the precomputed summary (or one computed on the fly). */
+function cellFor(summary: PlannerSummary, siteId: string, start: Date, windowDays: number): Cell {
+  const c = cellAt(summary, siteId, start, windowDays);
+  if (!c) return { text: '–', label: 'outside the data range', verdict: null };
   return {
-    text: w.usableDays.toFixed(1),
-    label: `${w.usableDays.toFixed(1)} usable days, ${WORDS[v]}; sunlit ${(w.sunlitFraction * 100).toFixed(0)}%, longest dark ${w.longestDarkHours} h`,
-    verdict: v,
+    text: c.usableDays.toFixed(1),
+    label: `${c.usableDays.toFixed(1)} usable days, ${WORDS[c.verdict]}; sunlit ${c.sunlitPct}%, longest dark ${c.longestDarkHours} h`,
+    verdict: c.verdict,
   };
 }
 
@@ -88,6 +77,16 @@ export function answerText(results: PlannedResult[], planned: Date, windowDays: 
     `${by('red').length} without power.`,
   ];
   return [head, ...tail].filter(Boolean).join(' ');
+}
+
+/**
+ * The summary covering a site: the published planner.json if it has the site, otherwise one
+ * computed in the browser from that site's own file (slower: about half a megabyte per site).
+ */
+async function summaryFor(siteId: string): Promise<PlannerSummary> {
+  const published = await loadPlannerSummary();
+  if (published && Object.values(published.windows).every((w) => siteId in w)) return published;
+  return buildSummary([await loadSite(siteId)]);
 }
 
 export function renderPlanner(o: PlannerOptions): void {
@@ -136,12 +135,12 @@ export function renderPlanner(o: PlannerOptions): void {
       td.textContent = '…';
       return td;
     });
-    void loadSite(s.id).then(
-      (site) => {
+    void summaryFor(s.id).then(
+      (summary) => {
         dates.forEach((d, k) => {
           const td = cells[k];
           if (!td) return;
-          const c = cellFor(site, d, windowDays);
+          const c = cellFor(summary, s.id, d, windowDays);
           if (k === DAYS_BEFORE) {
             plannedResults.push({
               id: s.id,
@@ -175,3 +174,5 @@ export function renderPlanner(o: PlannerOptions): void {
   }
   table.replaceChildren(head, body);
 }
+
+export { verdict, type Verdict };

@@ -6,6 +6,8 @@
 
 **Run / test:** needs `uv` and `ruff`, and `NASA_CACHE` pointing at the offline mirror (fallback only). `npm run check` at the root also runs ruff here. Read big DEMs in windows: the machines have 4 cores and 14 GB.
 
+**After any run that changes a site file:** `npm run planner-data` at the repo root (refreshes `web/public/data/planner.json`; `npm run check` fails until it is done), and `python -m four_lights.site_review` if the figures moved.
+
 **Rules:** the technical traps in `../stages/01_data/CONTEXT.md` (true north at the pole, scaled PDS integers, sector maximum, finest covering DEM). Every run logged in `../stages/01_data/output/data-manifest.md`. No hand-edited outputs.
 
 **Touches:** `_datasets/` cards for LOLA, Horizons, SPICE and USGS (fill in their loading recipes); the data contract in `../_shared/stack.md` and `web/src/types.ts`.

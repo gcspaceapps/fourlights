@@ -1,6 +1,6 @@
 // The four lights, mission window and usable days, exactly as defined in _shared/concept.md.
 // Every threshold is a named constant here and nowhere else.
-import { STATION_BITS, at, type HorizonProfile, type SiteData } from './types';
+import { STATION_BITS, at, type HorizonProfile, type SiteData } from './types.ts';
 
 /** Power: the average share of the Sun's disc in view over the mission window must reach this... */
 export const POWER_MIN_SUNLIT_FRACTION = 0.7;
@@ -132,4 +132,14 @@ export function indexAt(site: SiteData, t: Date): number {
 
 export function timeAt(site: SiteData, i: number): Date {
   return new Date(Date.parse(site.times.start_utc) + i * site.times.step_min * 60_000);
+}
+
+/** Green needs Power on and at least this fraction of the window usable. */
+export const GREEN_MIN_USABLE_FRACTION = 0.5;
+
+export type Verdict = 'green' | 'amber' | 'red';
+
+export function verdict(power: boolean, usableDays: number, windowDays: number): Verdict {
+  if (!power) return 'red';
+  return usableDays >= GREEN_MIN_USABLE_FRACTION * windowDays ? 'green' : 'amber';
 }

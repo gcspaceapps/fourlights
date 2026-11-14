@@ -14,6 +14,7 @@ import {
   windowSummary,
 } from '../src/lights';
 import { answerText, verdict } from '../src/planner';
+import { summariseSite, type PlannerSummary } from '../src/summary';
 import type { SiteData } from '../src/types';
 
 function site(sunEl: number[], earthEl: number[], terrainDeg = 0): SiteData {
@@ -231,4 +232,21 @@ describe('plain-English query: the model reply is validated, never trusted', () 
     expect(parse('I think Shackleton rim is best.')).toBeNull();
     expect(parse('{broken')).toBeNull();
   });
+});
+
+describe('published planner summary', () => {
+  it('matches what the rules give for every site, window and day', () => {
+    const read = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T;
+    const published = read<PlannerSummary>('web/public/data/planner.json');
+    const index = read<{ id: string }[]>('web/public/data/sites.json');
+    for (const { id } of index) {
+      const site = read<SiteData>(`web/public/data/sites/${id}.json`);
+      for (const days of [7, 14, 30]) {
+        expect(
+          published.windows[String(days)]?.[id],
+          `${id} ${days} d: run npm run planner-data`,
+        ).toEqual(summariseSite(site, days));
+      }
+    }
+  }, 60_000);
 });

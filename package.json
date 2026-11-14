@@ -17,7 +17,8 @@
     "check:real-data": "node scripts/check-real-data.mjs",
     "deploy": "npm run check && npm run check:real-data && npm run build && wrangler deploy",
     "fake-data": "node scripts/make-fake-data.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "planner-data": "node scripts/build-planner-summary.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

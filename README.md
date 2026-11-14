@@ -45,6 +45,7 @@ To rebuild the data from NASA's own files (about 6 GB of downloads, then roughly
 cd pipeline
 make venv && make test
 make sites           # fetch (SHA-256 checked), horizons, JPL Horizons ephemerides, publish
+(cd .. && npm run planner-data)   # refresh the planner's summary from the new site files
 make validate        # Connecting Ridge 2024-2026 against Barker et al. 2021
 ```
 

@@ -1,4 +1,5 @@
 // Loads the published JSON (see types.ts). Site files are fetched lazily and cached.
+import type { PlannerSummary } from './summary';
 import type { SiteData, SitesIndex } from './types';
 
 const siteCache = new Map<string, Promise<SiteData>>();
@@ -26,6 +27,14 @@ let reviews: Promise<Reviews | null> | undefined;
 export function loadReviews(): Promise<Reviews | null> {
   reviews ??= getJson<Reviews>('/data/reviews.json').catch(() => null);
   return reviews;
+}
+
+let planner: Promise<PlannerSummary | null> | undefined;
+
+/** The precomputed planner figures; null if the file is missing (the planner then computes). */
+export function loadPlannerSummary(): Promise<PlannerSummary | null> {
+  planner ??= getJson<PlannerSummary>('/data/planner.json').catch(() => null);
+  return planner;
 }
 
 export function loadSite(id: string): Promise<SiteData> {
