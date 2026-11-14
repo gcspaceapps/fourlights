@@ -8,6 +8,7 @@ We're two experienced developers, 30 years and 20+ years in, and we intend to do
 - A second agent session works in **its own git worktree on a branch** (from the repo root: `git worktree add ../fourlights-ui -b ui`), never in the main checkout.
 - Static assets first; R2 only if the published files outgrow them. Cache headers so data is served from the edge.
 - Only when the product needs them: Cron Triggers, AI Gateway in front of any Claude call (logging, caching, spend cap). KV, Durable Objects, Queues or Workflows only when the concept needs them: each is extra risk. Load the matching Cloudflare skill (wrangler, workers-best-practices) before writing Worker code or running wrangler, rather than relying on memory.
+- **Two CLIs, split by job.** **Wrangler** (pinned in `package.json`, config `wrangler.jsonc`) does everything for the Worker: `dev`, `deploy`, `versions upload`, `secret`, `tail`. The **`cf` CLI** (Cloudflare's API CLI, beta, its own login: `cf auth login`) does account and zone tasks Wrangler can't, such as DNS (`cf dns records list --zone gcsa.space`) and zones. Never run `cf dev`, `cf build` or `cf deploy` here: they ignore `wrangler.jsonc`. Find a `cf` command with `cf cli search "<task>"` and preview with `--dry-run`.
 - Infrastructure as code, if any, is OpenTofu (`tofu`), never Terraform.
 - Workers Free plan: 10 ms CPU per request, so the Worker routes and serves; no maths in it. The browser does the four-lights maths from static JSON.
 
