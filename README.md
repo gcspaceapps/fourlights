@@ -44,7 +44,7 @@ git pull --rebase && npm run deploy   # check, refuse fixture data, build, wrang
 ```
 The Cloudflare `account_id` and the custom domain are pinned in `wrangler.jsonc`.
 
-Production deploys are Steve's, from an up-to-date, clean `main`. Everyone else works on a branch and shares a preview instead (a preview is never promoted):
+Matt commits and pushes to `main` like Steve (`git pull --rebase` first). Production deploys are Steve's, from an up-to-date, clean `main`; to show work before it is deployed, share a preview instead (a preview is never promoted):
 ```sh
 npm run check && npm run build && npx wrangler versions upload   # prints a preview URL
 ```
