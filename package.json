@@ -13,18 +13,21 @@
     "format": "prettier --write . && ruff format pipeline",
     "lint": "eslint .",
     "typecheck": "tsc -p api --noEmit && tsc -p web --noEmit",
-    "check": "prettier --check . && eslint . && npm run typecheck && ruff check pipeline && ruff format --check pipeline",
+    "check": "prettier --check . && eslint . && npm run typecheck && npm test && ruff check pipeline && ruff format --check pipeline",
     "check:real-data": "node scripts/check-real-data.mjs",
     "deploy": "npm run check && npm run check:real-data && npm run build && wrangler deploy",
-    "fake-data": "node scripts/make-fake-data.mjs"
+    "fake-data": "node scripts/make-fake-data.mjs",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
     "eslint": "^10.15.0",
     "globals": "^17.14.0",
     "prettier": "^3.10.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0",
     "wrangler": "^4.162.0"
   },
   "allowScripts": {

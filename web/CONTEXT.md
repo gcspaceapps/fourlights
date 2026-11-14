@@ -1,11 +1,11 @@
 # web/: the front end
 
-**What lives here:** Vite + TypeScript (no framework), `index.html`, `src/main.ts`, `src/style.css` (brand tokens from `../_shared/brand.md`), and `public/data/`, the published JSON from the pipeline, served at `/data/...`. Builds to `web/dist`, which the Worker serves.
+**What lives here:** Vite + TypeScript (no framework), `index.html`, and in `src/`: `main.ts` (page wiring, URL-hash state, theme switch), `lights.ts` (the four lights, usable days, every threshold), `chart.ts` (Sun-Path Chart, SVG), `planner.ts` (Slip Planner), `data.ts` (lazy JSON loading), `types.ts` (data contract), `style.css` (design tokens, dark and light). Plus `public/data/`, the published JSON from the pipeline, served at `/data/...`. Builds to `web/dist`, which the Worker serves.
 
 **Entry points:** `index.html` → `src/main.ts`. Data types: `src/types.ts` (written in S1 from the data contract in `../_shared/stack.md`).
 
-**Run / test:** `npm run dev` at the repo root (build + `wrangler dev`), or `npm run dev -w web` for Vite alone. `npm run check` before every commit. Before the real demo ships: `npm run check:real-data` (fails if any `fake-` file is left in `public/data/`).
+**Run / test:** `npm run dev` at the repo root (build + `wrangler dev`), or `npm run dev -w web` for Vite alone. `npm run check` before every commit. `npm run check:real-data` (part of `npm run deploy`) fails if any `fake-` fixture is in `public/data/`; `npm run fake-data` regenerates the three fixtures for UI work, never to be committed.
 
-**Rules:** the four lights, mission window and usable days follow `../_shared/concept.md` exactly; thresholds are named constants in one file. The browser does the maths (the Worker can't: 10 ms CPU). Its own clean design (Space Apps colours not required, see `../_shared/brand.md`), 4.5:1 contrast, keyboard-usable, works on a phone. Each NASA dataset is named on screen.
+**Rules:** the four lights, mission window and usable days follow `../_shared/concept.md` exactly; thresholds are named constants in one file. The browser does the maths (the Worker can't: 10 ms CPU). Its own clean design (Space Apps colours not required, see `../_shared/brand.md`), 4.5:1 contrast, keyboard-usable. Phones are a design goal, not a priority: nothing should break, wide views scroll sideways. Each NASA dataset is named on screen.
 
 **Touches:** `public/data/` is written by `pipeline/` (see `../_datasets/`). If you change the data shape, change `../_shared/stack.md`, `src/types.ts` and the pipeline together.

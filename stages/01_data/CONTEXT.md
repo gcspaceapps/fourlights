@@ -43,7 +43,7 @@ Source of truth: `../../_shared/stack.md`. TypeScript types: `web/src/types.ts`.
 
 **Lookup:** the terrain under a body at azimuth `az` is `elev_deg[Math.floor(az / 0.5) % 720]`. A light is on when the body's `el` is above that (Comms: at least 1° above).
 
-**Fixtures:** `npm run fake-data` writes `fake-a`, `fake-b`, `fake-c` (90 days from 2028-01-01) with a built-in scenario: planned landing 2028-01-21, 7-day window, a 3-day slip; A stays green, B and C lose Power. Scaffolding only; `npm run check:real-data` fails while any remain.
+**Fixtures:** `npm run fake-data` writes `fake-a`, `fake-b`, `fake-c` (90 days from 2028-01-01) with a built-in scenario: planned landing 2028-01-21, 7-day window, a 3-day slip; A stays green, B and C lose Power. Scaffolding for UI work only: they were removed from the published data in S6, and `npm run check:real-data` (run by `npm run deploy`) fails while any are present.
 
 ## Technical traps (every one has a test)
 1. **Grid north isn't true north at the pole.** At a south-pole site, true north points **directly away from the pole** (along the site's meridian, toward the equator); toward the pole is true south. Grid bearing and true azimuth differ by roughly the site's longitude (~172° at Shackleton). Work in 3D Moon-fixed Cartesian and a local east-north-up frame, which also handles curvature and projection scale. **Tests:** a synthetic peak placed further from the pole on the site's own meridian comes out at azimuth 0°. Ephemeris check that catches a 180° flip: Earth's azimuth is near **0°** from Malapert (longitude ~0°) and near **180°** from Shackleton rim (longitude ~172°W), each within about 20°.
