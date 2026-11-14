@@ -843,18 +843,6 @@ async function init(): Promise<void> {
   }
 }
 
-async function showHealth(): Promise<void> {
-  const out = document.getElementById('health');
-  if (!out) return;
-  try {
-    const res = await fetch('/api/health');
-    const body = (await res.json()) as { ok: boolean };
-    out.textContent = body.ok ? 'ok' : 'not ok';
-  } catch {
-    out.textContent = 'unreachable';
-  }
-}
-
 /**
  * Dark/light switch. Until it is touched it follows the device (and changes with it); once
  * slid, the choice is remembered in this browser only.
@@ -1190,7 +1178,6 @@ upgradeInfoTips();
 setupShortcuts(SHORTCUTS, $('shortcuts') as HTMLDialogElement);
 setupAsk();
 setupTheme();
-void showHealth();
 init().catch((e: unknown) => {
   ui.lights.textContent = `Could not load the site data: ${String(e)}`;
 });
