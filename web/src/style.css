@@ -309,6 +309,112 @@ footer {
   border-radius: 0.5rem;
 }
 
+/* Slip Planner */
+.slip-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+button {
+  font: inherit;
+  font-weight: 700;
+  color: var(--sa-deep-blue);
+  background: var(--sa-white);
+  border: 2px solid var(--sa-blue-yonder);
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.75rem;
+  min-height: 2.5rem;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--sa-neon-yellow);
+  outline-offset: 2px;
+}
+
+#slip-on {
+  background: var(--sa-neon-yellow);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.planner {
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.planner th {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.25rem;
+  white-space: nowrap;
+}
+
+.planner th[scope='row'] {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--sa-deep-blue);
+  padding-right: 0.75rem;
+}
+
+.planner .slip {
+  display: block;
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.planner th.planned {
+  color: var(--sa-neon-yellow);
+}
+
+.planner td {
+  padding: 0;
+  text-align: center;
+  min-width: 4rem;
+}
+
+.planner td button {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+}
+
+/* White on these reds/greens would fail contrast, so cells use dark text on light fills. */
+.planner td.green button {
+  background: #b6f2c4;
+  border-color: #1e8a3c;
+}
+
+.planner td.amber button {
+  background: #ffe08a;
+  border-color: #a86b00;
+}
+
+.planner td.red button {
+  background: #ffc2b3;
+  border-color: var(--sa-martian-red);
+}
+
+.planner td.planned button {
+  outline: 3px solid var(--sa-neon-yellow);
+  outline-offset: -1px;
+}
+
+.key-green,
+.key-amber,
+.key-red {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 @media (width <= 40rem) {
   /* A 360° panorama needs width: on a phone it scrolls sideways instead of shrinking. */
   .chart svg {

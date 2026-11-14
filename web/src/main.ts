@@ -1,5 +1,6 @@
 import './style.css';
 import { renderChart } from './chart';
+import { renderPlanner } from './planner';
 import { loadSite, loadSites } from './data';
 import {
   COMMS_MARGIN_DEG,
@@ -33,7 +34,15 @@ const ui = {
   lights: $('lights'),
   window: $('window'),
   info: $('site-info'),
+  plan: $('plan') as HTMLInputElement,
+  planDays: $('plan-days') as HTMLSelectElement,
+  slipBack: $('slip-back') as HTMLButtonElement,
+  slipOn: $('slip-on') as HTMLButtonElement,
+  planner: $('planner') as HTMLTableElement,
+  chartSection: $('chart-title'),
 };
+
+const DEFAULT_PLAN = '2028-01-21';
 
 let sites: SiteSummary[] = [];
 let current: SiteData | null = null;
@@ -54,6 +63,8 @@ function writeHash(): void {
     h: ui.height.value,
     c: ui.centre.value,
     t: ui.time.value,
+    plan: ui.plan.value,
+    pdays: ui.planDays.value,
   });
   history.replaceState(null, '', `#${p.toString()}`);
 }
@@ -163,6 +174,33 @@ async function selectSite(id: string): Promise<void> {
   render();
 }
 
+function drawPlanner(): void {
+  renderPlanner({
+    table: ui.planner,
+    sites,
+    planned: new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`),
+    windowDays: Number(ui.planDays.value),
+    onOpen: (siteId, date, days) => {
+      ui.site.value = siteId;
+      ui.date.value = date;
+      ui.days.value = String(days);
+      ui.time.value = '0';
+      void selectSite(siteId).then(() => {
+        ui.chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        ui.site.focus({ preventScroll: true });
+      });
+    },
+  });
+  writeHash();
+}
+
+function slip(days: number): void {
+  const d = new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  ui.plan.value = ymd(d);
+  drawPlanner();
+}
+
 async function init(): Promise<void> {
   sites = await loadSites();
   const hash = readHash();
@@ -172,6 +210,9 @@ async function init(): Promise<void> {
     ),
   );
   ui.days.replaceChildren(...WINDOW_DAYS.map((d) => new Option(`${d} days`, String(d))));
+  ui.planDays.replaceChildren(...WINDOW_DAYS.map((d) => new Option(`${d} days`, String(d))));
+  ui.plan.value = hash.get('plan') ?? DEFAULT_PLAN;
+  ui.planDays.value = hash.get('pdays') ?? String(WINDOW_DAYS[0]);
   ui.site.value = hash.get('site') ?? sites[0]?.id ?? '';
   ui.date.value = hash.get('date') ?? '';
   ui.days.value = hash.get('days') ?? String(WINDOW_DAYS[0]);
@@ -182,6 +223,10 @@ async function init(): Promise<void> {
   ui.site.addEventListener('change', () => void selectSite(ui.site.value));
   for (const e of [ui.date, ui.days, ui.height, ui.centre]) e.addEventListener('change', render);
   ui.time.addEventListener('input', render);
+  for (const e of [ui.plan, ui.planDays]) e.addEventListener('change', drawPlanner);
+  ui.slipBack.addEventListener('click', () => slip(-1));
+  ui.slipOn.addEventListener('click', () => slip(1));
+  drawPlanner();
   await selectSite(ui.site.value);
   // On a phone the panorama scrolls: start with the chosen centre azimuth in view.
   const scroller = ui.chart.parentElement;

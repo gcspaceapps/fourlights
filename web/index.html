@@ -24,6 +24,30 @@
         </p>
       </header>
 
+      <section aria-labelledby="planner-title">
+        <h2 id="planner-title">Slip Planner</h2>
+        <p>
+          Usable days (Sun and Comms both on) in the mission window starting each landing date, at a
+          2 m observer height. <span class="key-green">● works</span> (Power on, at least half the
+          window usable), <span class="key-amber">▲ marginal</span> (Power on, less usable),
+          <span class="key-red">✕ no power</span>. Choose a cell to open its Sun-Path Chart.
+        </p>
+        <div class="controls">
+          <label>Planned landing (UTC) <input type="date" id="plan" /></label>
+          <label
+            >Mission window
+            <select id="plan-days"></select
+          ></label>
+          <div class="slip-buttons" role="group" aria-label="Move the planned landing">
+            <button type="button" id="slip-back">− 1 day</button>
+            <button type="button" id="slip-on">Slip + 1 day</button>
+          </div>
+        </div>
+        <div class="table-scroll" tabindex="0" aria-label="Slip Planner table (scrolls sideways)">
+          <table class="planner" id="planner"></table>
+        </div>
+      </section>
+
       <section aria-labelledby="chart-title">
         <h2 id="chart-title">Sun-Path Chart</h2>
         <form class="controls" id="controls">
