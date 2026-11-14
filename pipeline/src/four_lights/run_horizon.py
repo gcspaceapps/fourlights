@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from four_lights.dem import FileRaster
+from four_lights.dem import bounds as tile_bounds
 from four_lights.horizon import (
     OBSERVER_HEIGHTS_M,
     STEP_DEG,
@@ -27,9 +28,23 @@ from four_lights.paths import HORIZON_OUT, MEDIA, RAW_LOLA
 from four_lights.sites import SITES, SitePoint, SiteSpec, site_point
 from four_lights.sources import FILES, MOSAIC_87S, MOSAIC_87S_KM, POLAR_RINGS, site_tile
 
+SITE07_POINTS = "lola-5mpp-sites/Site07_final_adj.xyzi"
+
 OVERLAP_MAX_MEDIAN_M = 5.0
 """Rings must agree: |median(fine - coarse)| below this where they overlap near the site."""
 OVERLAP_MAX_MEDIAN_ABS_M = 15.0
+
+
+def check_tile_against_point_cloud(tile: FileRaster, xyzi: Path) -> None:
+    """Site07: the tile's georeferencing must match its LOLA point cloud (PS km, doubles x4)."""
+    pts = np.fromfile(xyzi, dtype="<f8").reshape(-1, 4)[:, :2] * 1000.0
+    left, bottom, right, top = tile_bounds(tile)
+    lo, hi = pts.min(axis=0), pts.max(axis=0)
+    if max(abs(lo[0] - left), abs(hi[0] - right), abs(lo[1] - bottom), abs(hi[1] - top)) > 10.0:
+        raise SystemExit(
+            f"{tile.name}: tile bounds {left, bottom, right, top} do not match the "
+            f"point cloud {lo.tolist()}..{hi.tolist()}"
+        )
 
 
 def build_rings(spec: SiteSpec) -> tuple[list[Ring], FileRaster | None]:
@@ -37,6 +52,8 @@ def build_rings(spec: SiteSpec) -> tuple[list[Ring], FileRaster | None]:
     tile = None
     if spec.pgda_site:
         tile = FileRaster(RAW_LOLA / site_tile(spec.pgda_site), f"PGDA {spec.pgda_site} 5 m")
+        if spec.pgda_site == "Site07":
+            check_tile_against_point_cloud(tile, RAW_LOLA / SITE07_POINTS)
         rings.append(Ring(tile, None))
     rings.append(Ring(FileRaster(RAW_LOLA / MOSAIC_87S, "LDEM_87S_5MPP"), MOSAIC_87S_KM))
     for lbl, km, name in POLAR_RINGS:
@@ -144,7 +161,7 @@ def run(site_id: str, *, write_plot: bool = True, log: bool = True) -> Path:
     spec = SITES[site_id]
     t0 = time.monotonic()
     rings, tile = build_rings(spec)
-    pt = site_point(spec, tile)
+    pt = site_point(spec, tile, [r.raster for r in rings])
     print(f"{spec.id}: site point ({pt.x:.1f}, {pt.y:.1f}) m; {pt.rule}", flush=True)
     res = compute_horizon(pt.x, pt.y, rings, OBSERVER_HEIGHTS_M, progress=True)
     overlaps = check_overlaps(res, rings)

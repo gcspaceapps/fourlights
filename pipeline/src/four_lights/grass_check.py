@@ -68,7 +68,7 @@ def main(argv: list[str] | None = None) -> None:
     rings, tile = build_rings(spec)
     if tile is None:
         raise SystemExit(f"{spec.id} has no 5 m site tile")
-    pt = site_point(spec, tile)
+    pt = site_point(spec, tile, [r.raster for r in rings])
     ours = compute_horizon(pt.x, pt.y, [Ring(tile)], (0.0,), cover=False).profile(0.0)
     grid = grass_horizon(tile.path, pt.x, pt.y)
     lon_e = float(np.degrees(np.arctan2(pt.x, pt.y)))

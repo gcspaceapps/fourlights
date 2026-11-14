@@ -1,6 +1,7 @@
-"""Site definitions and the rule that picks each site's pixel (see _shared/sites.md).
+"""The 12 curated sites and the rule that picks each site's pixel (see _shared/sites.md).
 
-S2 covers Shackleton rim; S4 adds the other sites and recomputes every centre from the raw files.
+Every centre is recomputed from the raw files: PGDA tiles from their GeoTIFF bounds (Site07's tile
+is checked against its own point cloud), Artemis regions from the USGS 1 km grids.
 """
 
 from __future__ import annotations
@@ -9,7 +10,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from four_lights.dem import Raster, bounds
+from four_lights.dem import Raster, bounds, sample
 
 SITE_RADIUS_M = 2000.0
 """The site pixel is the highest DEM pixel within this distance of the tile or region centre."""
@@ -24,7 +25,11 @@ class SiteSpec:
     """PGDA 5 m tile id (e.g. 'Site04'); its centre is taken from the GeoTIFF bounds."""
     fixed_point: tuple[float, float] | None = None
     """A published point to use as-is (PS metres), instead of the highest-pixel rule."""
+    region: str | None = None
+    """USGS Artemis region zip name (e.g. 'Haworth'); its 1 km grid centre is the centre."""
 
+
+ARTEMIS = "Artemis region (USGS grid)"
 
 SITES: dict[str, SiteSpec] = {
     s.id: s
@@ -38,9 +43,18 @@ SITES: dict[str, SiteSpec] = {
             fixed_point=(-11_580.0, -12_460.0),
         ),
         SiteSpec("shackleton-rim", "Shackleton rim", "PGDA Site04", pgda_site="Site04"),
+        SiteSpec("peak-near-shackleton", "Peak near Shackleton", "PGDA Site07", pgda_site="Site07"),
+        SiteSpec("de-gerlache-rim", "de Gerlache rim", "PGDA Site11", pgda_site="Site11"),
+        SiteSpec("mons-mouton", "Mons Mouton", "PGDA Site20 = Artemis region", pgda_site="Site20"),
         SiteSpec(
             "malapert-massif", "Malapert Massif", "PGDA Site23 = Artemis region", pgda_site="Site23"
         ),
+        SiteSpec("de-gerlache-rim-2", "de Gerlache Rim 2", ARTEMIS, region="de_Gerlache_Rim_2"),
+        SiteSpec("haworth", "Haworth", ARTEMIS, region="Haworth"),
+        SiteSpec("nobile-rim-1", "Nobile Rim 1", ARTEMIS, region="Nobile_Rim_1"),
+        SiteSpec("nobile-rim-2", "Nobile Rim 2", ARTEMIS, region="Nobile_Rim_2"),
+        SiteSpec("peak-near-cabeus-b", "Peak near Cabeus B", ARTEMIS, region="Peak_Near_Cabeus_B"),
+        SiteSpec("slater-plain", "Slater Plain", ARTEMIS, region="Slater_Plain"),
     ]
 }
 
@@ -78,7 +92,28 @@ def highest_within(
     return float(xs[j]), float(ys[i])
 
 
-def site_point(spec: SiteSpec, tile: Raster | None) -> SitePoint:
+def site_point(
+    spec: SiteSpec, tile: Raster | None, finer_first: list[Raster] | None = None
+) -> SitePoint:
+    """The site's pixel. Region sites need `finer_first`: the DEMs, finest first."""
+    if spec.region is not None:
+        from four_lights.paths import RAW
+        from four_lights.regions import region_centre
+
+        c = region_centre(RAW / "usgs" / f"{spec.region}.zip")
+        for r in finer_first or []:
+            if np.isfinite(sample(r, c.x, c.y)):
+                x, y = highest_within(r, c.x, c.y)
+                km = SITE_RADIUS_M / 1000
+                return SitePoint(
+                    x,
+                    y,
+                    c.x,
+                    c.y,
+                    f"highest {r.res_m:g} m pixel ({r.name}) within {km:g} km of the USGS "
+                    f"{spec.region} grid centre ({c.x / 1000:.2f}, {c.y / 1000:.2f}) km",
+                )
+        raise ValueError(f"{spec.id}: no DEM has data at the region centre")
     if spec.fixed_point is not None:
         x, y = spec.fixed_point
         if tile is not None:
