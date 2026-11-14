@@ -160,6 +160,14 @@ describe('changing the project', () => {
       height: '5',
     });
     expect((await call(deps, 'set_selection', { date: '2028-05-02' })).text).toMatch(/Already/);
+
+    // A slip keeps the plan: the date moves and the slip says by how much.
+    await call(deps, 'set_selection', { date: '2028-05-05', slip: 3 });
+    expect(get().data).toMatchObject({ date: '2028-05-05', slip: '3' });
+    // A new date with no slip is a new plan.
+    await call(deps, 'set_selection', { date: '2028-06-01' });
+    expect(get().data).toMatchObject({ date: '2028-06-01', slip: '0' });
+    expect((await call(deps, 'set_selection', { slip: 1.5 })).error).toBe(true);
   });
 
   it('switches tabs by slug or label, and goes to Learn for a Learn-only tab', async () => {

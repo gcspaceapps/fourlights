@@ -108,6 +108,7 @@
           <select id="plan-days"></select
         ></label>
         <span id="selected-note" aria-live="polite"></span>
+        <span id="plan-note" class="plan-note" role="status"></span>
       </div>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
 
@@ -243,7 +244,10 @@
               data-info="Works: Power on and at least half the window usable. Marginal: Power on, less usable. No power: the Sun is in view less than 70% of the window on average, or fully hidden for more than 48 hours."
               >✕ no power</span
             >
-            Choose a cell to see why.
+            Choose a cell to see why. The column marked <strong>planned</strong> is the plan; slip
+            the landing and the highlighted column moves while the plan stays, so the answer says
+            what the slip cost. <span class="approx">approx. terrain</span> marks a site with no 5 m
+            terrain model under it.
           </p>
           <div class="controls">
             <div class="slip-buttons" role="group" aria-label="Move the planned landing">

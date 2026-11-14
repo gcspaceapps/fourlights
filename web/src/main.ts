@@ -95,6 +95,7 @@ const ui = {
   ask: $('ask') as HTMLFormElement,
   askQ: $('ask-q') as HTMLInputElement,
   askNote: $('ask-note'),
+  planNote: $('plan-note'),
   chartSection: $('chart-title'),
 };
 
@@ -111,6 +112,12 @@ const mapTab = setupMap(
   { onLook: () => queuePush() },
 );
 let lastResults: PlannedResult[] = [];
+/**
+ * Days the landing shown is after the planned landing (negative: before). The Landing field
+ * holds the landing shown; the plan is that date less the slip. Slipping changes both together;
+ * typing a new date is a new plan, so the slip goes back to 0.
+ */
+let slipDays = 0;
 let sites: SiteSummary[] = [];
 let published: SiteSummary[] = [];
 /** True while the selected site is one of ours with no data yet (see usersites.ts). */
@@ -131,6 +138,7 @@ function writeHash(): void {
     site: ui.site.value,
     date: ui.date.value,
     days: ui.days.value,
+    slip: String(slipDays),
     h: ui.height.value,
     c: ui.centre.value,
     t: ui.time.value,
@@ -445,7 +453,7 @@ function showSelected(): void {
   const words = mine
     ? 'your site, no data yet'
     : r?.verdict
-      ? `${{ green: 'works', amber: 'marginal', red: 'no power' }[r.verdict]}, ${r.usableDays.toFixed(1)} usable days for the planned landing`
+      ? `${{ green: 'works', amber: 'marginal', red: 'no power' }[r.verdict]}, ${r.usableDays.toFixed(1)} usable days for this landing`
       : '';
   $('selected-note').textContent = words ? `· ${words}` : '';
 }
@@ -456,6 +464,8 @@ function openChart(siteId: string, date: string, days: number): void {
   mapTab.showSite(siteId);
   showSelected();
   const moved = ui.date.value !== date || ui.days.value !== String(days);
+  // A cell on another date is a slip to that date: the plan stays where it was.
+  if (ui.date.value && ui.date.value !== date) slipDays += dayGap(ui.date.value, date);
   ui.date.value = date;
   ui.days.value = String(days);
   if (moved) drawPlanner();
@@ -467,18 +477,64 @@ function openChart(siteId: string, date: string, days: number): void {
   });
 }
 
+const DAY_MS = 86_400_000;
+const utc = (date: string): Date => new Date(`${date}T00:00:00Z`);
+/** Whole days from one YYYY-MM-DD date to another. */
+const dayGap = (from: string, to: string): number =>
+  Math.round((utc(to).getTime() - utc(from).getTime()) / DAY_MS);
+const longDate = (date: string): string =>
+  utc(date).toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+
+/**
+ * Keep the landing date inside the data. A date before or after it is moved to the nearest day
+ * we have, and the page says so, instead of answering "no site works" for a day with no data.
+ * Returns true if the date had to move.
+ */
+function clampLanding(): boolean {
+  const { min, max } = ui.plan;
+  const value = ui.plan.value;
+  if (!value) {
+    ui.plan.value = DEFAULT_PLAN;
+    slipDays = 0;
+    ui.planNote.textContent = '';
+    return true;
+  }
+  if (!min || !max || (value >= min && value <= max)) {
+    ui.planNote.textContent = '';
+    return false;
+  }
+  const to = value < min ? min : max;
+  // The plan stays where it was: only the landing stops at the edge of the data.
+  slipDays += dayGap(value, to);
+  ui.plan.value = to;
+  ui.planNote.textContent =
+    value < min
+      ? `No data before ${longDate(min)}: showing ${longDate(min)}.`
+      : `No data after ${longDate(max)}: showing ${longDate(max)}.`;
+  return true;
+}
+
 function drawPlanner(): void {
+  const landing = utc(ui.plan.value || DEFAULT_PLAN);
+  const planned = new Date(landing.getTime() - slipDays * DAY_MS);
+  const slipped = slipDays;
   renderPlanner({
     table: ui.planner,
     sites,
-    planned: new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`),
+    planned,
+    slipDays: slipped,
     windowDays: Number(ui.planDays.value),
-    onAnswer: (results) => {
-      const planned = new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`);
+    onAnswer: (results, before) => {
       ui.answer.textContent = answerText(
         results.filter((r) => r.verdict),
-        planned,
+        landing,
         Number(ui.planDays.value),
+        before ? { planned, slipDays: slipped, results: before.filter((r) => r.verdict) } : null,
       );
       lastResults = results;
       mapTab.setData(sites, results);
@@ -491,9 +547,12 @@ function drawPlanner(): void {
 }
 
 function slip(days: number): void {
-  const d = new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`);
+  const d = utc(ui.plan.value || DEFAULT_PLAN);
   d.setUTCDate(d.getUTCDate() + days);
   ui.plan.value = ymd(d);
+  slipDays += days;
+  clampLanding();
+  render();
   drawPlanner();
 }
 
@@ -547,6 +606,7 @@ function collectData(): DataState {
     site: ui.site.value,
     date: ui.date.value,
     days: ui.days.value,
+    slip: String(slipDays),
     height: ui.height.value,
     preset: ui.preset.value,
     power: custom ? pw.join('_') : '',
@@ -608,7 +668,7 @@ function applyData(d: Partial<DataState>): void {
   const powerChanged = d.power !== undefined && d.power !== cur.power;
   const presetChanged = has('preset') && d.preset !== '' && PRESETS.some((p) => p.id === d.preset);
   const siteChanged = has('site') && sites.some((x) => x.id === d.site);
-  const plannerChanged = has('date') || has('days');
+  const plannerChanged = has('date') || has('days') || has('slip');
   if (!siteChanged && !plannerChanged && !has('height') && !presetChanged && !powerChanged) {
     Object.assign(lastData, d);
     return;
@@ -617,6 +677,7 @@ function applyData(d: Partial<DataState>): void {
   try {
     if (has('date') && d.date) ui.date.value = d.date;
     if (has('days') && d.days) ui.days.value = d.days;
+    if (has('slip') && d.slip) slipDays = Number(d.slip) || 0;
     if (has('height') && d.height) {
       if (![...ui.height.options].some((o) => o.value === d.height)) {
         ui.height.add(new Option(d.height, d.height));
@@ -734,6 +795,7 @@ function seedHash(hash: URLSearchParams, snap: Snapshot): void {
   hash.set('site', d.site);
   hash.set('date', d.date);
   hash.set('days', d.days);
+  hash.set('slip', d.slip);
   hash.set('h', d.height);
   if (d.preset) hash.set('ps', d.preset);
   if (d.power) hash.set('pw', d.power);
@@ -785,6 +847,8 @@ async function init(): Promise<void> {
   // Old links carried a planner date (plan, pdays) and a chart date (date, days); the chart's wins.
   ui.plan.value = hash.get('date') ?? hash.get('plan') ?? DEFAULT_PLAN;
   ui.planDays.value = hash.get('days') ?? hash.get('pdays') ?? String(WINDOW_DAYS[0]);
+  const slipIn = Number(hash.get('slip') ?? '0');
+  slipDays = Number.isInteger(slipIn) && Math.abs(slipIn) <= 999 ? slipIn : 0;
   const demoSite = sites.some((x) => x.id === DEMO_SITE) ? DEMO_SITE : (sites[0]?.id ?? '');
   const wanted = hash.get('site');
   ui.site.value = wanted && sites.some((x) => x.id === wanted) ? wanted : demoSite;
@@ -827,6 +891,12 @@ async function init(): Promise<void> {
     render();
   });
   for (const e of [ui.pArray, ui.pDay, ui.pDark, ui.pBatt]) e.addEventListener('input', render);
+  // First, before the chart and the planner read it: a date typed in is a new plan (no slip),
+  // and it has to be a day we have data for.
+  ui.plan.addEventListener('change', () => {
+    slipDays = 0;
+    clampLanding();
+  });
   for (const e of [ui.date, ui.days, ui.height, ui.centre]) {
     e.addEventListener('change', render);
   }
@@ -916,7 +986,11 @@ function setupAsk(): void {
         const d = new Date(`${base}T00:00:00Z`);
         d.setUTCDate(d.getUTCDate() + i.slip_days);
         ui.plan.value = ymd(d);
+        // A date in the question is a new plan; a slip alone adds to the slip so far.
+        slipDays = i.date ? i.slip_days : slipDays + i.slip_days;
+        const moved = clampLanding();
         if (i.window_days) ui.planDays.value = String(i.window_days);
+        render();
         drawPlanner();
         const parts = [
           `landing ${ymd(d)}${i.slip_days ? ` (${base} + ${i.slip_days} days)` : ''}`,
@@ -927,7 +1001,7 @@ function setupAsk(): void {
           parts.push(`chart opened for ${site.name}`);
           openChart(site.id, ymd(d), Number(ui.planDays.value));
         }
-        ui.askNote.textContent = `Understood as: ${parts.join(', ')}. ${note}`;
+        ui.askNote.textContent = `Understood as: ${parts.join(', ')}.${moved ? ` ${ui.planNote.textContent}` : ''} ${note}`;
       })
       .catch(() => {
         ui.askNote.textContent = 'The language model is unavailable; use the controls instead.';
@@ -1050,6 +1124,8 @@ const SHORTCUTS: Shortcut[] = [
     match: key('d', 'D'),
     run: () => {
       ui.plan.value = DEFAULT_PLAN;
+      slipDays = 0;
+      clampLanding();
       setPlannerWindow(WINDOW_DAYS[0]);
     },
   },

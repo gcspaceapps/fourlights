@@ -127,6 +127,49 @@ describe('four lights', () => {
     );
   });
 
+  it('a slipped landing is compared with the plan', () => {
+    const planned = [
+      { id: 'a', name: 'A', verdict: 'green' as const, usableDays: 6 },
+      { id: 'b', name: 'B', verdict: 'green' as const, usableDays: 5, approx: true },
+      { id: 'c', name: 'C', verdict: 'red' as const, usableDays: 2 },
+    ];
+    const now = [
+      { id: 'a', name: 'A', verdict: 'green' as const, usableDays: 7 },
+      { id: 'b', name: 'B', verdict: 'red' as const, usableDays: 1, approx: true },
+      { id: 'c', name: 'C', verdict: 'green' as const, usableDays: 5 },
+    ];
+    const text = answerText(now, new Date('2028-04-22T00:00:00Z'), 7, {
+      planned: new Date('2028-04-19T00:00:00Z'),
+      slipDays: 3,
+      results: planned,
+    });
+    expect(text).toBe(
+      'Landing 22 Apr 2028, 7-day window: 2 of 3 sites work: A (7.0 usable days), C (5.0 usable days). 1 without power. Against the planned 19 Apr (3 days later; 2 worked then): lost 1 (B (approx. terrain)), gained 1 (C), 1 still works.',
+    );
+    // No slip, nothing to compare.
+    expect(
+      answerText(now, new Date('2028-04-19T00:00:00Z'), 7, {
+        planned: new Date('2028-04-19T00:00:00Z'),
+        slipDays: 0,
+        results: planned,
+      }),
+    ).not.toContain('Against');
+  });
+
+  it('names the least bad site when none works, and flags approximate terrain', () => {
+    const text = answerText(
+      [
+        { id: 'a', name: 'A', verdict: 'red', usableDays: 9.1 },
+        { id: 'b', name: 'B', verdict: 'red', usableDays: 13.5, approx: true },
+      ],
+      new Date('2028-04-19T00:00:00Z'),
+      30,
+    );
+    expect(text).toBe(
+      'Landing 19 Apr 2028, 30-day window: no site works. The most usable time is at B (approx. terrain): 13.5 usable days, but no power. 2 without power.',
+    );
+  });
+
   it('planner verdicts', () => {
     expect(verdict(false, 6.9, 7)).toBe('red');
     expect(verdict(true, 3.5, 7)).toBe('green');

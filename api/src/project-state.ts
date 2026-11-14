@@ -38,6 +38,11 @@ export interface DataState {
   site: string;
   date: string;
   days: string;
+  /**
+   * Days the landing date is slipped from the planned landing (negative: brought forward).
+   * `date` is the landing shown; the plan is `date` less this.
+   */
+  slip: string;
   height: string;
   /** '' = leave the page's power system as it is. */
   preset: string;
@@ -68,6 +73,7 @@ export const DEFAULT_DATA: DataState = {
   site: DEFAULT_SITE,
   date: '2028-04-19',
   days: '7',
+  slip: '0',
   height: '2',
   preset: '',
   power: '',
@@ -103,6 +109,7 @@ const DATA_RULES: { [K in keyof DataState]: (x: unknown) => DataState[K] | undef
       ? x
       : undefined,
   days: (x) => (typeof x === 'string' && /^\d{1,3}$/.test(x) && Number(x) > 0 ? x : undefined),
+  slip: (x) => (typeof x === 'string' && /^(?:0|-?[1-9]\d{0,2})$/.test(x) ? x : undefined),
   height: (x) =>
     typeof x === 'string' && /^\d{1,3}(?:\.\d{1,3})?$/.test(x) && Number(x) > 0 ? x : undefined,
   preset: (x) => (typeof x === 'string' && (x === '' || ID.test(x)) ? x : undefined),

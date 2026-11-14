@@ -43,6 +43,9 @@ test('a shared project keeps two browsers in step, and an agent can drive it', a
   await a.locator('#slip-on').click();
   await expect(b.locator('#plan')).not.toHaveValue(before);
   await expect(b.locator('#plan')).toHaveValue(await a.locator('#plan').inputValue());
+  // So does the slip: B sees the same comparison against the plan.
+  await expect(b.locator('#answer')).toContainText('Against the planned 19 Apr (1 day later');
+  await expect(b.locator('#planner thead th.planned')).toContainText('19 Apr');
 
   // A site added by one appears for the other, and is selected.
   await tab(a, 'map').click();

@@ -33,6 +33,13 @@ describe('validation', () => {
     expect(
       cleanData({ site: 'haworth', date: '2028-02-30', days: '14', evil: 1, height: '-1' }),
     ).toEqual({ site: 'haworth', days: '14' });
+    // The slip from the plan: a whole number of days either way.
+    expect(cleanData({ slip: '3' })).toEqual({ slip: '3' });
+    expect(cleanData({ slip: '-2' })).toEqual({ slip: '-2' });
+    expect(cleanData({ slip: '0' })).toEqual({ slip: '0' });
+    for (const bad of ['', '03', '-0', '1.5', '1000', 3, 'three']) {
+      expect(cleanData({ slip: bad }), String(bad)).toEqual({});
+    }
     expect(cleanView({ tab: 'map', mode: 'nope', grid: false, time: '12', layer: 'lola' })).toEqual(
       {
         tab: 'map',

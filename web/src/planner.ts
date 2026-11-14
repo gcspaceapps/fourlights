@@ -1,10 +1,19 @@
 // Slip Planner: rows = sites, columns = landing dates, cell = usable days in the mission window
 // starting that day, coloured by the Power light and usable days. Site files load lazily, row by
 // row. Clicking a cell opens the Sun-Path Chart for that site and window.
+//
+// Two dates matter: the PLANNED landing (the plan, which stays put) and the LANDING now shown
+// (the plan plus the slip). The columns hang off the planned date, so a slip moves the highlight
+// along the row instead of moving the row, and the answer says what the slip cost.
 import { loadPlannerSummary, loadSite } from './data';
 import { verdict, type Verdict } from './lights';
 import { buildSummary, cellAt, type PlannerSummary } from './summary';
 import type { SiteSummary } from './types';
+
+/** Shown in a row name and the answer for a site with no 5 m terrain model under it. */
+export const APPROX_TAG = 'approx. terrain';
+export const APPROX_TITLE =
+  'Approximate: no 5 m terrain model under this site, so its skyline starts from coarser data';
 
 /** Landing dates shown: this many days before the planned date... */
 export const DAYS_BEFORE = 2;
@@ -21,13 +30,19 @@ const SYMBOLS: Record<Verdict, string> = { green: '●', amber: '▲', red: '✕
 export interface PlannerOptions {
   table: HTMLTableElement;
   sites: SiteSummary[];
+  /** The planned landing: the plan, before any slip. */
   planned: Date;
+  /** Days the landing now shown is after (or, negative, before) the planned one. */
+  slipDays?: number;
   windowDays: number;
   onOpen: (siteId: string, date: string, windowDays: number) => void;
   /** The site's name was chosen: make it the selected site. */
   onSelect?: (siteId: string) => void;
-  /** Called once every site has loaded, with each site's result for the planned date. */
-  onAnswer?: (results: PlannedResult[]) => void;
+  /**
+   * Called once every site has loaded, with each site's result for the landing now shown and,
+   * when that is a slip, for the planned landing too.
+   */
+  onAnswer?: (results: PlannedResult[], planned: PlannedResult[] | null) => void;
 }
 
 const DAY_MS = 86_400_000;
@@ -57,26 +72,77 @@ export interface PlannedResult {
   name: string;
   verdict: Verdict | null;
   usableDays: number;
+  /** No 5 m terrain model under the site. */
+  approx?: boolean;
 }
 
-/** The planner's answer in a sentence: which sites work for the planned landing. */
-export function answerText(results: PlannedResult[], planned: Date, windowDays: number): string {
+/** What the answer is compared against when the landing has slipped. */
+export interface SlipFrom {
+  planned: Date;
+  slipDays: number;
+  results: PlannedResult[];
+}
+
+const days = (n: number): string => `${Math.abs(n)} day${Math.abs(n) === 1 ? '' : 's'}`;
+const named = (r: PlannedResult): string => (r.approx ? `${r.name} (${APPROX_TAG})` : r.name);
+
+/** What a slip cost: the sites that worked on the planned date against those that work now. */
+export function slipText(now: PlannedResult[], from: SlipFrom): string {
+  const works = (rs: PlannedResult[]): Set<string> =>
+    new Set(rs.filter((r) => r.verdict === 'green').map((r) => r.id));
+  const before = works(from.results);
+  const after = works(now);
+  const names = (ids: string[], rs: PlannedResult[]): string =>
+    ids
+      .map((id) => named(rs.find((r) => r.id === id) ?? ({ id, name: id } as PlannedResult)))
+      .join(', ');
+  const lost = [...before].filter((id) => !after.has(id));
+  const gained = [...after].filter((id) => !before.has(id));
+  const kept = [...after].filter((id) => before.has(id));
+  const how = from.slipDays > 0 ? `${days(from.slipDays)} later` : `${days(from.slipDays)} earlier`;
+  const parts = [
+    lost.length ? `lost ${lost.length} (${names(lost, from.results)})` : 'lost none',
+    gained.length ? `gained ${gained.length} (${names(gained, now)})` : '',
+    `${kept.length} still work${kept.length === 1 ? 's' : ''}`,
+  ].filter(Boolean);
+  return `Against the planned ${short(from.planned)} (${how}; ${before.size} worked then): ${parts.join(', ')}.`;
+}
+
+/**
+ * The planner's answer in a sentence: which sites work for the landing shown and, when that
+ * landing is a slip from the plan (`from`), what the slip cost.
+ */
+export function answerText(
+  results: PlannedResult[],
+  landing: Date,
+  windowDays: number,
+  from?: SlipFrom | null,
+): string {
   const by = (v: Verdict): PlannedResult[] =>
     results
       .filter((r) => r.verdict === v)
       .sort((a, b) => b.usableDays - a.usableDays || a.name.localeCompare(b.name));
   const list = (rs: PlannedResult[]): string =>
-    rs.map((r) => `${r.name} (${r.usableDays.toFixed(1)} usable days)`).join(', ');
+    rs.map((r) => `${named(r)} (${r.usableDays.toFixed(1)} usable days)`).join(', ');
   const green = by('green');
   const amber = by('amber');
-  const when = `Landing ${short(planned)} ${planned.getUTCFullYear()}, ${windowDays}-day window`;
+  const when = `Landing ${short(landing)} ${landing.getUTCFullYear()}, ${windowDays}-day window`;
+  // When nothing passes, the least bad site is still worth naming.
+  const best = [...results].sort(
+    (a, b) => b.usableDays - a.usableDays || a.name.localeCompare(b.name),
+  )[0];
+  const closest =
+    best && best.verdict
+      ? ` The most usable time is at ${named(best)}: ${best.usableDays.toFixed(1)} usable days, but ${WORDS[best.verdict]}.`
+      : '';
   const head =
     green.length === 0
-      ? `${when}: no site works.`
+      ? `${when}: no site works.${amber.length ? '' : closest}`
       : `${when}: ${green.length} of ${results.length} sites work: ${list(green)}.`;
   const tail = [
-    amber.length ? `Marginal: ${amber.map((r) => r.name).join(', ')}.` : '',
+    amber.length ? `Marginal: ${amber.map(named).join(', ')}.` : '',
     `${by('red').length} without power.`,
+    from && from.slipDays !== 0 ? slipText(results, from) : '',
   ];
   return [head, ...tail].filter(Boolean).join(' ');
 }
@@ -93,10 +159,17 @@ async function summaryFor(siteId: string): Promise<PlannerSummary> {
 
 export function renderPlanner(o: PlannerOptions): void {
   const { table, sites, planned, windowDays } = o;
-  const dates = Array.from(
-    { length: DAYS_BEFORE + DAYS_AFTER + 1 },
-    (_, k) => new Date(planned.getTime() + (k - DAYS_BEFORE) * DAY_MS),
-  );
+  const slipDays = o.slipDays ?? 0;
+  // Columns hang off the planned date and stretch to take in the landing if it slips far.
+  const first = Math.min(-DAYS_BEFORE, slipDays);
+  const last = Math.max(DAYS_AFTER, slipDays);
+  const offsets = Array.from({ length: last - first + 1 }, (_, k) => first + k);
+  const dates = offsets.map((n) => new Date(planned.getTime() + n * DAY_MS));
+  /** Column of the planned landing, and of the landing now shown (the same until it slips). */
+  const kPlanned = offsets.indexOf(0);
+  const kLanding = offsets.indexOf(slipDays);
+  const marks = (k: number): string =>
+    `${k === kLanding ? ' landing' : ''}${k === kPlanned ? ' planned' : ''}`;
 
   const head = document.createElement('thead');
   const hr = head.insertRow();
@@ -107,22 +180,24 @@ export function renderPlanner(o: PlannerOptions): void {
   dates.forEach((d, k) => {
     const th = document.createElement('th');
     th.scope = 'col';
-    const slip = k - DAYS_BEFORE;
+    const n = offsets[k] ?? 0;
     th.textContent = short(d);
     const sub = document.createElement('span');
     sub.className = 'slip';
-    sub.textContent = slip === 0 ? 'planned' : `${slip > 0 ? '+' : ''}${slip} d`;
+    const off = `${n > 0 ? '+' : ''}${n} d`;
+    sub.textContent = n === 0 ? 'planned' : k === kLanding ? `now ${off}` : off;
     th.appendChild(sub);
-    if (slip === 0) th.className = 'planned';
+    th.className = marks(k).trim();
     hr.appendChild(th);
   });
 
   const body = document.createElement('tbody');
+  const landingResults: PlannedResult[] = [];
   const plannedResults: PlannedResult[] = [];
   let pending = sites.length;
   const done = (): void => {
     pending--;
-    if (pending === 0) o.onAnswer?.(plannedResults);
+    if (pending === 0) o.onAnswer?.(landingResults, slipDays === 0 ? null : plannedResults);
   };
   for (const s of sites) {
     const tr = body.insertRow();
@@ -143,11 +218,17 @@ export function renderPlanner(o: PlannerOptions): void {
       pick.addEventListener('click', () => o.onSelect?.(s.id));
       th.appendChild(pick);
     } else th.textContent = label;
-    if (s.approx) th.title = 'approximate: no 5 m terrain under this site';
+    if (s.approx) {
+      const tag = document.createElement('span');
+      tag.className = 'approx';
+      tag.textContent = APPROX_TAG;
+      tag.title = APPROX_TITLE;
+      th.append(' ', tag);
+    }
     tr.appendChild(th);
     const cells = dates.map((_, k) => {
       const td = tr.insertCell();
-      td.className = `pending${k === DAYS_BEFORE ? ' planned' : ''}`;
+      td.className = `pending${marks(k)}`;
       td.textContent = '…';
       return td;
     });
@@ -169,15 +250,16 @@ export function renderPlanner(o: PlannerOptions): void {
           const td = cells[k];
           if (!td) return;
           const c = cellFor(summary, s.id, d, windowDays);
-          if (k === DAYS_BEFORE) {
-            plannedResults.push({
-              id: s.id,
-              name: s.name,
-              verdict: c.verdict,
-              usableDays: Number(c.text) || 0,
-            });
-          }
-          td.className = `${c.verdict ?? 'none'}${k === DAYS_BEFORE ? ' planned' : ''}`;
+          const result: PlannedResult = {
+            id: s.id,
+            name: s.name,
+            verdict: c.verdict,
+            usableDays: Number(c.text) || 0,
+            approx: s.approx,
+          };
+          if (k === kLanding) landingResults.push(result);
+          if (k === kPlanned) plannedResults.push(result);
+          td.className = `${c.verdict ?? 'none'}${marks(k)}`;
           td.replaceChildren();
           if (!c.verdict) {
             td.textContent = c.text;

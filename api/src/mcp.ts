@@ -177,6 +177,11 @@ const DATA_PROPS: Json = {
     description: 'Landing date, YYYY-MM-DD (data covers 2028-01-01 to 2029-12-01).',
   },
   days: { type: 'integer', description: 'Mission window in days: 7, 14 or 30.' },
+  slip: {
+    type: 'integer',
+    description:
+      'Days the landing date is slipped from the planned landing (negative: brought forward). The page then shows what the slip cost against the plan. Setting a date without a slip makes that date the plan.',
+  },
   height: { type: 'number', description: 'Observer height in metres: 1, 2 or 5.' },
 };
 
@@ -294,14 +299,24 @@ const TOOLS: Tool[] = [
   {
     name: 'set_selection',
     description:
-      'Change what the project is about: the selected site, landing date, mission window or ' +
-      'observer height. Everyone connected sees it at once. Give only what changes.',
+      'Change what the project is about: the selected site, landing date, slip from the plan, ' +
+      'mission window or observer height. Everyone connected sees it at once. Give only what changes.',
     inputSchema: schema({ ...DATA_PROPS }),
     async run(args, deps) {
       const { id, project } = await load(args, deps);
       const data: Json = {};
       if (args.site !== undefined) data.site = (await findSite(deps, project, args.site)).id;
       if (args.date !== undefined) data.date = dateArg(args.date, '');
+      if (args.slip !== undefined) {
+        const n = Number(args.slip);
+        if (!Number.isInteger(n) || Math.abs(n) > 365) {
+          throw new ToolError('Slip is a whole number of days, at most 365 either way.');
+        }
+        data.slip = String(n);
+      } else if (args.date !== undefined) {
+        // A new date with no slip is a new plan.
+        data.slip = '0';
+      }
       if (args.days !== undefined) data.days = windowArg(args.days, '');
       if (args.height !== undefined) {
         const h = Number(args.height);

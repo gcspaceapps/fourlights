@@ -4,7 +4,7 @@ A person clicks **Share Project** (top right), names the project and gets a uuid
 
 ## Rules
 - **The uuid is the only key.** It is a v4 uuid made by the Worker (`crypto.randomUUID()`, 122 random bits). There is no list, search or index of projects on the server, no accounts and no password beyond the weekend site gate. Whoever has the uuid can read and change the project. This is a deliberate choice for the hackathon, not a gap. The browser remembers the projects it has opened (`localStorage`), and the uuid lives in the URL hash (`#project=<uuid>`), which is never sent to a server.
-- **Data is always shared; view is shared only while "Follow the group's view" is on.** Data: the selected site, landing date, window, observer height, power system, and the project's sites. View: the tab, Mission/Explore/Learn, the chart's centre and time cursor, the Moon's layer, graticule and camera. The switch is per person (`localStorage`); off means a person neither sends nor receives view changes, and data still flows. Switching it on jumps to where the group is. The theme (dark/light) is never shared.
+- **Data is always shared; view is shared only while "Follow the group's view" is on.** Data: the selected site, landing date, its slip from the planned landing (`slip`, whole days; the plan is the date less the slip, and it is what the planner's "what the slip cost" comparison is made against), window, observer height, power system, and the project's sites. View: the tab, Mission/Explore/Learn, the chart's centre and time cursor, the Moon's layer, graticule and camera. The switch is per person (`localStorage`); off means a person neither sends nor receives view changes, and data still flows. Switching it on jumps to where the group is. The theme (dark/light) is never shared.
 - **Sites are owned by the project.** `addSite` and `removeSite` go to the Durable Object, which names the site (`id` unique among the project's and the published ones), selects it, and sends the list to everyone, the asker too. Up to 50 sites per project.
 - **Creating uploads the temporary data**: the sites added in this browser, and the current data and view, so the project starts exactly as the creator sees it. The browser's own copies stay where they are.
 - Last write wins, per key. The server drops invalid values and ignores changes that change nothing, which is what stops two pages echoing a change back and forth.
@@ -23,7 +23,7 @@ A person clicks **Share Project** (top right), names the project and gets a uuid
 
 ## Wire protocol (JSON; the same commands go down a WebSocket and into the REST route)
 Commands (to the project):
-- `{t:'set', data?:{site,date,days,height,preset,power}, view?:{tab,mode,centre,time,layer,grid,cam}}`
+- `{t:'set', data?:{site,date,slip,days,height,preset,power}, view?:{tab,mode,centre,time,layer,grid,cam}}`
 - `{t:'addSite', name, lat, lon_e}` · `{t:'removeSite', id, fallback?}`
 
 Events (to every browser): `{t:'snapshot', ...project, peers}` on connect; `{t:'set', data?, view?}` (not sent back to the sender); `{t:'sites', sites, data?}` (to everyone); `{t:'peers', n}`; `{t:'error', error}`. Values are strings where the page's controls hold strings (`days:'14'`); `power` is `array_day_dark_battery` as in the URL hash, or `''`; `cam` is `{lon,lat,D,bearing,pitch}`. Limits and every pattern are in `project-state.ts`.
@@ -40,7 +40,7 @@ Tell an AI agent to use the Four Lights MCP and give it a project uuid; it then 
 | `list_sites` | the 12 published sites and the project's own |
 | `site_summary` | one site on one date: usable days, sunlit %, longest dark, power verdict, its written review |
 | `rank_sites` | every published site for a date and window, best first |
-| `set_selection` | site, landing date, window (7/14/30), observer height (1/2/5) |
+| `set_selection` | site, landing date, slip from the plan in days (a date with no slip is a new plan), window (7/14/30), observer height (1/2/5) |
 | `switch_tab` | show a tab by slug or label; a Learn-only tab also switches to Learn |
 | `set_view` | mode, chart centre and time cursor, Moon layer, graticule |
 | `add_site` · `remove_site` | add a site by name and lat/lon (it becomes the selection); remove one of the project's own |

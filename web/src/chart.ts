@@ -1,6 +1,7 @@
 // Sun-Path Chart: a 360° panorama of the site's terrain horizon with the Sun and Earth tracks.
 // Azimuth runs across (true north from the site; the centre azimuth is selectable), elevation up.
 // The vertical range comes from the data (horizons and tracks), never a fixed range.
+import { SUN_RADIUS_DEG } from './lights';
 import { at, type HorizonProfile, type SiteData } from './types';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -131,13 +132,19 @@ export function renderChart(svg: SVGSVGElement, v: ChartView): void {
     const elev = at(body.el, cursor);
     const x = xOf(az);
     const y = yOf(elev);
-    // Dimmed when the body's centre is behind the terrain in its direction.
+    // Dimmed when the body's centre is behind the terrain in its direction. The Sun is a disc:
+    // with its centre just behind the terrain part of it still shows and the Sun light is on,
+    // so the label says "partly hidden" and matches the light.
     const sector = Math.floor((((az % 360) + 360) % 360) / profile.step_deg) % n;
-    const hidden = elev <= at(profile.elev_deg, sector) ? ' hidden' : '';
+    const clear = elev - at(profile.elev_deg, sector);
+    const hidden = clear <= 0 ? ' hidden' : '';
+    const partly = body === site.sun && clear <= 0 && clear > -SUN_RADIUS_DEG;
     el('circle', { cx: x, cy: y, r: 8, class: cls + hidden }, svg);
-    el('text', { x: x + 11, y: y - 9, class: `label ${cls}${hidden}` }, svg).textContent = hidden
-      ? `${label} (hidden)`
-      : label;
+    el('text', { x: x + 11, y: y - 9, class: `label ${cls}${hidden}` }, svg).textContent = partly
+      ? `${label} (partly hidden)`
+      : hidden
+        ? `${label} (hidden)`
+        : label;
   }
 
   el('text', { x: M.left + 6, y: M.top + 16, class: 'tick' }, svg).textContent =

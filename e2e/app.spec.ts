@@ -1,12 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const answer = (page: Page) => page.locator('#answer');
-/** The planned-date cell in a site's row (exact row name: "de Gerlache rim" is not "de Gerlache Rim 2"). */
-const cell = (page: Page, site: string) =>
+/** A site's row (exact name: "de Gerlache rim" is not "de Gerlache Rim 2"). */
+const row = (page: Page, site: string) =>
   page
     .locator('#planner tbody tr')
-    .filter({ has: page.getByRole('rowheader', { name: site, exact: true }) })
-    .locator('td.planned');
+    .filter({ has: page.getByRole('button', { name: site, exact: true }) });
+/** The cell for the landing now shown in a site's row (the planned date until it slips). */
+const cell = (page: Page, site: string) => row(page, site).locator('td.landing');
 
 /** Open the page and wait until the planner has answered. */
 async function open(page: Page, hash = ''): Promise<void> {
@@ -50,6 +51,42 @@ test.describe('the demo scenario', () => {
       await expect(cell(page, site), site).toHaveClass(/green/);
     }
     await expect(cell(page, 'Peak near Shackleton')).toContainText('7.0');
+
+    // The plan stays pinned on 19 Apr, and the answer says what the slip cost.
+    await expect(page.locator('#planner thead th.planned')).toContainText('19 Apr');
+    await expect(page.locator('#planner thead th.landing')).toContainText('22 Apr');
+    await expect(page.locator('#planner thead th.landing')).toContainText('now +3 d');
+    await expect(row(page, 'Connecting Ridge').locator('td.planned')).toHaveClass(/green/);
+    await expect(answer(page)).toContainText(
+      'Against the planned 19 Apr (3 days later; 6 worked then): lost 4 (',
+    );
+    await expect(answer(page)).toContainText('gained 1 (Shackleton rim), 2 still work.');
+    expect(page.url()).toContain('slip=3');
+    // Slipping back to the plan ends the comparison.
+    for (let i = 0; i < 3; i++) await page.locator('#slip-back').click();
+    await expect(answer(page)).not.toContainText('Against the planned');
+    await expect(page.locator('#planner thead th.landing.planned')).toContainText('19 Apr');
+  });
+
+  test('a date outside the data is refused with a reason, not answered', async ({ page }) => {
+    await open(page);
+    await page.locator('#plan').fill('2027-12-31');
+    await page.locator('#plan').blur();
+    await expect(page.locator('#plan')).toHaveValue('2028-01-01');
+    await expect(page.locator('#plan-note')).toHaveText(
+      'No data before 1 Jan 2028: showing 1 Jan 2028.',
+    );
+    await expect(answer(page)).toContainText('Landing 1 Jan 2028');
+    await page.locator('#plan').fill('2028-04-19');
+    await page.locator('#plan').blur();
+    await expect(page.locator('#plan-note')).toBeEmpty();
+  });
+
+  test('approximate terrain is marked in the row and in the answer', async ({ page }) => {
+    await open(page, '#date=2028-04-26');
+    await expect(row(page, 'Nobile Rim 2').getByRole('rowheader')).toContainText('approx. terrain');
+    await expect(row(page, 'Slater Plain').getByRole('rowheader')).not.toContainText('approx.');
+    await expect(answer(page)).toContainText('Nobile Rim 2 (approx. terrain)');
   });
 
   test('choosing a cell opens that site and date in the Sun-Path Chart', async ({ page }) => {

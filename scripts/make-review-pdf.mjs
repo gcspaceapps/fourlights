@@ -517,14 +517,14 @@ function plannerStates() {
         await part('Planner tab with Nobile Rim 1 selected.', 'full');
         const title = await page
           .locator('#planner tbody tr')
-          .filter({ has: page.getByRole('rowheader', { name: 'Nobile Rim 1', exact: true }) })
-          .getByRole('rowheader')
+          .filter({ has: page.getByRole('button', { name: 'Nobile Rim 1', exact: true }) })
+          .locator('.approx')
           .getAttribute('title');
         await tab(page, 'About this site');
         await settle(page, 300);
         await part('Step 3: open the About this site tab.', 'full');
         note(
-          `Where "approximate" is flagged: (1) on the Planner, only as the browser tooltip of the site's name in its row ("${title}"), which is not visible without hovering and cannot be shown in a screenshot; (2) on About this site, in the Source line. Nothing marks it on the selected-site bar, the Map or the Sun-Path Chart.`,
+          `Where "approximate" is flagged: (1) on the Planner, as an "approx. terrain" tag after the site's name in its row (hover text: "${title}"), in the legend above the table, and after the site's name in the summary sentence; (2) on About this site, in the Source line. Nothing marks it on the selected-site bar, the Map or the Sun-Path Chart.`,
         );
       },
     },
