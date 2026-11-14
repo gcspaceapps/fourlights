@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { PRESETS, darkEnduranceHours, simulateBattery } from '../src/battery';
 import { indexAt, lightsAt, profileFor, terrainAt, windowSummary } from '../src/lights';
-import { verdict } from '../src/planner';
+import { answerText, verdict } from '../src/planner';
 import type { SiteData } from '../src/types';
 
 function site(sunEl: number[], earthEl: number[], terrainDeg = 0): SiteData {
@@ -82,6 +82,22 @@ describe('four lights', () => {
     expect(lightsAt(s, h, 1)).toMatchObject({ comms: true, stations: ['canberra'] });
     expect(lightsAt(s, h, 2)).toMatchObject({ comms: true, stations: ['goldstone', 'madrid'] });
     expect(windowSummary(s, h, 0, 3).usableDays).toBe(0.1); // 2 of 3 hours
+  });
+
+  it('the planner answers in a sentence', () => {
+    const text = answerText(
+      [
+        { name: 'A', verdict: 'green', usableDays: 5.2 },
+        { name: 'B', verdict: 'red', usableDays: 4.5 },
+        { name: 'C', verdict: 'green', usableDays: 7 },
+        { name: 'D', verdict: 'amber', usableDays: 1 },
+      ],
+      new Date('2028-04-22T00:00:00Z'),
+      7,
+    );
+    expect(text).toBe(
+      'Landing 22 Apr 2028, 7-day window: 2 of 4 sites work: C (7.0 usable days), A (5.2 usable days). Marginal: D. 1 without power.',
+    );
   });
 
   it('planner verdicts', () => {

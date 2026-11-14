@@ -1,7 +1,7 @@
 import './style.css';
 import { PRESETS, darkEnduranceHours, renderBattery, simulateBattery } from './battery';
 import { renderChart } from './chart';
-import { renderPlanner } from './planner';
+import { answerText, renderPlanner } from './planner';
 import { loadSite, loadSites } from './data';
 import {
   COMMS_MARGIN_DEG,
@@ -44,6 +44,7 @@ const ui = {
   slipBack: $('slip-back') as HTMLButtonElement,
   slipOn: $('slip-on') as HTMLButtonElement,
   planner: $('planner') as HTMLTableElement,
+  answer: $('answer'),
   chartSection: $('chart-title'),
 };
 
@@ -160,7 +161,21 @@ function render(): void {
   }
 
   const s = sites.find((x) => x.id === site.id);
+  const all = windowSummary(site, profile, 0, site.times.n);
+  let earthUp = 0;
+  let commsOn = 0;
+  for (let i = 0; i < site.times.n; i++) {
+    const l = lightsAt(site, profile, i);
+    if (l.earth) earthUp++;
+    if (l.comms) commsOn++;
+  }
+  const pct = (x: number): string => `${((x / site.times.n) * 100).toFixed(0)}%`;
+  const span = `${ymd(timeAt(site, 0))} to ${ymd(timeAt(site, site.times.n - 1))}`;
   const rows: [string, string][] = [
+    [
+      `Whole period, ${profile.height_m} m`,
+      `${span}: sunlit ${(all.sunlitFraction * 100).toFixed(0)}% of the time, longest night ${(all.longestDarkHours / 24).toFixed(1)} days, Earth above the terrain ${pct(earthUp)}, Comms ${pct(commsOn)}`,
+    ],
     [
       'Position',
       `${site.site.lat.toFixed(3)}°, ${site.site.lon_e.toFixed(3)}°E, ground ${site.site.elev_m.toFixed(0)} m`,
@@ -211,6 +226,10 @@ function drawPlanner(): void {
     sites,
     planned: new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`),
     windowDays: Number(ui.planDays.value),
+    onAnswer: (results) => {
+      const planned = new Date(`${ui.plan.value || DEFAULT_PLAN}T00:00:00Z`);
+      ui.answer.textContent = answerText(results, planned, Number(ui.planDays.value));
+    },
     onOpen: (siteId, date, days) => {
       ui.site.value = siteId;
       ui.date.value = date;

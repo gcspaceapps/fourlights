@@ -484,6 +484,17 @@ h3 {
 }
 
 /* Slip Planner */
+.answer {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  border-left: 4px solid var(--sun);
+  padding: 0.5rem 0.75rem;
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  min-height: 2.6rem;
+}
+
 .table-scroll {
   overflow-x: auto;
 }

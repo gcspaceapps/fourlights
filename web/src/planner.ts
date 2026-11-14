@@ -32,6 +32,8 @@ export interface PlannerOptions {
   planned: Date;
   windowDays: number;
   onOpen: (siteId: string, date: string, windowDays: number) => void;
+  /** Called once every site has loaded, with each site's result for the planned date. */
+  onAnswer?: (results: PlannedResult[]) => void;
 }
 
 const DAY_MS = 86_400_000;
@@ -57,6 +59,32 @@ function cellFor(
     label: `${w.usableDays.toFixed(1)} usable days, ${WORDS[v]}; sunlit ${(w.sunlitFraction * 100).toFixed(0)}%, longest dark ${w.longestDarkHours} h`,
     verdict: v,
   };
+}
+
+export interface PlannedResult {
+  name: string;
+  verdict: Verdict | null;
+  usableDays: number;
+}
+
+/** The planner's answer in a sentence: which sites work for the planned landing. */
+export function answerText(results: PlannedResult[], planned: Date, windowDays: number): string {
+  const by = (v: Verdict): PlannedResult[] =>
+    results.filter((r) => r.verdict === v).sort((a, b) => b.usableDays - a.usableDays);
+  const list = (rs: PlannedResult[]): string =>
+    rs.map((r) => `${r.name} (${r.usableDays.toFixed(1)} usable days)`).join(', ');
+  const green = by('green');
+  const amber = by('amber');
+  const when = `Landing ${short(planned)} ${planned.getUTCFullYear()}, ${windowDays}-day window`;
+  const head =
+    green.length === 0
+      ? `${when}: no site works.`
+      : `${when}: ${green.length} of ${results.length} sites work: ${list(green)}.`;
+  const tail = [
+    amber.length ? `Marginal: ${amber.map((r) => r.name).join(', ')}.` : '',
+    `${by('red').length} without power.`,
+  ];
+  return [head, ...tail].filter(Boolean).join(' ');
 }
 
 export function renderPlanner(o: PlannerOptions): void {
@@ -86,6 +114,12 @@ export function renderPlanner(o: PlannerOptions): void {
   });
 
   const body = document.createElement('tbody');
+  const plannedResults: PlannedResult[] = [];
+  let pending = sites.length;
+  const done = (): void => {
+    pending--;
+    if (pending === 0) o.onAnswer?.(plannedResults);
+  };
   for (const s of sites) {
     const tr = body.insertRow();
     const th = document.createElement('th');
@@ -105,6 +139,13 @@ export function renderPlanner(o: PlannerOptions): void {
           const td = cells[k];
           if (!td) return;
           const c = cellFor(site, d, windowDays);
+          if (k === DAYS_BEFORE) {
+            plannedResults.push({
+              name: s.name,
+              verdict: c.verdict,
+              usableDays: Number(c.text) || 0,
+            });
+          }
           td.className = `${c.verdict ?? 'none'}${k === DAYS_BEFORE ? ' planned' : ''}`;
           td.replaceChildren();
           if (!c.verdict) {
@@ -120,9 +161,11 @@ export function renderPlanner(o: PlannerOptions): void {
           b.addEventListener('click', () => o.onOpen(s.id, ymd(d), windowDays));
           td.appendChild(b);
         });
+        done();
       },
       () => {
         for (const td of cells) td.textContent = '!';
+        done();
       },
     );
   }
