@@ -20,7 +20,9 @@ Working product name: **Four Lights** (final name picked at submission).
 ## The demo moment (first 30 seconds)
 "A crewed lander (Artemis IV, 2028), launch slips 3 days." The Slip Planner grid: some sites go red, one stays green. Click it: a 360° skyline from real LOLA terrain, the Sun skimming the ridge, Earth bobbing above it with libration, the Comms band showing the link. The real sites and dates are picked from the results on Saturday evening (written here when chosen).
 
-Demo scenario: _to be set in S6 from real results_.
+Demo scenario (set in S6 from the real results, `python -m four_lights.scenario`): **planned landing 19 Apr 2028, 7-day window, launch slips 3 days to 22 Apr.** Connecting Ridge, de Gerlache rim and Peak near Cabeus B go from green to red; **Peak near Shackleton stays green**; Shackleton rim goes the other way and turns green. The slip cuts both ways, which is why a planner needs this. The survivor sits on a 5 m PGDA site tile, not an approximate site. Same pattern on 10 Mar 2029. The app opens on this scenario.
+
+Power thresholds checked on the real data (S6): 7-day windows are nearly all-or-nothing (sunlit 10th/50th/75th percentile 0% / 74% / 100%), so 70% sunlit and 48 h longest dark sit in the gap and the two tests agree (52% vs 54% of site-windows pass). Kept as is.
 
 ## Minimum demo
 12 curated south-pole sites (`sites.md`), a precomputed horizon profile per site, the **Sun-Path Chart** (one site, time slider, four lights) and the **Slip Planner** (sites × dates, one number: usable days). Comms = Earth ≥ 1° above the terrain horizon.

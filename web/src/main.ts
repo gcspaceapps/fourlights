@@ -42,7 +42,10 @@ const ui = {
   chartSection: $('chart-title'),
 };
 
-const DEFAULT_PLAN = '2028-01-21';
+/** The demo scenario (_shared/concept.md): planned landing, the slip, and the site that survives. */
+const DEFAULT_PLAN = '2028-04-19';
+const DEMO_SLIP_DAYS = 3;
+const DEMO_SITE = 'peak-near-shackleton';
 
 let sites: SiteSummary[] = [];
 let current: SiteData | null = null;
@@ -214,8 +217,11 @@ async function init(): Promise<void> {
   ui.planDays.replaceChildren(...WINDOW_DAYS.map((d) => new Option(`${d} days`, String(d))));
   ui.plan.value = hash.get('plan') ?? DEFAULT_PLAN;
   ui.planDays.value = hash.get('pdays') ?? String(WINDOW_DAYS[0]);
-  ui.site.value = hash.get('site') ?? sites[0]?.id ?? '';
-  ui.date.value = hash.get('date') ?? '';
+  const demoSite = sites.some((x) => x.id === DEMO_SITE) ? DEMO_SITE : (sites[0]?.id ?? '');
+  ui.site.value = hash.get('site') ?? demoSite;
+  const slipped = new Date(`${DEFAULT_PLAN}T00:00:00Z`);
+  slipped.setUTCDate(slipped.getUTCDate() + DEMO_SLIP_DAYS);
+  ui.date.value = hash.get('date') ?? ymd(slipped);
   ui.days.value = hash.get('days') ?? String(WINDOW_DAYS[0]);
   ui.centre.value = hash.get('c') ?? '0';
   ui.time.value = hash.get('t') ?? '0';

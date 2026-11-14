@@ -130,38 +130,5 @@
     "source": "Artemis region (USGS grid)",
     "point_rule": "highest 60 m pixel (LDEM_75S_60M) within 2 km of the USGS Peak_Near_Cabeus_B grid centre (-179.58, 69.92) km",
     "approx": true
-  },
-  {
-    "id": "fake-a",
-    "name": "Fake A (stays lit)",
-    "lat": -89.5,
-    "lon_e": -150,
-    "ps_x_m": -7581,
-    "ps_y_m": -13130,
-    "source": "fake fixture",
-    "point_rule": "fake: fixed point",
-    "approx": false
-  },
-  {
-    "id": "fake-b",
-    "name": "Fake B (ridge, dark after slip)",
-    "lat": -88.9,
-    "lon_e": 120,
-    "ps_x_m": 28888,
-    "ps_y_m": -16678,
-    "source": "fake fixture",
-    "point_rule": "fake: fixed point",
-    "approx": false
-  },
-  {
-    "id": "fake-c",
-    "name": "Fake C (ridge and comms shadow)",
-    "lat": -86.2,
-    "lon_e": 10,
-    "ps_x_m": 20017,
-    "ps_y_m": 113520,
-    "source": "fake fixture",
-    "point_rule": "fake: fixed point",
-    "approx": false
   }
 ]
