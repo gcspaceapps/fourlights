@@ -24,6 +24,7 @@ import {
   windowSummary,
   type InstantLights,
 } from './lights';
+import { key, setupShortcuts, type Shortcut } from './shortcuts';
 import { at, type SiteData, type SiteSummary } from './types';
 
 function $(id: string): HTMLElement {
@@ -62,6 +63,8 @@ const ui = {
   slipOn: $('slip-on') as HTMLButtonElement,
   planner: $('planner') as HTMLTableElement,
   answer: $('answer'),
+  mapDetails: $('map-details') as HTMLDetailsElement,
+  theme: $('theme'),
   ask: $('ask') as HTMLFormElement,
   askQ: $('ask-q') as HTMLInputElement,
   askNote: $('ask-note'),
@@ -517,7 +520,134 @@ function setupMapToggle(): void {
   });
 }
 
+/** Step a <select> to its next or previous option and fire its change handler. */
+function stepSelect(sel: HTMLSelectElement, by: number): void {
+  const n = sel.options.length;
+  if (!n) return;
+  sel.selectedIndex = (sel.selectedIndex + by + n) % n;
+  sel.dispatchEvent(new Event('change'));
+}
+
+function moveTime(hours: number): void {
+  const max = Number(ui.time.max);
+  ui.time.value = String(Math.max(0, Math.min(max, Number(ui.time.value) + hours)));
+  render();
+}
+
+function setPlannerWindow(days: number): void {
+  ui.planDays.value = String(days);
+  drawPlanner();
+}
+
+const SHORTCUTS: Shortcut[] = [
+  {
+    group: 'Planner',
+    keys: [']'],
+    what: 'Slip the planned landing one day later',
+    match: key(']'),
+    run: () => slip(1),
+  },
+  { group: 'Planner', keys: ['['], what: 'One day earlier', match: key('['), run: () => slip(-1) },
+  {
+    group: 'Planner',
+    keys: ['1', '2', '3'],
+    what: 'Mission window: 7, 14 or 30 days',
+    match: key('1', '2', '3'),
+    run: (e) => setPlannerWindow(WINDOW_DAYS[Number(e.key) - 1] ?? 7),
+  },
+  {
+    group: 'Planner',
+    keys: ['/'],
+    what: 'Ask in plain English',
+    match: key('/'),
+    run: () => ui.askQ.focus(),
+  },
+  {
+    group: 'Planner',
+    keys: ['M'],
+    what: 'Show or hide the map',
+    match: key('m', 'M'),
+    run: () => {
+      ui.mapDetails.open = !ui.mapDetails.open;
+    },
+  },
+  {
+    group: 'Planner',
+    keys: ['D'],
+    what: 'Back to the demo scenario (19 April 2028)',
+    match: key('d', 'D'),
+    run: () => {
+      ui.plan.value = DEFAULT_PLAN;
+      setPlannerWindow(WINDOW_DAYS[0]);
+    },
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: ['←', '→'],
+    what: 'Move the time one hour',
+    match: (e) => key('ArrowLeft', 'ArrowRight')(e) && !e.shiftKey,
+    run: (e) => moveTime(e.key === 'ArrowLeft' ? -1 : 1),
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: ['Shift ←', 'Shift →'],
+    what: 'Move the time one day',
+    match: (e) => key('ArrowLeft', 'ArrowRight')(e) && e.shiftKey,
+    run: (e) => moveTime(e.key === 'ArrowLeft' ? -24 : 24),
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: ['J', 'K'],
+    what: 'Next or previous site',
+    match: key('j', 'J', 'k', 'K'),
+    run: (e) => stepSelect(ui.site, e.key.toLowerCase() === 'j' ? 1 : -1),
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: ['H'],
+    what: 'Observer height: 1, 2 or 5 m',
+    match: key('h', 'H'),
+    run: () => stepSelect(ui.height, 1),
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: ['C'],
+    what: 'Centre the panorama on north, east, south or west',
+    match: key('c', 'C'),
+    run: () => stepSelect(ui.centre, 1),
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: ['P'],
+    what: 'Next power system',
+    match: key('p', 'P'),
+    run: () => stepSelect(ui.preset, 1),
+  },
+  {
+    group: 'Sun-Path Chart',
+    keys: ['G'],
+    what: 'Go to the chart',
+    match: key('g', 'G'),
+    run: () => ui.chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+  },
+  {
+    group: 'Page',
+    keys: ['T'],
+    what: 'Switch between dark and light',
+    match: key('t', 'T'),
+    run: () => ui.theme.click(),
+  },
+  {
+    group: 'Page',
+    keys: ['Home'],
+    what: 'Back to the top',
+    match: key('Home'),
+    run: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+  },
+];
+
 upgradeInfoTips();
+setupShortcuts(SHORTCUTS, $('shortcuts') as HTMLDialogElement);
 setupAsk();
 setupMapToggle();
 setupTheme();

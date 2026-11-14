@@ -214,7 +214,19 @@
         <dl id="site-info"></dl>
       </section>
 
+      <dialog id="shortcuts" aria-labelledby="shortcuts-title">
+        <form method="dialog">
+          <h2 id="shortcuts-title">Keyboard shortcuts</h2>
+          <div class="shortcut-list"></div>
+          <button type="submit">Close</button>
+        </form>
+      </dialog>
+
       <footer>
+        <p>
+          <button type="button" class="link-button" data-open-shortcuts>Keyboard shortcuts</button>
+          (<kbd>Ctrl</kbd> <kbd>/</kbd>)
+        </p>
         <p>
           Terrain: NASA LRO Lunar Orbiter Laser Altimeter (LOLA) elevation models, GSFC PGDA and
           PDS. Sun and Earth positions: NASA JPL Horizons, checked against NAIF SPICE. Comms also
