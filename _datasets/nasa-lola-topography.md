@@ -2,7 +2,7 @@
 type: dataset
 id: nasa-lola-topography
 owner: NASA (LRO / LOLA, GSFC Planetary Geodesy Data Archive; PDS Geosciences)
-status: verified
+status: loaded
 ---
 # LOLA lunar topography (south-pole elevation models)
 

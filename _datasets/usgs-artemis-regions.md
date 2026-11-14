@@ -2,7 +2,7 @@
 type: dataset
 id: usgs-artemis-regions
 owner: USGS Astrogeology (for NASA)
-status: verified
+status: loaded
 ---
 # Artemis candidate regions: USGS navigational grids
 
@@ -19,4 +19,7 @@ Each region's centre (the centre of its 1 km grid), converted to Moon lat/lon (`
 Mons Mouton Plateau's file is behind a login-only link, so that region is left out. A region is ~20×20 km, so its centre is a starting point, not a landing site.
 
 ## Loading recipe
-_Written as stage 01 runs._
+- `cd pipeline && make fetch-usgs` downloads the 8 zips from ScienceBase (about 9 MB/s, 950 MB) into `data/raw/usgs/`, with SHA-256 checks. `make regions` prints the centres.
+- Centre = centre of the `*_1km_S_Grid.shp` extent, read from the shapefile header inside the zip (no unzipping).
+- **Trap:** the grids' CRS is **not** `IAU_2015:30135`. Their `.prj` (`Moon_2015_-_Sphere_Ocentric_South_Polar`) has false easting/northing 500 000 m and scale factor 0.994. Convert through pyproj from the file's own `.prj`: PS = (grid − 500 000) / 0.994. Haworth: grid (462 500, 590 000) → (−37 726, 90 543) m. Tested.
+- Peak near Cabeus B's Y and Slater Plain's X are both 69 919.5 m because both raw grid values are exactly 569 500: a real coincidence, not a copy error.

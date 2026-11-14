@@ -2,7 +2,7 @@
 type: dataset
 id: nasa-naif-spice
 owner: NASA (JPL NAIF)
-status: verified
+status: loaded
 ---
 # NAIF SPICE kernels
 
@@ -20,4 +20,7 @@ status: verified
 DE440s covers 1849–2150, enough for our ranges. Frame choice must be MOON_ME to match the DEMs.
 
 ## Loading recipe
-_Written as stage 01 runs._
+- `cd pipeline && make fetch-spice` downloads from NAIF (about 7 MB/s) into `data/raw/spice/`, with SHA-256 checks; the mirror is the fallback.
+- Kernels used: `naif0012.tls`, `pck00011.tpc`, `de440s.bsp`, `moon_pa_de440_200625.bpc`, `moon_de440_250416.tf`. In that frames kernel, `MOON_ME` = `MOON_ME_DE440_ME421`, the same mean-Earth frame as the LOLA DEMs.
+- Sun/Earth direction: `spkcpo(target, et, 'MOON_ME', 'OBSERVER', 'LT+S', site_km, 'MOON', 'MOON_ME')`, then the site's east-north-up frame (`pipeline/src/four_lights/ephem.py`). Use `str2et` with `YYYY-MM-DD HH:MM:SS UTC`; it rejects the ISO `T` form with a `UTC` suffix.
+- Used as the Horizons fallback and as a check on every site's product range.
