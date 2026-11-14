@@ -249,13 +249,17 @@ test.describe('button groups', () => {
 test.describe('views, theme and help', () => {
   test('Mission hides the explanations, Learn adds the teaching panels', async ({ page }) => {
     await open(page);
-    await expect(page.locator('.intro')).toBeVisible();
+    // Explore keeps the question and the tools; the longer introduction is for Learn.
+    await expect(page.locator('.tagline')).toBeVisible();
+    await expect(page.locator('.legend')).toBeVisible();
+    await expect(page.locator('.intro')).toBeHidden();
     await expect(page.locator('#learn-ai')).toBeHidden();
     await page.getByText('Mission', { exact: true }).click();
-    await expect(page.locator('.intro')).toBeHidden();
+    await expect(page.locator('.legend')).toBeHidden();
     await expect(page.locator('.keys-strip')).toBeVisible();
     expect(page.url()).toContain('v=mission');
     await page.getByText('Learn', { exact: true }).click();
+    await expect(page.locator('.intro')).toBeVisible();
     // Each teaching panel is its own tab, and only exists in the Learn view.
     await showTab(page, 'Where AI is used');
     await expect(page.locator('#learn-ai')).toBeVisible();
