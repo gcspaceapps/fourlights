@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Run the local development instance: build web/, then serve page + data + API
+# on http://localhost:8787 (wrangler dev). Extra arguments go to wrangler dev,
+# so `./ops/dev --port 8790` picks another port.
+#
+# Runs with --local: the Workers AI binding is not available (the page, data and
+# the rest of the API work; /api/ask and site-review generation do not). wrangler.jsonc
+# pins Steve's Cloudflare account, so a remote AI session only works when logged in
+# to that account. Set DEV_REMOTE=1 to run without --local when you are.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+if [ ! -d node_modules ]; then
+  echo "Installing dependencies..."
+  npm install
+fi
+
+npm run build
+
+args=("$@")
+if [ "${DEV_REMOTE:-}" != "1" ]; then
+  args=(--local "${args[@]}")
+fi
+
+exec npx wrangler dev "${args[@]}"
