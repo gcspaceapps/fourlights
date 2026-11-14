@@ -483,6 +483,43 @@ h3 {
   font-size: 1.05rem;
 }
 
+/* Plain-English query */
+.ask {
+  margin: 0 0 1rem;
+  max-width: 60rem;
+}
+
+.ask label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.ask-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.ask input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.4rem 0.6rem;
+  min-height: 2.5rem;
+}
+
+.ask-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+}
+
 /* Slip Planner */
 .answer {
   font-size: 1.1rem;

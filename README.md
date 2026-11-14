@@ -14,6 +14,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, de Gerlac
 - **Slip Planner:** sites × landing dates, each cell showing **usable days** (hours with the Sun up and Earth in view, over the mission window). Slip the date and see which sites still work.
 - **Canberra Link:** the Comms light also needs a Deep Space Network station (Goldstone, Canberra or Madrid) that can see the Moon, and names the one carrying the link.
 - **Site map:** the 12 sites on LOLA terrain shading of the pole, coloured for the planned landing.
+- **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.
 - **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
 - **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells?
 - 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
@@ -70,4 +71,4 @@ The repo is laid out so a coding agent can walk it: numbered stages (`stages/`),
 
 The plan, data contract and build prompts were written before the start, and raw NASA files were mirrored unmodified as an outage fallback; all code and data processing happened after 09:00 Sat 14 Nov.
 
-We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours. In the app, the short "Site review" paragraph for each site is written by a language model on Cloudflare Workers AI (Llama 3.3 70B) from numbers we computed, and is labelled as AI-written; every number in it is checked against those numbers. No AI-generated images, video or audio.
+We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours. In the app, the short "Site review" paragraph for each site is written by a language model on Cloudflare Workers AI (Llama 3.3 70B) from numbers we computed, and is labelled as AI-written; every number in it is checked against those numbers. The "ask in plain English" box uses the same model only to turn a typed question into the planner's settings; it never produces the answer. No AI-generated images, video or audio.

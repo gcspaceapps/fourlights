@@ -12,6 +12,8 @@
     "run_worker_first": true,
   },
   "observability": { "enabled": true },
+  // Workers AI: only /api/ask uses it, to turn a typed question into planner settings.
+  "ai": { "binding": "AI" },
   // The demo lives on our own domain. Every request, pages and data, goes through the Worker's
   // password gate while SITE_PASSWORD is set (see api/CONTEXT.md).
   "routes": [{ "pattern": "fourlights.gcsa.space", "custom_domain": true }],

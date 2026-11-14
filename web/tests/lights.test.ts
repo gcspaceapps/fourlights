@@ -2,6 +2,7 @@
 // on the real published files (so a data or rule change that breaks the demo fails the build).
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { parseIntent } from '../../api/src/intent';
 import { PRESETS, darkEnduranceHours, simulateBattery } from '../src/battery';
 import { indexAt, lightsAt, profileFor, terrainAt, windowSummary } from '../src/lights';
 import { answerText, verdict } from '../src/planner';
@@ -164,5 +165,38 @@ describe('demo scenario on the published data (_shared/concept.md)', () => {
     }
     expect(at('peak-near-shackleton', '2028-04-22')).toBe('green');
     expect(at('shackleton-rim', '2028-04-22')).toBe('green');
+  });
+});
+
+describe('plain-English query: the model reply is validated, never trusted', () => {
+  const sites = [
+    { id: 'shackleton-rim', name: 'Shackleton rim' },
+    { id: 'haworth', name: 'Haworth' },
+  ];
+  const parse = (reply: string) => parseIntent(reply, sites, '2028-01-01', '2029-12-01');
+
+  it('accepts a clean reply, with or without surrounding text', () => {
+    const want = { date: '2028-04-19', slip_days: 3, window_days: 7, site: null };
+    expect(parse('{"date":"2028-04-19","slip_days":3,"window_days":7,"site":null}')).toEqual(want);
+    expect(
+      parse('Sure!\n```json\n{"date":"2028-04-19","slip_days":3,"window_days":7,"site":null}\n```'),
+    ).toEqual(want);
+  });
+
+  it('drops anything out of range or unknown', () => {
+    expect(parse('{"date":"2031-01-01","slip_days":-2,"window_days":9,"site":"mars"}')).toBeNull();
+    expect(
+      parse('{"date":"2028-02-30x","slip_days":400,"window_days":14,"site":"haworth"}'),
+    ).toEqual({
+      date: null,
+      slip_days: 0,
+      window_days: 14,
+      site: 'haworth',
+    });
+  });
+
+  it('rejects replies that are not JSON', () => {
+    expect(parse('I think Shackleton rim is best.')).toBeNull();
+    expect(parse('{broken')).toBeNull();
   });
 });

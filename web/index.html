@@ -52,6 +52,23 @@
             <button type="button" id="slip-on">Slip + 1 day</button>
           </div>
         </div>
+        <form class="ask" id="ask">
+          <label for="ask-q">Or ask in plain English</label>
+          <div class="ask-row">
+            <input
+              type="text"
+              id="ask-q"
+              maxlength="200"
+              placeholder="Launch slips 3 days from 19 April. Which sites still work?"
+              autocomplete="off"
+            />
+            <button type="submit">Ask</button>
+          </div>
+          <p class="ask-note" id="ask-note" aria-live="polite">
+            An AI model (Cloudflare Workers AI) only turns your words into the settings above; the
+            answer is computed by the planner.
+          </p>
+        </form>
         <p class="answer" id="answer" aria-live="polite"></p>
         <div class="table-scroll" tabindex="0" aria-label="Slip Planner table (scrolls sideways)">
           <table class="planner" id="planner"></table>

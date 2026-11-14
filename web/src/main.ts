@@ -49,6 +49,9 @@ const ui = {
   slipOn: $('slip-on') as HTMLButtonElement,
   planner: $('planner') as HTMLTableElement,
   answer: $('answer'),
+  ask: $('ask') as HTMLFormElement,
+  askQ: $('ask-q') as HTMLInputElement,
+  askNote: $('ask-note'),
   map: $('map') as unknown as SVGSVGElement,
   chartSection: $('chart-title'),
 };
@@ -354,6 +357,60 @@ function setupTheme(): void {
   });
 }
 
+interface AskReply {
+  ok: boolean;
+  error?: string;
+  intent?: {
+    date: string | null;
+    slip_days: number;
+    window_days: number | null;
+    site: string | null;
+  };
+}
+
+/** Plain-English query: the Worker's model returns settings; we apply them to the planner. */
+function setupAsk(): void {
+  const note = ui.askNote.textContent ?? '';
+  ui.ask.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = ui.askQ.value.trim();
+    if (!q) return;
+    ui.askNote.textContent = 'Working it out…';
+    void fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ q }),
+    })
+      .then(async (res) => (await res.json()) as AskReply)
+      .then((r) => {
+        const i = r.intent;
+        if (!r.ok || !i) {
+          ui.askNote.textContent = r.error ?? 'That did not work; use the controls instead.';
+          return;
+        }
+        const base = i.date ?? (ui.plan.value || DEFAULT_PLAN);
+        const d = new Date(`${base}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + i.slip_days);
+        ui.plan.value = ymd(d);
+        if (i.window_days) ui.planDays.value = String(i.window_days);
+        drawPlanner();
+        const parts = [
+          `landing ${ymd(d)}${i.slip_days ? ` (${base} + ${i.slip_days} days)` : ''}`,
+          `${ui.planDays.value}-day window`,
+        ];
+        const site = i.site ? sites.find((s) => s.id === i.site) : undefined;
+        if (site) {
+          parts.push(`chart opened for ${site.name}`);
+          openChart(site.id, ymd(d), Number(ui.planDays.value));
+        }
+        ui.askNote.textContent = `Understood as: ${parts.join(', ')}. ${note}`;
+      })
+      .catch(() => {
+        ui.askNote.textContent = 'The language model is unavailable; use the controls instead.';
+      });
+  });
+}
+
 /** The map is tucked away by default; remember whether this browser had it open. */
 function setupMapToggle(): void {
   const d = document.getElementById('map-details') as HTMLDetailsElement | null;
@@ -372,6 +429,7 @@ function setupMapToggle(): void {
   });
 }
 
+setupAsk();
 setupMapToggle();
 setupTheme();
 void showHealth();
