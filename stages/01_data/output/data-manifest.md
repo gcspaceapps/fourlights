@@ -116,3 +116,5 @@ Note, Sat 09:40: raw files for the run above came from `$NASA_CACHE` via `make f
 | Sat 10:35 | redback (x86_64) | `python -m four_lights.publish slater-plain` | derived horizons + ephem for slater-plain | `web/public/data/sites/slater-plain.json` | 440 kB | 1 s |
 | Sat 10:35 | redback (x86_64) | `python -m four_lights.publish slater-plain` | derived horizons + ephem for slater-plain | `web/public/data/validation/photo-2026-11-14/slater-plain.json` | 19 kB | 1 s |
 | Sat 10:35 | redback (x86_64) | `python -m four_lights.publish slater-plain` | derived horizons + ephem for slater-plain | `web/public/data/sites.json` | 5 kB | 1 s |
+
+Note, Sat 12:22: all 16 LOLA files have now been downloaded from their original NASA URLs (`python -m four_lights.fetch --all --refresh`), each matching the pinned SHA-256, as have the SPICE kernels (NAIF) and the USGS region grids (ScienceBase). The files in `data/raw/` are NASA's own; the mirror copies used for the first runs were byte-identical. The offline mirror is now only an outage fallback.
