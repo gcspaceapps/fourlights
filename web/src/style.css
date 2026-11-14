@@ -552,6 +552,7 @@ input[type='date']:hover {
 
 .terrain {
   fill: var(--terrain);
+  fill-opacity: 0.82;
   stroke: var(--terrain-edge);
   stroke-width: 1;
 }
@@ -588,6 +589,16 @@ input[type='date']:hover {
 
 .marker.earth {
   fill: var(--earth);
+}
+
+.marker.hidden {
+  fill-opacity: 0.35;
+  stroke: currentcolor;
+  stroke-dasharray: 3 3;
+}
+
+.label.hidden {
+  fill-opacity: 0.7;
 }
 
 .label {

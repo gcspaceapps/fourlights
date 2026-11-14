@@ -93,7 +93,6 @@ export function renderChart(svg: SVGSVGElement, v: ChartView): void {
     pts.push(`${x0},${y}`, `${x1},${y}`);
   }
   pts.push(`${M.left + PW},${M.top + PH}`);
-  el('polygon', { points: pts.join(' '), class: 'terrain', 'clip-path': 'url(#plot)' }, svg);
 
   // Tracks over the mission window, broken where they wrap across the panorama's edge.
   for (const [body, cls] of [
@@ -119,15 +118,26 @@ export function renderChart(svg: SVGSVGElement, v: ChartView): void {
     }
   }
 
+  // The skyline goes on top of the tracks, slightly see-through: where the Sun or Earth is behind
+  // the terrain, its path shows only faintly, as it would be hidden from the site.
+  el('polygon', { points: pts.join(' '), class: 'terrain', 'clip-path': 'url(#plot)' }, svg);
+
   // Markers at the slider time.
   for (const [body, cls, label] of [
     [site.sun, 'marker sun', 'Sun'],
     [site.earth, 'marker earth', 'Earth'],
   ] as const) {
-    const x = xOf(at(body.az, cursor));
-    const y = yOf(at(body.el, cursor));
-    el('circle', { cx: x, cy: y, r: 8, class: cls }, svg);
-    el('text', { x: x + 11, y: y - 9, class: `label ${cls}` }, svg).textContent = label;
+    const az = at(body.az, cursor);
+    const elev = at(body.el, cursor);
+    const x = xOf(az);
+    const y = yOf(elev);
+    // Dimmed when the body's centre is behind the terrain in its direction.
+    const sector = Math.floor((((az % 360) + 360) % 360) / profile.step_deg) % n;
+    const hidden = elev <= at(profile.elev_deg, sector) ? ' hidden' : '';
+    el('circle', { cx: x, cy: y, r: 8, class: cls + hidden }, svg);
+    el('text', { x: x + 11, y: y - 9, class: `label ${cls}${hidden}` }, svg).textContent = hidden
+      ? `${label} (hidden)`
+      : label;
   }
 
   el('text', { x: M.left + 6, y: M.top + 16, class: 'tick' }, svg).textContent =
