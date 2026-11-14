@@ -154,7 +154,9 @@ async function capture(browser, shot) {
   const page = await context.newPage();
   await page.goto(BASE + shot.path, { waitUntil: 'load' });
   if (shot.path.startsWith('/#')) {
-    await page.locator('#answer', { hasText: 'sites work' }).waitFor({ state: 'attached', timeout: 30_000 });
+    await page
+      .locator('#answer', { hasText: 'sites work' })
+      .waitFor({ state: 'attached', timeout: 30_000 });
   }
   if (shot.map) {
     // The Moon's tiles arrive over the network after the tab opens.
