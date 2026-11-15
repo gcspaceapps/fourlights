@@ -133,51 +133,57 @@
                   >✕ no power</span
                 >
               </p>
-              <div class="planner-tools">
-                <div class="slip-buttons" role="group" aria-label="Move the planned landing">
-                  <button type="button" id="slip-back">− 1 day</button>
-                  <button type="button" id="slip-on">Slip + 1 day</button>
-                </div>
-                <form class="ask" id="ask">
-                  <label
-                    for="ask-q"
-                    data-info="A language model on Cloudflare Workers AI (Llama 3.3 70B) returns only a date, a slip, a window and a site. The server checks each one, then the planner computes the answer. The model never sees or produces the numbers."
-                    >Or ask in plain English</label
-                  >
-                  <div class="ask-row">
-                    <input
-                      type="text"
-                      id="ask-q"
-                      maxlength="200"
-                      placeholder="Launch slips 3 days from 19 April. Which sites still work?"
-                      autocomplete="off"
-                    />
-                    <button type="submit">Ask</button>
+              <div class="planner-layout">
+                <div class="planner-side">
+                  <div class="planner-tools">
+                    <div class="slip-buttons" role="group" aria-label="Move the planned landing">
+                      <button type="button" id="slip-back">− 1 day</button>
+                      <button type="button" id="slip-on">Slip + 1 day</button>
+                    </div>
+                    <form class="ask" id="ask">
+                      <label
+                        for="ask-q"
+                        data-info="A language model on Cloudflare Workers AI (Llama 3.3 70B) returns only a date, a slip, a window and a site. The server checks each one, then the planner computes the answer. The model never sees or produces the numbers."
+                        >Or ask in plain English</label
+                      >
+                      <div class="ask-row">
+                        <input
+                          type="text"
+                          id="ask-q"
+                          maxlength="200"
+                          placeholder="Launch slips 3 days from 19 April. Which sites still work?"
+                          autocomplete="off"
+                        />
+                        <button type="submit">Ask</button>
+                      </div>
+                    </form>
                   </div>
-                </form>
+                  <p class="ask-note v-explore" id="ask-note" aria-live="polite">
+                    An AI model (Cloudflare Workers AI) only turns your words into the settings
+                    above; the answer is computed by the planner.
+                  </p>
+                  <p class="answer" id="answer" aria-live="polite"></p>
+                </div>
+                <div class="planner-main">
+                  <div
+                    class="table-scroll"
+                    tabindex="0"
+                    aria-label="Slip Planner table (scrolls sideways)"
+                  >
+                    <table class="planner" id="planner"></table>
+                  </div>
+                  <p class="cell-why" id="cell-why">
+                    Point at a cell, or reach it with the Tab key, to see why it passes or fails;
+                    choose it to open its chart.
+                  </p>
+                  <p class="planner-foot v-explore">
+                    The column marked <strong>planned</strong> is the plan. Slip the landing and the
+                    highlighted column moves while the plan stays, so the answer says what the slip
+                    cost. <span class="approx">approx. terrain</span> marks a site with no 5 m
+                    terrain model under it.
+                  </p>
+                </div>
               </div>
-              <p class="ask-note v-explore" id="ask-note" aria-live="polite">
-                An AI model (Cloudflare Workers AI) only turns your words into the settings above;
-                the answer is computed by the planner.
-              </p>
-              <p class="answer" id="answer" aria-live="polite"></p>
-              <div
-                class="table-scroll"
-                tabindex="0"
-                aria-label="Slip Planner table (scrolls sideways)"
-              >
-                <table class="planner" id="planner"></table>
-              </div>
-              <p class="cell-why" id="cell-why">
-                Point at a cell, or reach it with the Tab key, to see why it passes or fails; choose
-                it to open its chart.
-              </p>
-              <p class="planner-foot v-explore">
-                The column marked <strong>planned</strong> is the plan. Slip the landing and the
-                highlighted column moves while the plan stays, so the answer says what the slip
-                cost. <span class="approx">approx. terrain</span> marks a site with no 5 m terrain
-                model under it.
-              </p>
             </section>
           </div>
 
@@ -281,6 +287,9 @@
                   <li class="red"><span class="sym" aria-hidden="true">✕</span> no power</li>
                   <li class="none"><span class="sym" aria-hidden="true">○</span> no result</li>
                 </ul>
+                <p class="globe-legend-note">
+                  The number is the usable days for the landing shown.
+                </p>
                 <h3 class="globe-list-title" id="globe-list-title">Sites</h3>
                 <ul class="globe-sites" id="globe-sites" aria-labelledby="globe-list-title"></ul>
               </div>

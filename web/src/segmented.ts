@@ -39,6 +39,8 @@ export function segmented(select: HTMLSelectElement): void {
           b.type = 'button';
           b.dataset.value = o.value;
           b.textContent = o.text;
+          // An option's title becomes the button's tooltip (what a map layer is, say).
+          if (o.title) b.title = o.title;
           // Bare numbers get the field's name read out with them ("Observer height (m): 5").
           if (/^[\d.]+$/.test(o.text)) b.setAttribute('aria-label', `${name}: ${o.text}`);
           b.addEventListener('click', () => {

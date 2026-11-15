@@ -3,6 +3,7 @@
 // is a picture. three.js and the tiles load only when the tab is first shown, and the WebGL
 // context is given back when the tab is left (see globe/globe.ts).
 import type { Globe, GlobeSite, LayerId } from './globe/globe';
+import { chartIcon } from './icons';
 import type { View } from './globe/math';
 import type { PlannedResult } from './planner';
 import type { SiteSummary } from './types';
@@ -65,6 +66,8 @@ export function setupMap(
   const layer = byId<HTMLSelectElement>(root, 'globe-layer');
   const grid = byId<HTMLInputElement>(root, 'globe-grid');
   const layerNote = byId(root, 'globe-layer-note');
+  // Each layer button explains itself on hover (segmented.ts copies an option's title across).
+  for (const o of layer.options) o.title = LAYER_NOTES[o.value as LayerId] ?? '';
   const list = byId(root, 'globe-sites');
   const addBtn = byId<HTMLButtonElement>(root, 'globe-add');
   const form = byId<HTMLFormElement>(root, 'globe-add-form');
@@ -156,7 +159,9 @@ export function setupMap(
         id: s.id,
         name: s.name,
         v,
-        note: v && r ? `${word}, ${r.usableDays.toFixed(1)} d` : word,
+        // The chip beside the name: the verdict's symbol and colour, and the usable days.
+        days: v && r ? r.usableDays.toFixed(1) : '',
+        tip: v && r ? `${word}, ${r.usableDays.toFixed(1)} usable days` : word,
         label: s.user ? `${s.name}: your site, no data yet` : siteText(s, r),
         mine: !!s.user,
       };
@@ -172,22 +177,24 @@ export function setupMap(
         go.className = 'globe-fly';
         go.setAttribute('aria-label', `Fly to ${row.label}`);
         if (row.id === selected) go.setAttribute('aria-current', 'true');
+        go.title = row.tip;
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.setAttribute('aria-hidden', 'true');
         const sym = document.createElement('span');
         sym.className = 'sym';
-        sym.setAttribute('aria-hidden', 'true');
         sym.textContent = SYMBOLS[row.v ?? 'none'];
+        chip.append(sym, row.days ? ` ${row.days}` : '');
         const name = document.createElement('span');
         name.className = 'name';
-        name.textContent = row.name;
-        const note = document.createElement('span');
-        note.className = 'note';
-        note.textContent = row.note;
-        go.append(sym, name, note);
+        name.textContent = row.mine ? `${row.name} (yours)` : row.name;
+        go.append(chip, name);
         go.addEventListener('click', () => fly(row.id));
         const act = document.createElement('button');
         act.type = 'button';
         act.className = 'globe-open';
-        act.textContent = 'Open chart';
+        act.appendChild(chartIcon());
+        act.title = 'Open chart';
         act.setAttribute('aria-label', `Open the chart for ${row.name}`);
         act.addEventListener('click', () => onOpen(row.id));
         const extra: HTMLButtonElement[] = [];

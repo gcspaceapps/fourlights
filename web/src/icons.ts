@@ -4,6 +4,7 @@ import broadcastOn from '@phosphor-icons/core/assets/fill/broadcast-fill.svg?raw
 import earthOn from '@phosphor-icons/core/assets/fill/globe-hemisphere-west-fill.svg?raw';
 import panelOn from '@phosphor-icons/core/assets/fill/solar-panel-fill.svg?raw';
 import sunOn from '@phosphor-icons/core/assets/fill/sun-fill.svg?raw';
+import chartLine from '@phosphor-icons/core/assets/regular/chart-line.svg?raw';
 import earthOff from '@phosphor-icons/core/assets/regular/globe-hemisphere-west.svg?raw';
 import infoIcon from '@phosphor-icons/core/assets/regular/info.svg?raw';
 import keyboardIcon from '@phosphor-icons/core/assets/regular/keyboard.svg?raw';
@@ -29,6 +30,11 @@ function svg(raw: string, cls: string): SVGElement {
   el.setAttribute('aria-hidden', 'true');
   el.setAttribute('focusable', 'false');
   return document.importNode(el, true);
+}
+
+/** The "open its chart" icon, for a button that carries its own accessible name. */
+export function chartIcon(): SVGElement {
+  return svg(chartLine, 'ui-icon');
 }
 
 export function lightIcon(name: LightName, on: boolean): SVGElement {

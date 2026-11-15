@@ -1343,6 +1343,38 @@ section > .window {
 }
 
 /* Plain-English query */
+/* The planner's two parts: its controls and answer, and the table. Stacked by default; where the
+   panel is wide enough for the whole table and a readable column beside it, the controls and the
+   answer move to the right of the table, so the twelve rows fit without scrolling down. */
+[data-tab='Planner'] {
+  container-type: inline-size;
+}
+
+@container (min-width: 100rem) {
+  .planner-layout {
+    display: grid;
+    grid-template-columns: max-content minmax(20rem, 1fr);
+    gap: 0 2rem;
+    align-items: start;
+  }
+
+  .planner-main {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .planner-side {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 0.5rem;
+  }
+
+  .planner-side .answer {
+    margin-top: 1rem;
+  }
+}
+
 /* The slip buttons and the question box share one row, to keep the table near the top */
 .planner-tools {
   display: flex;
@@ -1750,33 +1782,55 @@ section > .window {
   gap: 0.35rem;
 }
 
+/* The map's site list. Colour and shape carry the verdict, as in the planner's cells: a chip
+   with the symbol and the usable days, then the name; the words are in the legend and the hover. */
 .globe-legend {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 0.9rem;
+  gap: 0.3rem;
   margin: 0.75rem 0 0;
   padding: 0;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
 }
 
-.globe-legend .green .sym,
-.globe-site.green .sym {
+.globe-legend li,
+.globe-site .chip {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  white-space: nowrap;
+}
+
+.globe-legend .green,
+.globe-site.green .chip {
+  background: var(--go-bg);
+  border-color: var(--go-edge);
   color: var(--go-fg);
 }
 
-.globe-legend .amber .sym,
-.globe-site.amber .sym {
+.globe-legend .amber,
+.globe-site.amber .chip {
+  background: var(--warn-bg);
+  border-color: var(--warn-edge);
   color: var(--warn-fg);
 }
 
-.globe-legend .red .sym,
-.globe-site.red .sym {
+.globe-legend .red,
+.globe-site.red .chip {
+  background: var(--nogo-bg);
+  border-color: var(--nogo-edge);
   color: var(--nogo-fg);
 }
 
-.globe-legend .none .sym,
-.globe-site.none .sym {
+.globe-legend .none,
+.globe-site.none .chip {
+  color: var(--muted);
+}
+
+.globe-legend-note {
+  margin: 0.3rem 0 0;
+  font-size: var(--fs-xs);
   color: var(--muted);
 }
 
@@ -1794,9 +1848,9 @@ section > .window {
 
 .globe-site {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.5rem;
-  padding: 0.2rem 0.4rem;
+  padding: 0.3rem 0.4rem;
   border-bottom: 1px solid var(--border);
   border-left: 3px solid transparent;
 }
@@ -1825,14 +1879,16 @@ section > .window {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 0.4rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.globe-fly .sym {
-  width: 1rem;
+.globe-site .chip {
+  flex: none;
+  min-width: 3.4rem;
   text-align: center;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
 }
 
 .globe-fly .name {
@@ -1843,22 +1899,22 @@ section > .window {
   color: var(--accent);
 }
 
-.globe-fly .note {
-  flex-basis: 100%;
-  padding-left: 1.4rem;
-  font-size: var(--fs-xs);
-  color: var(--muted);
-}
-
+/* "Open chart" and "remove" are icons; their names are in the tooltip and for screen readers. */
 .globe-open {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.375rem;
   color: var(--accent);
-  text-decoration: underline;
-  font-size: var(--fs-xs);
-  white-space: nowrap;
 }
 
-.globe-fly:hover .name,
 .globe-open:hover {
+  background: var(--surface-2);
+}
+
+.globe-fly:hover .name {
   text-decoration: underline;
 }
 
