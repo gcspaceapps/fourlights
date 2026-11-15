@@ -39,7 +39,7 @@ export interface ProjectSite {
 /** The terrain models the pipeline reads cover 80°S to the pole. */
 export const COMPUTE_MAX_LAT = -80;
 /** Computed sites a project may hold: each is a minute and a half of a rented machine. */
-export const MAX_COMPUTED = 3;
+export const MAX_COMPUTED = 5;
 /** A run that has not reported back after this long may be asked for again. */
 export const COMPUTE_STALE_MS = 30 * 60_000;
 

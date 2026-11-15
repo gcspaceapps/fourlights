@@ -26,7 +26,8 @@ export interface PipelineEnv {
   COMPUTE_DAILY_MAX?: string;
 }
 
-export const DEFAULT_DAILY_RUNS = 20;
+/** High enough not to turn a judge away; a run is about a tenth of a cent of machine time. */
+export const DEFAULT_DAILY_RUNS = 100;
 /** The Durable Object that keeps the day's count: a name no project can have. */
 export const RUN_COUNTER = 'run-counter';
 
