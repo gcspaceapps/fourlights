@@ -31,7 +31,7 @@ Events (to every browser): `{t:'snapshot', ...project, peers}` on connect; `{t:'
 ## The MCP server
 Tell an AI agent to use the Four Lights MCP and give it a project uuid; it then reads the project, answers questions from the published data, and changes what everyone sees. Every change is a project command sent to the project's Durable Object, the same path the browsers use, so there is one set of rules and every open page updates at once.
 
-- **Connect:** MCP "Streamable HTTP", stateless (each POST is a JSON-RPC message, the answer is JSON; no sessions, no SSE, no SDK). URL `https://fourlights.gcsa.space/mcp`, or `/mcp/<uuid>` to bind a connection to one project so the agent need not pass it. While the weekend gate is on, the client sends Basic Auth: user `fourlights`, the site password. Example (Claude Code): `claude mcp add --transport http fourlights https://fourlights.gcsa.space/mcp/<uuid> --header "Authorization: Basic <base64 fourlights:password>"`. Otherwise tell the agent "use the fourlights MCP, project <uuid>"; every tool takes `project`.
+- **Connect:** MCP "Streamable HTTP", stateless (each POST is a JSON-RPC message, the answer is JSON; no sessions, no SSE, no SDK). URL `https://fourlights.gcsa.space/mcp`, or `/mcp/<uuid>` to bind a connection to one project so the agent need not pass it. No credentials (the weekend password came off on Sun 15 Nov). Example (Claude Code): `claude mcp add --transport http fourlights https://fourlights.gcsa.space/mcp/<uuid>`. Otherwise tell the agent "use the fourlights MCP, project <uuid>"; every tool takes `project`.
 - **Tools** (`api/src/mcp.ts`):
 
 | Tool | Does |
