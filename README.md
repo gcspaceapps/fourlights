@@ -60,7 +60,7 @@ npm run test:e2e:watch   # the same, in a visible Chrome window, slowed down so 
 npm run test:e2e:ui      # Playwright's test window: pick tests, step through, replay each action
 npm run review-pdf   # a PDF of every view, tab and state with captions, from a running local copy
 ```
-The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. The tests: 107 unit tests for the app and Worker, 49 for the pipeline, and 41 end-to-end in a real browser. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
+The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. The tests: 115 unit tests for the app and Worker, 49 for the pipeline, and 41 end-to-end in a real browser. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
 
 ## Find your way around
 | If you want | Look at |
@@ -116,6 +116,7 @@ The same thing in one command, from the repo root: `./ops/data` (every site) or 
 - **Artemis candidate regions** (USGS, for NASA): LGRS navigational grids, https://doi.org/10.5066/P1MEQ6UK . Public domain.
 - **Photographs** (NASA Image and Video Library, public domain, https://images.nasa.gov): Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493, NASA/GRC/Bridget Caswell), the Apollo 11 lunar module (AS11-40-5927), the Clementine south-pole mosaic (PIA00001, NASA/JPL/USGS), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) Deep Space Station 43 (PIA23797, NASA/JPL-Caltech), the south pole from LRO's Wide Angle Camera (PIA13523, NASA/GSFC/Arizona State University), an artist's rendering of the Lunar Reconnaissance Orbiter (PIA18163, NASA/GSFC) and Alan Bean fuelling Apollo 12's generator (AS12-46-6790).
 - **Icons:** [Phosphor Icons](https://phosphoricons.com) (MIT licence).
+- **Software in the app:** [three.js](https://threejs.org) (the 3D Moon), [Hono](https://hono.dev) (the Worker) and [Mermaid](https://mermaid.js.org) (the diagrams on the how-we-built-it page), all MIT licence; the typefaces are [IBM Plex](https://www.ibm.com/plex/) (SIL Open Font License 1.1).
 - Validation: Barker et al. 2021, Mazarico et al. 2011, LOLA and LROC polar illumination maps (`_shared/validation.md`).
 Full cards: [`_datasets/`](_datasets/_index.md).
 
