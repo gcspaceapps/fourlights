@@ -122,10 +122,18 @@ body {
   line-height: 1.5;
 }
 
+/* The app uses a big screen: the planner table, the map and the chart all gain from width. It
+   stops at 120rem (about 1,900 px) so an ultrawide monitor does not pull everything apart, and
+   running text keeps its own shorter line length (--measure). */
 main {
-  max-width: 76rem;
+  max-width: 120rem;
   margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* The reading pages (data sources, how we built it, QGIS) stay at a reading width. */
+main.sources {
+  max-width: 76rem;
 }
 
 header {
@@ -217,11 +225,7 @@ h2 {
 
 /* Tabs: one panel at a time; Learn-only tabs follow the view rules above. */
 /* The guide panel, when it is switched on in the Explore view: the tabs' content with the guide
-   beside it, using more of a wide screen to make room. */
-:root[data-guide-state='open']:not([data-view='mission']) main {
-  max-width: 100rem;
-}
-
+   beside it. */
 :root[data-guide-state='open']:not([data-view='mission']) .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 23rem;
@@ -861,6 +865,8 @@ input[type='date']:hover {
   display: block;
   width: 100%;
   height: auto;
+  /* On a very wide screen the chart stops growing before it pushes the lights off the page. */
+  max-height: 62vh;
   background: var(--sky);
 }
 
