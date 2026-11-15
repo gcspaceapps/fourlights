@@ -114,7 +114,7 @@ The same thing in one command, from the repo root: `./ops/data` (every site) or 
 - **JPL Horizons** (NASA JPL Solar System Dynamics): Sun and Earth positions from each site, https://ssd.jpl.nasa.gov/horizons/ . NASA open data.
 - **NAIF SPICE kernels** (NASA JPL): DE440s, Moon frames, DSN stations, https://naif.jpl.nasa.gov/ . NASA open data.
 - **Artemis candidate regions** (USGS, for NASA): LGRS navigational grids, https://doi.org/10.5066/P1MEQ6UK . Public domain.
-- **Photographs** (NASA Image and Video Library, public domain, https://images.nasa.gov): Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493, NASA/GRC/Bridget Caswell), the Apollo 11 lunar module (AS11-40-5927), the Clementine south-pole mosaic (PIA00001, NASA/JPL/USGS), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) and Deep Space Station 43 (PIA23797, NASA/JPL-Caltech).
+- **Photographs** (NASA Image and Video Library, public domain, https://images.nasa.gov): Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493, NASA/GRC/Bridget Caswell), the Apollo 11 lunar module (AS11-40-5927), the Clementine south-pole mosaic (PIA00001, NASA/JPL/USGS), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) Deep Space Station 43 (PIA23797, NASA/JPL-Caltech), the south pole from LRO's Wide Angle Camera (PIA13523, NASA/GSFC/Arizona State University), an artist's rendering of the Lunar Reconnaissance Orbiter (PIA18163, NASA/GSFC) and Alan Bean fuelling Apollo 12's generator (AS12-46-6790).
 - **Icons:** [Phosphor Icons](https://phosphoricons.com) (MIT licence).
 - Validation: Barker et al. 2021, Mazarico et al. 2011, LOLA and LROC polar illumination maps (`_shared/validation.md`).
 Full cards: [`_datasets/`](_datasets/_index.md).
