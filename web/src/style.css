@@ -558,10 +558,30 @@ section > p {
 }
 
 /* Who each view is for: on hover or keyboard focus. Anchored right so it stays on screen. */
-.view-switch .tip {
+.view-switch .tip,
+.has-tip .tip {
   left: auto;
   right: 0;
   transform: none;
+}
+
+/* A control with a hint under it, shown on hover and for keyboard focus (the light/dark switch) */
+.has-tip {
+  position: relative;
+  display: inline-flex;
+}
+
+.has-tip:hover .tip,
+.has-tip:has(:focus-visible) .tip {
+  display: block;
+}
+
+.shortcut-switch {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin: 0.5rem 0 0;
+  font-size: var(--fs-sm);
 }
 
 /* On hover, and for someone tabbing to it with the keyboard. Not on plain focus: a mouse click

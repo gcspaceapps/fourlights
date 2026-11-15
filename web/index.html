@@ -64,12 +64,25 @@
                 ></label
               >
             </div>
-            <button type="button" class="theme-switch" id="theme" role="switch" aria-checked="true">
-              <span class="theme-icon" data-icon="sun" aria-hidden="true"></span>
-              <span class="track" aria-hidden="true"><span class="knob"></span></span>
-              <span class="theme-icon" data-icon="moon" aria-hidden="true"></span>
-              <span class="visually-hidden">Dark mode</span>
-            </button>
+            <span class="has-tip">
+              <button
+                type="button"
+                class="theme-switch"
+                id="theme"
+                role="switch"
+                aria-checked="true"
+                aria-describedby="tip-theme"
+              >
+                <span class="theme-icon" data-icon="sun" aria-hidden="true"></span>
+                <span class="track" aria-hidden="true"><span class="knob"></span></span>
+                <span class="theme-icon" data-icon="moon" aria-hidden="true"></span>
+                <span class="visually-hidden">Dark mode</span>
+              </button>
+              <span class="tip" role="tooltip" id="tip-theme"
+                >Light or dark colours. Until you choose, the page follows your device's
+                setting.</span
+              >
+            </span>
             <button type="button" class="share-btn" id="share-open" aria-haspopup="dialog">
               <span class="share-dot" aria-hidden="true"></span>
               <span id="share-open-label">Share Project</span>
@@ -1000,6 +1013,14 @@
         <form method="dialog">
           <h2 id="shortcuts-title">Keyboard shortcuts</h2>
           <div class="shortcut-list"></div>
+          <label class="check shortcut-switch">
+            <input type="checkbox" id="shortcut-keys" checked />
+            <span>
+              <strong>Single-key shortcuts on</strong> (letters, numbers and punctuation). Turn them
+              off if they clash with your screen reader, speech input or browser. The arrow keys,
+              Home and Ctrl + / keep working.
+            </span>
+          </label>
           <button type="submit">Close</button>
         </form>
       </dialog>

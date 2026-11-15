@@ -177,6 +177,51 @@ describe('keyboard shortcuts', () => {
     expect(ran).toEqual([']', 't']);
   });
 
+  it('leaves Left and Right to a sideways-scrolling region that has the focus', () => {
+    const { ran, press } = setup();
+    const scroller = document.createElement('div');
+    scroller.style.overflowX = 'auto';
+    Object.defineProperty(scroller, 'scrollWidth', { value: 900 });
+    Object.defineProperty(scroller, 'clientWidth', { value: 300 });
+    const plain = document.createElement('div');
+    document.body.append(scroller, plain);
+    const arrows: Shortcut = {
+      group: 'Page',
+      keys: ['→'],
+      what: 'Next tab',
+      match: key('ArrowRight'),
+      run: () => ran.push('→'),
+    };
+    setupShortcuts([arrows], document.getElementById('d') as HTMLDialogElement);
+    press('ArrowRight', {}, scroller); // the region scrolls; the tab does not change
+    expect(ran).toEqual([]);
+    press('ArrowRight', {}, plain);
+    expect(ran).toEqual(['→']);
+  });
+
+  it('single-key shortcuts can be switched off; arrows and Ctrl+/ keep working', () => {
+    localStorage.setItem('shortcut-keys-off', '1');
+    const { dialog, ran, press } = setup();
+    const arrows: Shortcut = {
+      group: 'Page',
+      keys: ['→'],
+      what: 'Next tab',
+      match: key('ArrowRight'),
+      run: () => ran.push('→'),
+    };
+    setupShortcuts([arrows], dialog);
+    press(']');
+    press('T');
+    press('?');
+    expect(ran).toEqual([]);
+    expect(dialog.showModal).not.toHaveBeenCalled();
+    press('ArrowRight');
+    expect(ran).toEqual(['→']);
+    press('/', { ctrlKey: true });
+    expect(dialog.showModal).toHaveBeenCalledTimes(1);
+    localStorage.removeItem('shortcut-keys-off');
+  });
+
   it('lists every shortcut in the help, and opens it with Ctrl+/, ? or the button', () => {
     const { dialog, ran, press } = setup();
     const help = dialog.querySelector('.shortcut-list')?.textContent ?? '';

@@ -96,6 +96,7 @@ const ui = {
   ask: $('ask') as HTMLFormElement,
   askQ: $('ask-q') as HTMLInputElement,
   askNote: $('ask-note'),
+  guideToggle: $('guide-toggle') as HTMLButtonElement,
   planNote: $('plan-note'),
   chartSection: $('chart-title'),
 };
@@ -1252,6 +1253,15 @@ const SHORTCUTS: Shortcut[] = [
     what: 'Switch view: Mission or Explore',
     match: key('v', 'V'),
     run: nextView,
+  },
+  {
+    group: 'Page',
+    keys: ['I'],
+    what: 'Show or hide the guide (Explore view)',
+    match: key('i', 'I'),
+    run: () => {
+      if (document.documentElement.dataset.view !== 'mission') ui.guideToggle.click();
+    },
   },
   {
     group: 'Page',

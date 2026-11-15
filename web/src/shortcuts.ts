@@ -27,11 +27,51 @@ function typing(e: KeyboardEvent): boolean {
   return true;
 }
 
+/**
+ * Single-character shortcuts (letters, digits, punctuation) can be switched off in the help
+ * dialog: they can clash with a screen reader's own keys, with speech input, or with a browser's
+ * find-as-you-type. Arrows, Home and Ctrl+/ are not affected. The choice is kept in this browser.
+ */
+const KEYS_OFF = 'shortcut-keys-off';
+let charKeys = true;
+const isCharKey = (e: KeyboardEvent): boolean => e.key.length === 1;
+
+/**
+ * Left and Right belong to a sideways-scrolling region while it has the focus (the planner's
+ * table, the chart on a narrow screen): otherwise a keyboard user could not scroll it.
+ */
+function scrollsSideways(e: KeyboardEvent): boolean {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return false;
+  const t = e.target instanceof HTMLElement ? e.target : null;
+  if (!t || t.scrollWidth <= t.clientWidth) return false;
+  const overflow = getComputedStyle(t).overflowX;
+  return overflow === 'auto' || overflow === 'scroll';
+}
+
 const isHelpKey = (e: KeyboardEvent): boolean =>
-  ((e.ctrlKey || e.metaKey) && e.key === '/') || (plain(e) && e.key === '?' && !typing(e));
+  ((e.ctrlKey || e.metaKey) && e.key === '/') ||
+  (charKeys && plain(e) && e.key === '?' && !typing(e));
 
 export function setupShortcuts(shortcuts: Shortcut[], dialog: HTMLDialogElement): void {
   renderHelp(shortcuts, dialog);
+  try {
+    charKeys = localStorage.getItem(KEYS_OFF) !== '1';
+  } catch {
+    charKeys = true; // storage blocked: on, as shipped
+  }
+  const toggle = dialog.querySelector<HTMLInputElement>('#shortcut-keys');
+  if (toggle) {
+    toggle.checked = charKeys;
+    toggle.addEventListener('change', () => {
+      charKeys = toggle.checked;
+      try {
+        if (charKeys) localStorage.removeItem(KEYS_OFF);
+        else localStorage.setItem(KEYS_OFF, '1');
+      } catch {
+        // storage blocked: lasts until the page is reloaded
+      }
+    });
+  }
   const toggleHelp = (): void => {
     if (dialog.open) dialog.close();
     else dialog.showModal();
@@ -42,7 +82,8 @@ export function setupShortcuts(shortcuts: Shortcut[], dialog: HTMLDialogElement)
       toggleHelp();
       return;
     }
-    if (dialog.open || typing(e)) return;
+    if (dialog.open || typing(e) || scrollsSideways(e)) return;
+    if (!charKeys && isCharKey(e)) return;
     const s = shortcuts.find((x) => x.match(e));
     if (!s) return;
     e.preventDefault();
