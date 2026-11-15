@@ -8,5 +8,5 @@
 6. **No likeness of anyone under 18** in the demo or project.
 7. **One demo moment beats five features.** Cut scope, not polish on the moment that matters.
 8. **The build log is written as we go** (`stages/02_build/output/build-log.md`), never reconstructed later.
-9. **Public-safe always.** The repo is private until Sunday 19:30 AEST, then public. Write everything as if it were public now: no personal contact details, no customer or client data, nothing from commercial client projects, no secrets.
+9. **Public-safe always.** The repo has been public since Sunday 15 November. Everything written here is public: no personal contact details, no customer or client data, nothing from commercial client projects, no secrets.
 10. **Licences:** code Apache-2.0 (`LICENSE`); docs, images and published data CC BY 4.0 (`LICENSE-docs.md`).

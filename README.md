@@ -32,6 +32,7 @@ _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de G
 **All the sites**
 - **3D map:** a Moon you can turn and zoom, opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured for the landing shown. Choose a site anywhere and the Moon turns to it. Add sites of your own as notes.
 - **12 curated sites:** the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
+- **A site of your own:** add any point south of 80°S to a shared project and press "Compute this site". About two minutes later it has its own skyline, lights, chart and planner row, built by the same pipeline from the same NASA terrain.
 
 **Working together, and with an AI assistant**
 - **Share Project:** name a project and get a link: everyone who opens it sees the same site, date, slip, window and added sites live, and can follow each other's tab and view. No accounts; a project is found only by its ID.

@@ -16,7 +16,7 @@
 
 ## Cloudflare
 - Account `gcspaceapps`, **`account_id` `e3cb8bffb3a1a6e6009c50fdf0bc6b82`** (pinned in `wrangler.jsonc`; never rely on the default account). Workers Free. R2 and Zero Trust available on free tiers if needed.
-- `gcsa.space` (zone in this account): the apex is the team page (its own Worker, no password); each app gets a password-gated subdomain. DNS: `cf dns records list --zone gcsa.space`.
+- `gcsa.space` (zone in this account): the apex is the team page (its own Worker, no password); each app gets its own subdomain (password-gated until it launches). DNS: `cf dns records list --zone gcsa.space`.
 - Mail: Cloudflare Email Routing is on for `gcsa.space` (Sun 15 Nov; MX and SPF records added by Cloudflare), forwarding a team address to a private mailbox, for signing up to outside services under the team's domain. The addresses are not written here (public repo). See or change the rules: `cf email-routing rules get --zone gcsa.space`, or the dashboard under Email, Email Routing.
 - The demo is at **https://fourlights.gcsa.space** (custom domain on the `gcsa.space` zone, same account), password-gated by the Worker until Sunday 15 Nov, 17:08 AEST, when the `SITE_PASSWORD` secret was deleted (the gate code stays; setting the secret again turns it back on). `workers_dev` is off; `preview_urls` is on for `wrangler versions upload`, and previews are gated by the same code. The Worker keeps its obscure name (`q7m3-demo`). Never post the demo URL anywhere public before Sunday 19:30 AEST: custom-domain hostnames show up in public certificate-transparency logs, so the password is what protects it.
 
