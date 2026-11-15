@@ -6,16 +6,18 @@ _Draft written Sat 14 Nov from the build log. One section per form field, in the
 Four Lights
 
 ## 2. High-Level Project Summary
+_Live form (read Sun 15 Nov 10:25): plain text box, 1,500 characters; "we suggest a 50-200 word summary". The text below is 198 words, 1,069 characters without the bold marks._
+
 _The form asks: what did you develop, how does it address the challenge, why is it important?_
 
 A launch slips three days. Which lunar south-pole landing site still works?
 
-Near the Moon's south pole the Sun stays within a degree or two of the horizon, so a ridge 100 km away decides whether a lander has power, and a hill decides whether it can see Earth. Four Lights answers the planner's question with real terrain. For 12 candidate sites it works out, hour by hour for 2028 and 2029, where the Sun and Earth sit against each site's actual skyline from NASA's LOLA elevation data, and reduces that to four lights: **Sun**, **Earth**, **Power** and **Comms**. The Slip Planner shows every site against every landing date as one number, usable days. Slide the date and watch sites go red and green.
+Near the Moon's south pole the Sun stays within a degree or two of the horizon, so a ridge 100 km away decides whether a lander has power, and a hill decides whether it can see Earth. Four Lights answers the planner's question with real terrain. For 12 candidate sites it works out, hour by hour for 2028 and 2029, where the Sun and Earth sit against each site's skyline from NASA's LOLA elevation data, and reduces that to four lights: **Sun**, **Earth**, **Power** and **Comms**. The Slip Planner shows every site against every landing date as one number, usable days. Slide the date and watch sites go red and green.
 
-In our demo scenario, a landing planned for 19 April 2028 slips to 22 April. Six sites work on the 19th. After the slip, four of them lose power: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B. Peak near Shackleton and Slater Plain still give 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. The slip cuts both ways, and that is why a planner needs to see it.
+In our demo, a landing planned for 19 April 2028 slips to 22 April. Six sites work on the 19th. After the slip, four of them lose power: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B. Peak near Shackleton and Slater Plain still give 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. A slip cuts both ways, which is why a planner needs to see it.
 
 ## 3. Link to Project Demo
-_**Still to add.** One public link, no password, permission or registration: a video of 30 seconds or less, or a deck of up to 7 slides including the title and intro slides. Over either limit means no Global Judging. A video opens with our names and the team name; a deck must show the team name, the members' names and the challenge chosen._
+_**Decided (Steve, Sun 15 Nov): the 7-slide deck.** One public link, no password, permission or registration; 7 slides at most including the title and intro slides, showing the team name, the members' names and the challenge chosen. Over the limit means no Global Judging. **The public link is still to add.**_
 
 ## 4. Link to Final Project
 _The form takes **one** link. Proposed: the live demo, with the repository named in the first line of field 5. Steve and Matt to confirm._
@@ -36,9 +38,13 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 - **Sun-Path Chart.** Stand at a site and look around: the 360° skyline from LOLA terrain, with the Sun's and Earth's paths over the mission window and a time slider. The four lights show the state at that moment.
 - **Canberra Link.** The Comms light also needs one of the Deep Space Network's 70 m stations (Goldstone, Canberra or Madrid) to have the Moon at least 10° up, and names the station carrying the link.
 - **Survive the Night.** A simple battery model through the mission window: does a given power system make it through the dark spells?
-- **Site map, plain-English questions and site reviews.** The 12 sites on LOLA terrain shading; a box where you can type "Launch slips 3 days from 19 April. Which sites still work?"; and a short written summary of each site.
+- **Pointing numbers.** The Sun's and Earth's azimuth and elevation at any hour, the terrain height in that direction and the clearance, with a CSV download of the whole mission window, for aiming solar panels and antennas.
+- **3D map.** A Moon you can turn and zoom, opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured for the landing shown.
+- **Plain-English questions and site reviews.** A box where you can type "Launch slips 3 days from 19 April. Which sites still work?", and a short written summary of each site.
+- **Share Project, and drive it from an AI assistant.** Name a project and get a link: everyone who opens it sees the same site, date, slip and window live. Each shared project also has an MCP address, so an AI assistant can read the project, rank sites from the published numbers and change what everyone sees.
+- **Open in QGIS.** The same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file. No map server and no database.
 
-**How it works.** A Python pipeline reads NASA's LOLA elevation models, from 5 m per pixel at the site out to 240 m per pixel 650 km away, and for each site finds the highest terrain in each of 720 half-degree directions, in true 3D geometry on the Moon's sphere. It pulls the Sun's and Earth's positions for every hour of 2028 and 2029 from JPL Horizons. The results are small files, about half a megabyte per site. The browser compares the two and computes the lights, so the app is instant and runs from one Cloudflare Worker serving static files.
+**How it works.** A Python pipeline reads NASA's LOLA elevation models, from 5 m per pixel at the site out to 240 m per pixel 650 km away, and for each site finds the highest terrain in each of 720 half-degree directions, in true 3D geometry on the Moon's sphere. It pulls the Sun's and Earth's positions for every hour of 2028 and 2029 from JPL Horizons. The results are small files, about half a megabyte per site. The browser compares the two and computes the lights, so the app is instant and runs from one Cloudflare Worker serving static files (shared projects add a Durable Object, and the larger QGIS rasters sit in R2).
 
 **The four lights.**
 - **Sun:** any part of the Sun's disc is above the terrain in its direction; partial sunlight counts in proportion.
@@ -60,7 +66,7 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 - The six Artemis-region sites are placed at the highest summit within 8 km of the region's centre, which is not necessarily where a mission would land.
 - The battery presets are round illustrative numbers, not real vehicles.
 
-**What we would do next.** Custom coordinates (compute a horizon for any point), a scored grid to find new sites, a 3D view of the terrain under the real Sun direction, and the true skyline across the Sun's and Earth's discs.
+**What we would do next.** Custom coordinates in the browser (today a new site is one pipeline command), a scored grid to find new sites, the 3D Moon lit from the real Sun direction, and the true skyline across the Sun's and Earth's discs.
 
 **How we built it.** The repository is laid out so a coding agent can walk it: numbered stages with a contract and an output folder each, shared facts in one place, one card per dataset. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours.
 
@@ -69,20 +75,54 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 - **Pre-existing work:** Ice Rover (https://icerover.refactor.red), a small educational game about why the lunar south pole is hard, built by Steve before the event. Same theme, separate codebase: no code or assets shared with this project, and it is not part of this entry.
 
 ## 6. Use of Super Intelligence (SI)
-_The form asks: "Did you utilize any Super Intelligence (SI) tools and software in preparing your solution? If yes, how did you use them?" Judges do not see this answer; they see the acknowledgements in the project itself (field 5 and the README)._
+_On the form this is a dropdown of tools plus the text (opening slide, 14 Nov): pick Claude, and Llama / Workers AI or the nearest option it offers. The form asks: "Did you utilize any Super Intelligence (SI) tools and software in preparing your solution? If yes, how did you use them?" Judges do not see this answer; they see the acknowledgements in the project itself (field 5 and the README)._
 
 Yes. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours. In the app, the short "Site review" paragraph for each site is written by a language model on Cloudflare Workers AI (Llama 3.3 70B) from numbers we computed, and is labelled as AI-written; every number in it is checked against those numbers. The "ask in plain English" box uses the same model only to turn a typed question into the planner's settings; it never produces the answer. There are no AI-generated images, video or audio in the project.
 
 ## 7. NASA Data
+_Live form (read Sun 15 Nov 10:25): this field is not free text. It is a list of **Link Text + Link Url** pairs ("Add New Link"), so what each dataset is used for has to live in field 5 or on the app's sources page. Pairs to enter, in order:_
+
+| Link Text | Link Url |
+|---|---|
+| LRO LOLA 5 m south-pole site elevation models (NASA GSFC PGDA) | https://pgda.gsfc.nasa.gov/products/78 |
+| LRO LOLA 87°S 5 m elevation mosaic (NASA GSFC PGDA) | https://pgda.gsfc.nasa.gov/products/81 |
+| LRO LOLA polar gridded elevation models, 20, 60 and 240 m (NASA PDS) | https://imbrium.mit.edu/DATA/LOLA_GDR/POLAR/ |
+| NASA Moon Trek: LRO WAC global mosaic and LOLA colour-shaded elevation | https://trek.nasa.gov/moon/ |
+| JPL Horizons: Sun and Earth positions (NASA JPL) | https://ssd.jpl.nasa.gov/horizons/ |
+| NAIF SPICE kernels: DE440s, Moon frames, DSN stations (NASA JPL) | https://naif.jpl.nasa.gov/ |
+| Artemis III candidate landing regions (USGS, for NASA) | https://doi.org/10.5066/P1MEQ6UK |
+| NASA Image and Video Library: six photographs | https://images.nasa.gov |
+| DSN Telecommunications Link Design Handbook 810-005, module 301 (NASA JPL) | https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf |
+
+_The same list in prose, for field 5 or the README:_
 _The app has its own data-sources page with the same information in more depth: https://fourlights.gcsa.space/sources_
 
 - **LRO LOLA south-pole elevation models** (NASA GSFC Planetary Geodesy Data Archive and PDS): the 5 m site models and the 87°S mosaic, https://pgda.gsfc.nasa.gov/products/78 and https://pgda.gsfc.nasa.gov/products/81 ; the polar gridded models at 20, 60 and 240 m, https://imbrium.mit.edu/DATA/LOLA_GDR/POLAR/ . Every horizon in the app comes from these.
+- **LRO WAC global mosaic and LOLA colour-shaded elevation** (NASA GSFC / Arizona State University / MIT, via NASA Moon Trek), https://trek.nasa.gov/moon/ : the imagery and elevation layers on the 3D Moon.
 - **JPL Horizons** (NASA JPL Solar System Dynamics), https://ssd.jpl.nasa.gov/horizons/ : the Sun's and Earth's direction from each site for every hour of 2028 and 2029, and the Moon's elevation from the DSN stations as a check.
 - **NAIF SPICE kernels** (NASA JPL), https://naif.jpl.nasa.gov/ : an independent check on Horizons, and the DSN station positions for Canberra Link.
 - **Artemis candidate landing regions** (USGS, for NASA), https://doi.org/10.5066/P1MEQ6UK : the centres of six of our sites.
-- **NASA Image and Video Library**, https://images.nasa.gov : three photographs (Surveyor 3, AS12-48-7121; a VIPER rover prototype, GRC-2021-C-00493; the Apollo 11 lunar module, AS11-40-5927) shown as examples of vehicle classes.
+- **NASA Image and Video Library**, https://images.nasa.gov : six photographs. Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493) and the Apollo 11 lunar module (AS11-40-5927) as examples of vehicle classes; the Clementine south-pole mosaic (PIA00001), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) and Deep Space Station 43 (PIA23797) in the Learn view.
 
 ## 8. Space Agency Partner Data and Other References
+_Live form (read Sun 15 Nov 10:25): also **Link Text + Link Url** pairs, and optional. No Space Agency Partner data is used. Pairs to enter (every URL returned 200 on Sun 15 Nov):_
+
+| Link Text | Link Url |
+|---|---|
+| Barker et al. (2021), Improved LOLA elevation maps for south pole landing sites, PSS 203, 105119 | https://doi.org/10.1016/j.pss.2020.105119 |
+| Mazarico et al. (2011), Illumination conditions of the lunar polar regions using LOLA topography, Icarus 211 | https://doi.org/10.1016/j.icarus.2010.10.030 |
+| Acton (1996), Ancillary data services of NASA's NAIF (SPICE), PSS 44 | https://doi.org/10.1016/0032-0633(95)00107-7 |
+| GDAL | https://gdal.org/ |
+| GRASS GIS | https://grass.osgeo.org/ |
+| QGIS | https://qgis.org/ |
+| three.js | https://threejs.org/ |
+| Hono | https://hono.dev/ |
+| Vite | https://vite.dev/ |
+| Cloudflare Workers, Durable Objects, R2 and Workers AI | https://developers.cloudflare.com/workers/ |
+| Phosphor Icons (MIT licence) | https://phosphoricons.com/ |
+| Ice Rover (pre-existing work by Steve, not part of this entry) | https://icerover.refactor.red |
+
+_If the deck is the demo link, add its two extra credits (pitch repo, `05_deliver`): the LCROSS water-ice paper, https://doi.org/10.1126/science.1186986 (opens in a browser; refuses scripts with 403), and the slide-7 photo credit. The same references in prose:_
 _One field on the form: partner data, then every resource and tool, including code, text and images._
 
 No Space Agency Partner data is used; the data is from NASA and USGS (listed under NASA Data).
@@ -93,4 +133,4 @@ No Space Agency Partner data is used; the data is from NASA and USGS (listed und
 - Acton, C. H. (1996). Ancillary data services of NASA's Navigation and Ancillary Information Facility. Planetary and Space Science 44, 65–70. (SPICE)
 - USGS Astrogeology (2024). Lunar Grid Reference System navigational grids for the Artemis III candidate landing regions. https://doi.org/10.5066/P1MEQ6UK
 - DSN Telecommunications Link Design Handbook 810-005, module 301 (elevation limits). https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf
-- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, Hono, Vite, Cloudflare Workers and Workers AI. Icons: Phosphor Icons (MIT licence).
+- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, QGIS, Hono, Vite, three.js, Cloudflare Workers, Durable Objects, R2 and Workers AI. Icons: Phosphor Icons (MIT licence).
