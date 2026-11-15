@@ -4,7 +4,7 @@
 
 Our entry for the [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/), challenge [#11 Lunar Landing Site Navigator](https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/).
 
-**Live demo:** https://fourlights.gcsa.space (public from Sunday 15 November 2026, 19:30 AEST; behind a password until then)
+**Live demo:** https://fourlights.gcsa.space
 
 ![The Slip Planner after a 3-day slip: the plan stays pinned on 19 April and the answer says what the slip cost](stages/02_build/output/media/screenshot.png)
 _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B lose power, Peak near Shackleton and Slater Plain still work, and Shackleton rim comes good._

@@ -26,7 +26,6 @@ _The form takes **one** link. Proposed: the live demo, with the repository named
 
 https://fourlights.gcsa.space
 
-_(public from Sunday 19:30 AEST, when the password comes off)_
 
 ## 5. Detailed Project Description
 _The form asks: what does it do, how does it work, what benefits, what do you hope to achieve, what tools, languages, hardware or software? Images (JPG, PNG, GIF up to 10 MB) can be uploaded or pasted into this field; stills are in `../../02_build/output/media/`. The form has no separate field for disclosures, so they sit at the end of this one._
