@@ -373,9 +373,10 @@ sequenceDiagram
           </dd>
           <dt>Keeping it open safely</dt>
           <dd>
-            The site needs no login. The two routes that cost something, the question box and
-            creating a project, are rate-limited per address at Cloudflare's edge, before the Worker
-            runs. Request sizes, project sizes and the model's output are all capped.
+            The site needs no login. The question box and creating a project are rate-limited per
+            address at Cloudflare's edge, before the Worker runs. Computing a site is bounded
+            differently: one runs at a time, and a project can compute five. Request sizes, project
+            sizes and the model's output are all capped.
           </dd>
         </dl>
       </section>
@@ -541,7 +542,7 @@ sequenceDiagram
         <h3>How we work</h3>
         <p>
           We use Agile principles throughout: test-driven development, pair programming, fast cycles
-          and small batch sizes. This project ran the same way. More than 130 small commits went to
+          and small batch sizes. This project ran the same way. More than 140 small commits went to
           the main branch over the weekend, each one checked by the unit tests before it landed, and
           the live site was redeployed after nearly every change, so there was always a working demo
           and never a big-bang integration.
