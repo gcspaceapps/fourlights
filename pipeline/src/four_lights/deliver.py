@@ -32,7 +32,13 @@ def send(url: str, token: str, body: bytes | None, *, method: str) -> int:
         url,
         data=body,
         method=method,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            # Cloudflare turns away the default "Python-urllib" client (error 1010) before the
+            # request reaches the app, so the sender says who it is.
+            "User-Agent": "fourlights-pipeline/1.0",
+        },
     )
     try:
         with urllib.request.urlopen(req, timeout=60) as res:
