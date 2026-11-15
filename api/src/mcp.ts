@@ -229,8 +229,11 @@ const TOOLS: Tool[] = [
     description:
       'What the published data says about one site on one landing date: usable days in the mission ' +
       'window, share of time the Sun is in view, longest dark spell, the power verdict (works / ' +
-      "marginal / no power), and the site's written review. Defaults to the project's selected " +
-      'site, date and window. Sites added to a project have no precomputed figures.',
+      "marginal / no power), and the site's written review. `figures` are for the landing date " +
+      'and mission window asked for; `review` describes the site over the whole of 2028 and 2029, ' +
+      'so its percentages differ from the figures and the two must not be mixed: quote `figures` ' +
+      "for this landing. Defaults to the project's selected site, date and window. Sites added " +
+      'to a project have no precomputed figures.',
     inputSchema: schema({
       site: DATA_PROPS.site,
       date: DATA_PROPS.date,
@@ -259,7 +262,10 @@ const TOOLS: Tool[] = [
         landing_date: date,
         window_days: Number(window),
         observer_height_m: 2,
+        figures_cover: `the ${Number(window)}-day mission window starting ${date}`,
         figures: figures ?? 'outside the data range (2028-01-01 to 2029-12-01)',
+        review_covers:
+          'the whole of 2028 and 2029 (two-year figures for the site in general, not this landing)',
         review: reviews?.sites[site.id]?.text ?? null,
       };
       return reply(asText(out), out);

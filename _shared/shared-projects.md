@@ -40,7 +40,7 @@ Tell an AI agent to use the Four Lights MCP and give it a project uuid; it then 
 |---|---|
 | `get_project` | the whole project: name, added sites, selection, shared view |
 | `list_sites` | the 12 published sites and the project's own |
-| `site_summary` | one site on one date: usable days, sunlit %, longest dark, power verdict, its written review |
+| `site_summary` | one site on one date: usable days, sunlit %, longest dark, power verdict (`figures`, for the window asked for, labelled by `figures_cover`), and its written review (two-year figures, labelled by `review_covers`) |
 | `rank_sites` | every published site for a date and window, best first |
 | `set_selection` | site, landing date, slip from the plan in days (a date with no slip is a new plan), window (7/14/30), observer height (1/2/5) |
 | `switch_tab` | show a tab by slug or label (the five tabs are the same in every view; the Learn view's teaching content is its guide panel, not tabs) |

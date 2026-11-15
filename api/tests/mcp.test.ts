@@ -131,7 +131,10 @@ describe('reading', () => {
       site: 'haworth',
       review: 'A fine site.',
       figures: { usable_days: 7, sunlit_percent: 90, power_verdict: 'works' },
+      // The figures are for this landing and the review for two years: each says which.
+      figures_cover: 'the 7-day mission window starting 2028-01-01',
     });
+    expect(s.review_covers).toMatch(/whole of 2028 and 2029/);
     const out = JSON.parse(
       (await call(deps, 'site_summary', { site: 'haworth', date: '2031-01-01' })).text,
     );
