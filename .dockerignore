@@ -1,0 +1,25 @@
+# For pipeline/Dockerfile: leave out what the precompute never reads.
+.git
+.githooks
+.claude
+.wrangler
+.dev.vars
+.env
+.env.*
+node_modules
+**/node_modules
+**/.venv
+**/__pycache__
+data
+coverage
+test-results
+playwright-report
+web/dist
+web/public/qgis
+web/public/map
+web/public/img
+stages/02_build/output/media
+stages/03_pitch
+stages/04_submit
+e2e
+api

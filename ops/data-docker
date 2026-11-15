@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# ./ops/data in a container: build the site data on a machine that has only Docker or Podman.
+#
+#   ./ops/data-docker                                     every site
+#   ./ops/data-docker haworth slater-plain                only these
+#   ./ops/data-docker add <id> "<Name>" <lat> <lon_e>     register a new site, then build it
+#
+# The first run builds the image (a few minutes) and downloads about 5 GB of NASA files into the
+# data directory; later runs reuse both. The results land in this checkout exactly as ./ops/data
+# leaves them: web/public/data/, pipeline/sites.extra.json, the data manifest and the skyline plot.
+#
+#   FOURLIGHTS_DATA=/somewhere/big   where NASA's files and the intermediate results are kept
+#                                    (default: data/ in this checkout)
+#   FOURLIGHTS_IMAGE=name            use an image built elsewhere, and do not build
+#   JOBS=2                           two sites at once (each peaks near 1.6 GB of memory)
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+if command -v docker >/dev/null; then
+  engine=docker
+elif command -v podman >/dev/null; then
+  engine=podman
+else
+  echo "Neither docker nor podman is installed." >&2
+  exit 1
+fi
+
+image="${FOURLIGHTS_IMAGE:-}"
+if [ -z "$image" ]; then
+  image=fourlights-pipeline
+  "$engine" build -f pipeline/Dockerfile -t "$image" .
+fi
+
+data="${FOURLIGHTS_DATA:-$PWD/data}"
+mkdir -p "$data" stages/02_build/output/media
+
+exec "$engine" run --rm \
+  -e JOBS="${JOBS:-1}" \
+  -v "$data:/app/data" \
+  -v "$PWD/web/public/data:/app/web/public/data" \
+  -v "$PWD/pipeline/sites.extra.json:/app/pipeline/sites.extra.json" \
+  -v "$PWD/stages/01_data/output:/app/stages/01_data/output" \
+  -v "$PWD/stages/02_build/output/media:/app/stages/02_build/output/media" \
+  "$image" "$@"

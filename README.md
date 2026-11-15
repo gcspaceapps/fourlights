@@ -101,6 +101,8 @@ The same thing in one command, from the repo root: `./ops/data` (every site) or 
 ./ops/data add amundsen-rim "Amundsen rim" -84.23 69.5   # id, name, latitude, east longitude
 ```
 
+No Python or Node on the machine? `./ops/data-docker` takes the same arguments and runs them in a container (Docker or Podman; image from `pipeline/Dockerfile`).
+
 ## How we know it's right
 - The horizon engine is checked against a brute-force version written with different maths (pyproj and spherical trigonometry): identical on 8 sectors across all six elevation models.
 - Unit tests with known answers: a peak away from the pole appears at true north, a bare sphere gives the textbook horizon dip, a one-pixel spike between sector centres is still seen, a smooth dome gives its analytic horizon.

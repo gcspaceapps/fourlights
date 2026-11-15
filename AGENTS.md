@@ -12,7 +12,7 @@ This repo stands on its own. Everything a task needs is in it; don't read or ref
 | `_datasets/` | one card per dataset; `_index.md` lists them |
 | `stages/01_data` … `04_submit` | the process, in order; each has a `CONTEXT.md` contract and an `output/` |
 | `pipeline/` · `api/` · `web/` | code; each has a `CONTEXT.md` map |
-| `ops/` | one-command scripts: `./ops/dev` (run the app locally), `./ops/data` (build the site data, add a site); map in `ops/CONTEXT.md` |
+| `ops/` | one-command scripts: `./ops/dev` (run the app locally), `./ops/data` (build the site data, add a site; `./ops/data-docker` does the same in a container); map in `ops/CONTEXT.md` |
 | `data/raw/` | raw downloads only (gitignored) |
 
 ## Route by task
