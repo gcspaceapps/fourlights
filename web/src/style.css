@@ -564,8 +564,10 @@ section > p {
   transform: none;
 }
 
+/* On hover, and for someone tabbing to it with the keyboard. Not on plain focus: a mouse click
+   focuses the option too, and the tip would then stay up after the pointer has gone. */
 .view-switch label:hover .tip,
-.view-switch label:focus-within .tip {
+.view-switch label:has(input:focus-visible) .tip {
   display: block;
 }
 

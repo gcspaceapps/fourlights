@@ -263,7 +263,13 @@ test.describe('views, theme and help', () => {
     await expect(page.getByRole('tab', { name: 'Sun-Path Chart' })).toHaveAccessibleDescription(
       'Peak near Shackleton',
     );
-    await page.locator('.view-switch').getByText('Mission', { exact: true }).click();
+    // The hint about a view shows on hover and goes when the pointer leaves, clicked or not.
+    const mission = page.locator('.view-switch label:has(input[value="mission"])');
+    await mission.hover();
+    await expect(page.locator('#tip-mission')).toBeVisible();
+    await mission.click();
+    await page.mouse.move(600, 600);
+    await expect(page.locator('#tip-mission')).toBeHidden();
     await expect(page.locator('.legend')).toBeHidden();
     await expect(page.locator('.keys-strip')).toBeVisible();
     await expect(page.locator('#guide')).toBeHidden();
