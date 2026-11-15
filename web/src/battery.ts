@@ -32,8 +32,7 @@ export const PRESETS: readonly PowerPreset[] = [
     photo: {
       src: '/img/surveyor-3.jpg',
       alt: 'A small robotic lander on the lunar surface, its solar panel raised on a mast',
-      caption:
-        'A lander of this kind: Surveyor 3 on the Moon, photographed by the Apollo 12 crew in 1969.',
+      caption: 'Surveyor 3 on the Moon, photographed by the Apollo 12 crew in 1969.',
       credit: 'NASA, AS12-48-7121',
     },
   },
@@ -47,8 +46,7 @@ export const PRESETS: readonly PowerPreset[] = [
     photo: {
       src: '/img/viper-prototype.jpg',
       alt: 'A four-wheeled rover prototype on sand in a test laboratory',
-      caption:
-        "A rover of this kind: a prototype of NASA's VIPER polar rover in mobility tests, 2021.",
+      caption: "A prototype of NASA's VIPER polar rover in mobility tests, 2021.",
       credit: 'NASA/GRC/Bridget Caswell, GRC-2021-C-00493',
     },
   },
@@ -62,7 +60,7 @@ export const PRESETS: readonly PowerPreset[] = [
     photo: {
       src: '/img/apollo-11-lunar-module.jpg',
       alt: 'The Apollo 11 lunar module on the Moon with an astronaut working beside it',
-      caption: 'A lander of this kind: the Apollo 11 lunar module on the Moon, 1969.',
+      caption: 'The Apollo 11 lunar module on the Moon, 1969.',
       credit: 'NASA, AS11-40-5927',
     },
   },
