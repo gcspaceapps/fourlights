@@ -53,6 +53,12 @@ Checked by script on Sat 14 Nov and again Sun 15 Nov 10:05 (all returned 200 unl
 - **Open, Steve decides:** (1) **decided Sun 15 Nov: the demo link is the 7-slide deck**, not a video (the deck PDF is 7 pages, exported 08:29 Sun; slide 7's text was edited after that, so re-export before uploading). Still open: where it is hosted publicly (pitch.gcsa.space is gated). Any recording or live run-through is for the 15:30 local pitch only; (2) judges see the page from the 15:30 pitch but the repo and demo open at 19:30: open both earlier, or submit first and resubmit at 19:30.
 - The pitch repo's deck needs two more references on the form if it is the demo link (its `05_deliver/output/deliver.md`, "Extra references"): the LCROSS water-ice paper and the slide-7 photo credit.
 
+## Sweep, Sun 15 Nov about 11:45
+- **Two views, not three.** The app now has Mission and Explore, with the Guide panel in place of the Learn view. The project page text and the live form say so (form saved 11:39), and slide 7 of the deck is reworded.
+- **Screenshots in Project Details.** Three current screenshots (Slip Planner after the slip, Sun-Path Chart, 3D map; 1600 px wide, with alt text) were inserted with the editor's Inline Image and saved at 11:44. They show in the editor but **not on the public view of the page**, so check again after Submit for Judging; if they still do not show, the page reads fine without them.
+- **Stills retaken** from the app at `ab1c0ad` (list in `../../03_pitch/output/pitch.md`): `demo-1`, `demo-2`, `demo-3`, `view-mission.png` and the new `map-3d.png`.
+- **Deck:** the planner screenshot is retaken (the app now marks the plan and highlights the slipped date itself, so the "yellow outline added" note is gone) and `deck.pdf` re-exported, still 7 pages. The pitch site has **not** been redeployed: run `site/deploy.sh` in the pitch repo.
+
 ## Before the repo goes public (audit, Sat 14 Nov)
 Scanned every tracked file and the commit history.
 - **Secrets:** none found. `.dev.vars` is ignored and was never committed. The Cloudflare `account_id` in `wrangler.jsonc` is an identifier, not a secret.

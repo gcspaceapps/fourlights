@@ -33,7 +33,7 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 
 **Code and data:** https://github.com/gcspaceapps/fourlights (the live demo is the Final Project link above).
 
-**Who it is for.** A mission planner whose launch date has moved and who has to re-pick a site or a date quickly. Educators and the public get the same data in their own views: the page switches between Mission (terse, keyboard-driven), Explore (the default) and Learn (short explanations of why the pole is different, how to read the chart, a glossary and classroom activities).
+**Who it is for.** A mission planner whose launch date has moved and who has to re-pick a site or a date quickly. Educators and the public get the same data with a Guide beside it. The page has two views, Mission (terse, keyboard-driven) and Explore (the default). In Explore, a Guide panel sits beside the tools and follows the tab you are on: why the pole is different, how to read the chart, things to try, NASA photographs and a glossary, for newcomers and classrooms.
 
 **What it does.**
 - **Slip Planner.** Sites down the side, landing dates across, usable days in each cell: the hours in the mission window with the Sun up and a link to Earth, divided by 24. Green works, amber is marginal, red has no power. One button slips the date a day. A sentence above the grid states the answer.
@@ -104,7 +104,7 @@ _The app has its own data-sources page with the same information in more depth: 
 - **JPL Horizons** (NASA JPL Solar System Dynamics), https://ssd.jpl.nasa.gov/horizons/ : the Sun's and Earth's direction from each site for every hour of 2028 and 2029, and the Moon's elevation from the DSN stations as a check.
 - **NAIF SPICE kernels** (NASA JPL), https://naif.jpl.nasa.gov/ : an independent check on Horizons, and the DSN station positions for Canberra Link.
 - **Artemis candidate landing regions** (USGS, for NASA), https://doi.org/10.5066/P1MEQ6UK : the centres of six of our sites.
-- **NASA Image and Video Library**, https://images.nasa.gov : six photographs. Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493) and the Apollo 11 lunar module (AS11-40-5927) as examples of vehicle classes; the Clementine south-pole mosaic (PIA00001), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) and Deep Space Station 43 (PIA23797) in the Learn view.
+- **NASA Image and Video Library**, https://images.nasa.gov : six photographs. Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493) and the Apollo 11 lunar module (AS11-40-5927) as examples of vehicle classes; the Clementine south-pole mosaic (PIA00001), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) and Deep Space Station 43 (PIA23797) in the Guide.
 
 ## 8. Space Agency Partner Data and Other References
 _Live form (read Sun 15 Nov, about 10:05): also **Link Text + Link Url** pairs, and optional. No Space Agency Partner data is used. Pairs to enter (every URL returned 200 on Sun 15 Nov):_

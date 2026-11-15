@@ -15,7 +15,7 @@ _Draft written Sat 14 Nov from the build log and the live demo. The deck, final 
 | 16–25 s | Click the green cell: the Sun-Path Chart. Drag the time slider: the Sun skims the ridge line, Earth rides above it, the four lights hold | "Because this is the real skyline, from NASA's laser altimeter: every ridge out to 650 kilometres." |
 | 25–30 s | The four lights, then the name and URL | "Four Lights. Sun, Earth, power, comms: for any site, any date." |
 
-Ready-made stills, if slides are used instead: `../../02_build/output/media/demo-1-planned-19apr.png`, `demo-2-slipped-22apr.png`, `demo-3-chart-peak-near-shackleton.png`, `site-map.png`, `survive-the-night.png`, `ask-plain-english.png`.
+Ready-made stills, if slides are used instead (the first five retaken Sun 15 Nov, about 11:50, from the app at `ab1c0ad`: dark theme, 1280 px wide at 2× scale, whole page, Explore view with the Guide open): `../../02_build/output/media/demo-1-planned-19apr.png`, `demo-2-slipped-22apr.png`, `demo-3-chart-peak-near-shackleton.png`, `map-3d.png` (the 3D Moon over the south pole), `view-mission.png` (Mission view), then Saturday's `survive-the-night.png` and `ask-plain-english.png`. The other files in that folder are the build log's record of how each feature looked when it shipped; `site-map.png`, `view-learn.png` and `view-learn-ai.png` show screens that have since been replaced.
 
 ### 7 slides, if not a video
 1. Title: Four Lights. "Which lunar south-pole landing site still works when your launch slips?"
