@@ -110,7 +110,7 @@ test.describe('the demo scenario', () => {
       'true',
     );
     await expect(page.locator('#chart path.track.sun')).toBeVisible();
-    await showTab(page, 'About this site');
+    await showTab(page, 'Landing site details');
     await expect(page.locator('#site-info')).toContainText('LDEM');
     expect(page.url()).toContain('site=slater-plain');
   });
@@ -247,20 +247,13 @@ test.describe('button groups', () => {
 });
 
 test.describe('views, theme and help', () => {
-  test('Mission hides the explanations, Learn adds the guide panel', async ({ page }) => {
+  test('two views: Mission hides the explanations and the guide', async ({ page }) => {
     await open(page);
-    // Explore keeps the question and the tools; the longer introduction is for Learn.
+    // Explore: the question, the tools with their captions, and the Guide button.
     await expect(page.locator('.tagline')).toBeVisible();
     await expect(page.locator('.legend')).toBeVisible();
-    await expect(page.locator('.intro')).toBeHidden();
-    await expect(page.locator('#guide')).toBeHidden();
-    await page.locator('.view-switch').getByText('Mission', { exact: true }).click();
-    await expect(page.locator('.legend')).toBeHidden();
-    await expect(page.locator('.keys-strip')).toBeVisible();
-    await expect(page.locator('#guide')).toBeHidden();
-    expect(page.url()).toContain('v=mission');
-    await page.locator('.view-switch').getByText('Learn', { exact: true }).click();
-    await expect(page.locator('.intro')).toBeVisible();
+    await expect(page.locator('#guide-toggle')).toBeVisible();
+    await expect(page.locator('.view-switch input')).toHaveCount(2);
     // The same five tabs in every view, grouped, with the selected site named over its own.
     await expect(page.getByRole('tab')).toHaveCount(5);
     await expect(page.locator('#tabs .tab-group')).toHaveText([
@@ -270,15 +263,28 @@ test.describe('views, theme and help', () => {
     await expect(page.getByRole('tab', { name: 'Sun-Path Chart' })).toHaveAccessibleDescription(
       'Peak near Shackleton',
     );
+    await page.locator('.view-switch').getByText('Mission', { exact: true }).click();
+    await expect(page.locator('.legend')).toBeHidden();
+    await expect(page.locator('.keys-strip')).toBeVisible();
+    await expect(page.locator('#guide')).toBeHidden();
+    await expect(page.locator('#guide-toggle')).toBeHidden();
+    expect(page.url()).toContain('v=mission');
     await page.reload();
-    await expect(page.locator('#guide')).toBeVisible(); // the view is remembered
+    await expect(page.locator('.keys-strip')).toBeVisible(); // the view is remembered
+    await page.locator('.view-switch').getByText('Explore', { exact: true }).click();
+    await expect(page.locator('#guide-toggle')).toBeVisible();
   });
 
-  test('the Learn guide follows the tab, and folds away', async ({ page }) => {
+  test('the guide follows the tab, and switches off', async ({ page }) => {
+    // An old Learn link is Explore with the guide open.
     await open(page, '#v=learn');
     const guide = page.locator('#guide');
+    const toggle = page.locator('#guide-toggle');
     const shown = guide.locator('section[data-guide]:visible');
+    await expect(page.locator('.view-switch input[value="explore"]')).toBeChecked();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('#guide-title')).toHaveText('Guide: Planner');
+    await expect(guide).toContainText('Four Lights checks 12 candidate sites');
     await expect(shown).toHaveCount(1);
     await expect(shown).toContainText('On this tab: the Slip Planner');
     await expect(shown).toContainText('Slip the launch.');
@@ -287,7 +293,7 @@ test.describe('views, theme and help', () => {
       ['Map', 'On this tab: the Map', 'Compare two sites.'],
       ['Sun-Path Chart', 'What the four lights mean', 'Stand taller.'],
       ['Survive the Night', 'On this tab: Survive the Night', 'Size a battery.'],
-      ['About this site', 'On this tab: About this site', 'Check the writer.'],
+      ['Landing site details', 'On this tab: Landing site details', 'Check the writer.'],
     ] as const) {
       await showTab(page, tab);
       await expect(page.locator('#guide-title')).toHaveText(`Guide: ${tab}`);
@@ -301,14 +307,16 @@ test.describe('views, theme and help', () => {
     await expect(guide).toContainText('It did get something wrong');
     await page.locator('#learn-words').click();
     await expect(guide.locator('.glossary')).toContainText('Libration');
-    // Folded away it leaves the page to the tool, and stays folded after a reload.
-    await page.locator('#guide-toggle').click();
-    await expect(page.locator('#guide-body')).toBeHidden();
-    await expect(page.locator('#guide-toggle')).toHaveText('Show the guide');
+    // Switched off it leaves the page to the tool; the link and the next visit remember it.
+    await toggle.click();
+    await expect(guide).toBeHidden();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(page.url()).toContain('v=explore');
     await page.reload();
-    await expect(page.locator('#guide-body')).toBeHidden();
-    await page.locator('#guide-toggle').click();
-    await expect(page.locator('#guide-body')).toBeVisible();
+    await expect(guide).toBeHidden();
+    await toggle.click();
+    await expect(guide).toBeVisible();
+    expect(page.url()).toContain('v=learn');
   });
 
   test('the theme switch forces light and dark', async ({ page }) => {

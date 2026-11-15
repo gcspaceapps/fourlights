@@ -60,15 +60,7 @@
                 /><span>Explore</span
                 ><span class="tip" role="tooltip" id="tip-explore"
                   >For everyone: the tools with short captions, photographs and a written summary of
-                  each site.</span
-                ></label
-              >
-              <label
-                ><input type="radio" name="view" value="learn" aria-describedby="tip-learn" /><span
-                  >Learn</span
-                ><span class="tip" role="tooltip" id="tip-learn"
-                  >For students and teachers: everything in Explore, plus why the south pole is
-                  different, how to read the chart, a glossary and things to try.</span
+                  each site. Turn on the Guide for explanations and things to try.</span
                 ></label
               >
             </div>
@@ -93,12 +85,6 @@
           <kbd>,</kbd> <kbd>.</kbd> time · <kbd>/</kbd> ask · <kbd>V</kbd> view · <kbd>Ctrl</kbd>
           <kbd>/</kbd> all shortcuts
         </p>
-        <p class="intro v-learn">
-          At the Moon's south pole the Sun and Earth skim the horizon, so the hills and crater rims
-          around a landing site decide whether it has power and a link home. Four Lights checks 12
-          candidate sites against their real skylines, from NASA's laser-altimeter terrain, for
-          every hour of 2028 and 2029.
-        </p>
       </header>
 
       <div class="selected-bar">
@@ -114,7 +100,19 @@
         <span id="selected-note" aria-live="polite"></span>
         <span id="plan-note" class="plan-note" role="status"></span>
       </div>
-      <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
+      <div class="tabs-row">
+        <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
+        <button
+          type="button"
+          class="guide-toggle v-explore"
+          id="guide-toggle"
+          aria-expanded="false"
+          aria-controls="guide"
+          title="Show or hide the guide: what this tab shows, and things to try"
+        >
+          Guide
+        </button>
+      </div>
       <div class="workspace">
         <div class="workspace-main">
           <div data-tab="Planner" data-tab-group="All sites">
@@ -435,7 +433,7 @@
 
           <section
             class="site-info needs-data"
-            data-tab="About this site"
+            data-tab="Landing site details"
             data-tab-group="Selected site"
             aria-labelledby="site-title"
           >
@@ -444,7 +442,7 @@
               id="site-title"
               data-info="Position, ground height and terrain come from the NASA LOLA files named below; the site point follows the rule shown. The whole-period figures are computed in your browser from the same data as the chart."
             >
-              About this site
+              Landing site details
             </h2>
             <div class="review v-explore" id="review" hidden>
               <p id="review-text"></p>
@@ -453,14 +451,15 @@
             <dl id="site-info"></dl>
           </section>
         </div>
-        <aside class="guide v-learn" id="guide" aria-labelledby="guide-title">
-          <div class="guide-head">
-            <h2 id="guide-title">Guide<span id="guide-where"></span></h2>
-            <button type="button" id="guide-toggle" aria-expanded="true" aria-controls="guide-body">
-              Hide
-            </button>
-          </div>
+        <aside class="guide v-explore" id="guide" aria-labelledby="guide-title">
+          <h2 id="guide-title">Guide<span id="guide-where"></span></h2>
           <div class="guide-body learn" id="guide-body">
+            <p class="guide-lead">
+              At the Moon's south pole the Sun and Earth skim the horizon, so the hills and crater
+              rims around a landing site decide whether it has power and a link home. Four Lights
+              checks 12 candidate sites against their real skylines, from NASA's laser-altimeter
+              terrain, for every hour of 2028 and 2029.
+            </p>
             <details class="guide-more" id="guide-start">
               <summary id="learn-start">New here? Why the south pole is different</summary>
 
@@ -749,8 +748,8 @@
               </ol>
             </section>
 
-            <section data-guide="about-this-site" aria-labelledby="guide-about">
-              <h3 id="guide-about">On this tab: About this site</h3>
+            <section data-guide="landing-site-details" aria-labelledby="guide-about">
+              <h3 id="guide-about">On this tab: Landing site details</h3>
               <p>
                 The facts we computed for the selected site, and above them a short review written
                 from those facts by an AI language model. A separate program checked every number in

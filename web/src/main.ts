@@ -8,7 +8,7 @@ import {
 } from './battery';
 import { renderChart } from './chart';
 import { infoTip, lightIcon, upgradeIcons, upgradeInfoTips, type LightName } from './icons';
-import { setupGuide, showGuide } from './guide';
+import { guideOpen, setGuide, setupGuide, showGuide } from './guide';
 import { renderEarthBob, renderSunYear } from './learn';
 import { setupMap } from './map';
 import { loadUserSites, makeUserSite, mergeSites, saveUserSites } from './usersites';
@@ -146,7 +146,7 @@ function writeHash(): void {
     ps: ui.preset.value,
     pw: [ui.pArray.value, ui.pDay.value, ui.pDark.value, ui.pBatt.value].join('_'),
     tab: activeTab(),
-    v: document.documentElement.dataset.view ?? 'explore',
+    v: currentMode(),
   });
   if (project) p.set('project', project.id);
   history.replaceState(null, '', `#${p.toString()}`);
@@ -651,7 +651,7 @@ function collectView(): ViewState {
   const look = mapTab.getLook();
   return {
     tab: activeTab(),
-    mode: (document.documentElement.dataset.view as View | undefined) ?? 'explore',
+    mode: currentMode(),
     centre: ui.centre.value,
     time: ui.time.value,
     layer: look.layer,
@@ -754,7 +754,7 @@ function applyView(v: Partial<ViewState>): void {
   applying = true;
   try {
     // The mode first: a Learn-only tab does not exist in the other modes.
-    if (v.mode && v.mode !== cur.mode) setView(v.mode, false);
+    if (v.mode && v.mode !== cur.mode) setMode(v.mode, false);
     if (v.tab && v.tab !== cur.tab) showTab(v.tab);
     let redraw = false;
     if (v.centre !== undefined && v.centre !== cur.centre) {
@@ -1043,12 +1043,28 @@ function setupAsk(): void {
   });
 }
 
-const VIEWS = ['mission', 'explore', 'learn'] as const;
+const VIEWS = ['mission', 'explore'] as const;
 type View = (typeof VIEWS)[number];
+/**
+ * What the URL (`v=`) and a shared project carry: the view, with Explore split by whether the
+ * guide is open. "learn" is Explore with the guide showing (it used to be a view of its own).
+ */
+type Mode = View | 'learn';
+
+function currentMode(): Mode {
+  const view = (document.documentElement.dataset.view as View | undefined) ?? 'explore';
+  return view === 'explore' && guideOpen() ? 'learn' : view;
+}
+
+/** Put a mode on the page: the view, and for Explore whether the guide is open. */
+function setMode(m: Mode, remember = true): void {
+  if (m !== 'mission') setGuide(m === 'learn', remember);
+  setView(m === 'mission' ? 'mission' : 'explore', remember);
+}
 
 /**
- * Three views of the same data: Mission (no explanation, shortcuts in sight), Explore (the
- * default) and Learn (teaching panels). In the URL as `v`, and remembered in this browser.
+ * Two views of the same data: Mission (no explanation, shortcuts in sight) and Explore (the
+ * default), which has the guide panel to switch on. Remembered in this browser.
  */
 function setView(v: View, remember = true): void {
   document.documentElement.dataset.view = v;
@@ -1076,7 +1092,11 @@ function setupViews(): void {
     // storage blocked
   }
   const fromUrl = readHash().get('v');
-  setView(isView(fromUrl) ? fromUrl : isView(saved) ? saved : 'explore', false);
+  // A link says which view and whether the guide was open; otherwise as this browser left it
+  // ("learn" may be what an older visit saved: it is Explore now).
+  if (fromUrl === 'mission' || fromUrl === 'explore' || fromUrl === 'learn')
+    setMode(fromUrl, false);
+  else setView(isView(saved) ? saved : 'explore', false);
   for (const r of document.querySelectorAll<HTMLInputElement>('input[name="view"]')) {
     r.addEventListener('change', () => {
       if (r.checked && isView(r.value)) setView(r.value);
@@ -1229,7 +1249,7 @@ const SHORTCUTS: Shortcut[] = [
   {
     group: 'Page',
     keys: ['V'],
-    what: 'Next view: Mission, Explore, Learn',
+    what: 'Switch view: Mission or Explore',
     match: key('v', 'V'),
     run: nextView,
   },
@@ -1273,7 +1293,7 @@ function syncGuide(): void {
   showGuide(slug, document.getElementById(`tab-${slug}`)?.textContent ?? '');
 }
 
-setupGuide();
+setupGuide(() => writeHash());
 setupTabs($('tabs'), readHash().get('tab'), (slug) => {
   writeHash();
   mapTab.setActive(slug === 'map');

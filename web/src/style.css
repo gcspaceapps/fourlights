@@ -195,11 +195,6 @@ h1 .logo-home {
   margin: 0.25rem 0 0;
 }
 
-.intro {
-  max-width: var(--measure);
-  margin: 0.75rem 0 0;
-}
-
 /* One bold weight across the page: headings, labels and emphasis in running text all use 600. */
 strong,
 b,
@@ -221,22 +216,17 @@ h2 {
 }
 
 /* Tabs: one panel at a time; Learn-only tabs follow the view rules above. */
-/* Learn view: the tabs' content with the guide panel beside it. In the other views the guide
-   does not exist and the content takes the full width. */
-:root[data-view='learn'] main {
+/* The guide panel, when it is switched on in the Explore view: the tabs' content with the guide
+   beside it, using more of a wide screen to make room. */
+:root[data-guide-state='open']:not([data-view='mission']) main {
   max-width: 100rem;
 }
 
-:root[data-view='learn'] .workspace {
+:root[data-guide-state='open']:not([data-view='mission']) .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 23rem;
   gap: 1.5rem;
   align-items: start;
-}
-
-/* Folded away, the guide is only its button, above the content on the right. */
-:root[data-view='learn'][data-guide-state='closed'] .workspace {
-  grid-template-columns: minmax(0, 1fr);
 }
 
 .guide {
@@ -252,36 +242,44 @@ h2 {
 }
 
 :root[data-guide-state='closed'] .guide {
-  position: static;
-  order: -1;
-  justify-self: end;
-  max-height: none;
-  padding: 0;
-  border: 0;
-  background: none;
-}
-
-:root[data-guide-state='closed'] .guide-body,
-:root[data-guide-state='closed'] .guide-head h2 {
   display: none;
 }
 
-.guide-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.guide-head h2 {
+.guide h2 {
   margin: 0;
   font-size: var(--fs-lg);
 }
 
-.guide-head button {
-  min-height: 2rem;
-  padding: 0 0.7rem;
+.guide-lead {
+  margin: 0.5rem 0 0;
   font-size: var(--fs-sm);
+}
+
+/* The tab bar and, at its end, the button that switches the guide on and off */
+.tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0 0.75rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.tabs-row .tabs {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.guide-toggle {
+  flex: none;
+  min-height: 2.25rem;
+  margin-bottom: 0.35rem;
+  padding: 0 0.9rem;
+  border-left: 4px solid var(--go-edge);
+}
+
+.guide-toggle[aria-expanded='true'] {
+  background: var(--surface-2);
+  box-shadow: inset 0 -3px 0 var(--go-edge);
 }
 
 /* The guide reuses the teaching styles (.learn) without their own box. */
@@ -355,7 +353,7 @@ h2 {
 
 /* No room beside the page: the guide sits above the content, and scrolls with it. */
 @media (max-width: 64rem) {
-  :root[data-view='learn'] .workspace {
+  :root[data-guide-state='open']:not([data-view='mission']) .workspace {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -363,10 +361,6 @@ h2 {
     position: static;
     order: -1;
     max-height: none;
-  }
-
-  :root[data-guide-state='closed'] .guide {
-    justify-self: start;
   }
 }
 

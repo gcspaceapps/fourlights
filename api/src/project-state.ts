@@ -52,6 +52,7 @@ export interface DataState {
 
 export interface ViewState {
   tab: string;
+  /** 'learn' is Explore with the guide panel open (it used to be a view of its own). */
   mode: 'mission' | 'explore' | 'learn';
   centre: string;
   time: string;

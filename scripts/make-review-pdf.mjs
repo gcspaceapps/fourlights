@@ -284,12 +284,12 @@ const TABS = {
     label: 'Survive the Night',
     text: 'A simple battery model for the selected site and window. Pick a power system (round illustrative numbers, each with a credited NASA photograph) or adjust the solar array, loads and battery, and the chart shows the state of charge hour by hour, with the dark hours shaded, and whether the vehicle survives.',
   },
-  'about-this-site': {
-    label: 'About this site',
+  'landing-site-details': {
+    label: 'Landing site details',
     text: 'Facts about the selected site: where it is, which elevation models its skyline was computed from, and a short written review of the site drawn from our own numbers.',
   },
 };
-const MAIN = ['planner', 'map', 'sun-path-chart', 'survive-the-night', 'about-this-site'];
+const MAIN = ['planner', 'map', 'sun-path-chart', 'survive-the-night', 'landing-site-details'];
 const VIEWS = [
   {
     id: 'explore',
@@ -305,8 +305,8 @@ const VIEWS = [
   },
   {
     id: 'learn',
-    label: 'Learn view',
-    text: 'For students and newcomers: the same tools, with a guide panel on the right that explains the tab you are on and suggests things to try.',
+    label: 'Explore with the guide',
+    text: 'The Guide button at the end of the tab bar opens a panel on the right that explains the tab you are on and suggests things to try. For students and newcomers.',
     tabs: MAIN,
   },
 ];
@@ -508,11 +508,11 @@ function plannerStates() {
           .filter({ has: page.getByRole('button', { name: 'Nobile Rim 1', exact: true }) })
           .locator('.approx')
           .getAttribute('title');
-        await tab(page, 'About this site');
+        await tab(page, 'Landing site details');
         await settle(page, 300);
-        await part('Step 3: open the About this site tab.', 'full');
+        await part('Step 3: open the Landing site details tab.', 'full');
         note(
-          `Where "approximate" is flagged: (1) on the Planner, as an "approx. terrain" tag after the site's name in its row (hover text: "${title}"), in the legend above the table, and after the site's name in the summary sentence; (2) on About this site, in the Source line. Nothing marks it on the selected-site bar, the Map or the Sun-Path Chart.`,
+          `Where "approximate" is flagged: (1) on the Planner, as an "approx. terrain" tag after the site's name in its row (hover text: "${title}"), in the legend above the table, and after the site's name in the summary sentence; (2) on Landing site details, in the Source line. Nothing marks it on the selected-site bar, the Map or the Sun-Path Chart.`,
         );
       },
     },
@@ -1048,7 +1048,7 @@ async function aboutStates() {
   } catch {
     worst = null;
   }
-  const about = (id) => `/#v=explore&site=${id}&tab=about-this-site`;
+  const about = (id) => `/#v=explore&site=${id}&tab=landing-site-details`;
   const id = worst?.id ?? 'mons-mouton';
   return [
     {
@@ -1058,7 +1058,7 @@ async function aboutStates() {
         : 'The app has no single overall ranking, and the reviews could not be read to work one out, so this is one low-ranked site.',
       steps: [
         `Open the page in Explore view and choose ${id} in the Selected site dropdown.`,
-        'Open the About this site tab.',
+        'Open the Landing site details tab.',
       ],
       path: about(id),
     },
@@ -1066,7 +1066,7 @@ async function aboutStates() {
       title: 'An approximate-terrain site (Peak near Cabeus B)',
       steps: [
         'Open the page in Explore view and choose "Peak near Cabeus B" in the Selected site dropdown.',
-        'Open the About this site tab.',
+        'Open the Landing site details tab.',
       ],
       path: about('peak-near-cabeus-b'),
       run: async (page, note) =>
@@ -1154,10 +1154,10 @@ function globalStates() {
       },
     },
     {
-      title: 'Hover text on Mission, Explore and Learn',
+      title: 'Hover text on Mission and Explore',
       steps: [`Open the page: ${DEMO}.`],
       run: async (page, note, part) => {
-        for (const v of ['mission', 'explore', 'learn']) {
+        for (const v of ['mission', 'explore']) {
           await page.locator(`.view-switch label:has(input[value="${v}"])`).hover();
           await page.waitForTimeout(350);
           const text = (await page.locator(`#tip-${v}`).innerText()).replace(/\s+/g, ' ').trim();
@@ -1344,8 +1344,8 @@ function smallStates() {
         run: (page) => moonReady(page),
       },
       {
-        title: `${name}: Learn view with the guide`,
-        steps: [`In a ${size} window, choose Learn in the header.`],
+        title: `${name}: Explore with the guide`,
+        steps: [`In a ${size} window, press Guide at the end of the tab bar.`],
         viewport,
         path: '/#v=learn&tab=planner',
       },
@@ -1362,15 +1362,15 @@ function smallStates() {
     ...device('Phone', PHONE),
     ...device('Tablet', TABLET),
     {
-      title: 'Projector: Learn view with the guide',
+      title: 'Projector: Explore with the guide',
       text: 'As a classroom projector at 1280 x 720 would show it.',
-      steps: ['In a 1280 x 720 window, choose Learn in the header.'],
+      steps: ['In a 1280 x 720 window, press Guide at the end of the tab bar.'],
       viewport: PROJECTOR,
       path: '/#v=learn&tab=planner',
     },
     {
       title: 'Projector: Sun-Path Chart',
-      steps: [`In a 1280 x 720 window, in Learn view, open the Sun-Path Chart tab: ${DEMO}.`],
+      steps: [`In a 1280 x 720 window, with the guide open, open the Sun-Path Chart tab: ${DEMO}.`],
       viewport: PROJECTOR,
       path: '/#v=learn&tab=sun-path-chart',
     },
@@ -1543,7 +1543,7 @@ async function main() {
       { id: '3', title: 'Sun-Path Chart states', entries: () => chartStates(browser) },
       { id: '4', title: 'Map states', entries: mapStates },
       { id: '5', title: 'Survive the Night states', entries: () => nightStates(browser) },
-      { id: '6', title: 'About this site', entries: aboutStates },
+      { id: '6', title: 'Landing site details', entries: aboutStates },
       { id: '7', title: 'Global controls and errors', entries: globalStates },
       { id: '8', title: 'Share Project', entries: () => shareStates(browser), ready: true },
       { id: '9', title: 'Dark mode', entries: darkStates },

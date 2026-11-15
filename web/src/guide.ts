@@ -1,42 +1,48 @@
-// The Learn view's guide: a panel beside the tabs whose content follows the tab that is open.
-// Each `[data-guide="<tab slug>"]` section in the panel shows only for that tab; the rest of the
-// panel (the introduction, where AI is used, the glossary) is there on every tab. Whether the
-// panel is open is each person's own choice, kept in this browser and never shared.
+// The guide: a panel beside the tabs, in the Explore view, whose content follows the tab that is
+// open. Each `[data-guide="<tab slug>"]` section in the panel shows only for that tab; the rest
+// (why the south pole, where AI is used, the glossary) is there on every tab. It is switched on
+// and off with the Guide button at the end of the tab bar, and the choice is kept in this browser.
+// Explore with the guide open is what a shared project and the URL call the "learn" mode.
 
 const KEY = 'guide';
 
-function stored(): 'open' | 'closed' | null {
+function stored(): boolean | null {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'open' || v === 'closed' ? v : null;
+    return v === 'open' ? true : v === 'closed' ? false : null;
   } catch {
     return null; // storage blocked: decide from the screen
   }
 }
 
-/** Open by default where there is room beside the page; folded away on a narrow screen. */
-function initial(): 'open' | 'closed' {
-  return stored() ?? (window.matchMedia('(min-width: 64rem)').matches ? 'open' : 'closed');
+export function guideOpen(): boolean {
+  return document.documentElement.dataset.guideState === 'open';
 }
 
-function apply(state: 'open' | 'closed', toggle: HTMLElement): void {
-  document.documentElement.dataset.guideState = state;
-  toggle.setAttribute('aria-expanded', String(state === 'open'));
-  toggle.textContent = state === 'open' ? 'Hide' : 'Show the guide';
+/** Open or close the guide. `remember` keeps the choice for the next visit. */
+export function setGuide(open: boolean, remember = true): void {
+  document.documentElement.dataset.guideState = open ? 'open' : 'closed';
+  document.getElementById('guide-toggle')?.setAttribute('aria-expanded', String(open));
+  if (!remember) return;
+  try {
+    localStorage.setItem(KEY, open ? 'open' : 'closed');
+  } catch {
+    // storage blocked: the choice lasts until the page is reloaded
+  }
 }
 
-export function setupGuide(): void {
-  const toggle = document.getElementById('guide-toggle');
-  if (!toggle) return;
-  apply(initial(), toggle);
-  toggle.addEventListener('click', () => {
-    const next = document.documentElement.dataset.guideState === 'open' ? 'closed' : 'open';
-    apply(next, toggle);
-    try {
-      localStorage.setItem(KEY, next);
-    } catch {
-      // storage blocked: the choice lasts until the page is reloaded
-    }
+/**
+ * Wire the Guide button. Unless something has already set it (a link, a shared project), the
+ * guide starts as it was left; on a first visit it is open where there is room beside the page
+ * and closed on a narrow screen.
+ */
+export function setupGuide(onChange: () => void): void {
+  if (document.documentElement.dataset.guideState === undefined) {
+    setGuide(stored() ?? window.matchMedia('(min-width: 64rem)').matches, false);
+  }
+  document.getElementById('guide-toggle')?.addEventListener('click', () => {
+    setGuide(!guideOpen());
+    onChange();
   });
 }
 

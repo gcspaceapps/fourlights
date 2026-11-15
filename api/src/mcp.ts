@@ -31,7 +31,7 @@ const TABS: Record<string, { label: string; learn: boolean }> = {
   map: { label: 'Map', learn: false },
   'sun-path-chart': { label: 'Sun-Path Chart', learn: false },
   'survive-the-night': { label: 'Survive the Night', learn: false },
-  'about-this-site': { label: 'About this site', learn: false },
+  'landing-site-details': { label: 'Landing site details', learn: false },
 };
 
 const VERDICTS: Record<string, string> = { g: 'works', a: 'marginal', r: 'no power' };
@@ -357,7 +357,7 @@ const TOOLS: Tool[] = [
   {
     name: 'set_view',
     description:
-      "Change the shared view: Mission / Explore / Learn mode, the Sun-Path Chart's centre day and " +
+      "Change the shared view: the mode (mission, explore, or learn, which is Explore with the guide panel open), the Sun-Path Chart's centre day and " +
       "time cursor, the Moon's layer and graticule. Only people following the group's view see " +
       'it. For tabs use switch_tab.',
     inputSchema: schema({
