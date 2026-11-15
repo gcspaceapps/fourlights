@@ -4,29 +4,49 @@
 
 Our entry for the [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/), challenge [#11 Lunar Landing Site Navigator](https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/).
 
-**Live demo:** _URL added on Sunday evening_
+**Live demo:** https://fourlights.gcsa.space (public from Sunday 15 November 2026, 19:30 AEST; behind a password until then)
 
-![The Slip Planner after a 3-day slip: four sites go red, two stay green](stages/02_build/output/media/screenshot.png)
+![The Slip Planner after a 3-day slip: the plan stays pinned on 19 April and the answer says what the slip cost](stages/02_build/output/media/screenshot.png)
 _Planned landing 19 April 2028, launch slips 3 days: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B lose power, Peak near Shackleton and Slater Plain still work, and Shackleton rim comes good._
 
+## Try it in two minutes
+1. Open the app. The **Planner** shows 12 candidate landing sites against landing dates; each cell is the **usable days** in the mission window (time with sunlight and a link to Earth). Six sites work for 19 April 2028.
+2. Press **Slip + 1 day** three times (or `]`). The plan stays pinned, the highlight moves to 22 April, and the sentence above the table tells you what the slip cost: four sites lost, one gained, two still work.
+3. Click a green cell. The **Sun-Path Chart** opens for that site: its real skyline all the way round, the Sun's path in gold and Earth's in blue, and four lights (Sun, Earth, Power, Comms). Drag the time slider.
+4. Open the **Map** to see all 12 sites on a 3D Moon, coloured for that landing date.
+5. Press **Guide** at the end of the tab bar for an explanation of the tab you are on and things to try.
+
 ## What it does
-- **Sun-Path Chart:** stand at a site and look around: a 360° skyline from NASA's LOLA terrain, with the Sun's and Earth's paths traced over it and a time slider.
-- **Slip Planner:** sites × landing dates, each cell showing **usable days** (hours with the Sun up and Earth in view, over the mission window). Slip the landing and the plan stays pinned: the answer says what the slip cost ("lost 4, gained 1, 2 still work") and why each cell passes or fails.
-- **Sun and Earth at this hour (the pointing numbers):** the Sun's and Earth's azimuth and elevation at any hour, the terrain height in that direction and the clearance, with a CSV download of the whole mission window, for aiming solar panels and antennas.
-- **Canberra Link:** the Comms light also needs a Deep Space Network station (Goldstone, Canberra or Madrid) that can see the Moon, and names the one carrying the link.
-- **3D map:** a Moon you can turn and zoom (three.js), opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured and shaped for the landing shown. Choose a site anywhere and the Moon turns to it. You can add sites of your own as notes.
-- **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only translates the words into settings; the planner computes the answer.
+
+**Planning**
+- **Slip Planner:** sites × landing dates, each cell the usable days for a landing on that date, with a verdict by colour and shape (works, marginal, no power). Slip the landing and the plan stays pinned: the answer says what the slip cost, and pointing at a cell says why it passes or fails.
+- **Ask in plain English:** type "Launch slips 3 days from 19 April. Which sites still work?" and the planner moves to that view. A language model only turns the words into settings; the planner computes the answer.
+- **Mission window** of 7, 14 or 30 days, and any landing date in 2028 or 2029.
+
+**One site in detail** (the tabs named after the selected site)
+- **Sun-Path Chart:** stand at the site and look around: a 360° skyline from NASA's LOLA terrain with the Sun's and Earth's paths traced over it, a time slider, and the four lights for that hour. The Comms light also needs a Deep Space Network station (Goldstone, Canberra or Madrid) that can see the Moon, and names the one carrying the link.
+- **Sun and Earth at this hour:** azimuth, elevation, the terrain height in that direction and the clearance, for aiming solar panels and antennas, with a CSV download of the whole mission window.
+- **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset or adjust the array, loads and battery.
+- **Landing site details:** where the site is, which elevation models its skyline came from, and a short AI-written review, generated ahead of time from our own numbers, checked against them and labelled as such.
+
+**All the sites**
+- **3D map:** a Moon you can turn and zoom, opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured for the landing shown. Choose a site anywhere and the Moon turns to it. Add sites of your own as notes.
+- **12 curated sites:** the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
+
+**Working together, and with an AI assistant**
 - **Share Project:** name a project and get a link: everyone who opens it sees the same site, date, slip, window and added sites live, and can follow each other's tab and view. No accounts; a project is found only by its ID.
-- **Drive it from an AI assistant (MCP):** each shared project has an MCP address, so Claude, ChatGPT or any MCP client can read the project, rank sites from the published numbers and change what everyone sees. The Share dialog gives the address and the steps.
-- **Site review:** a short AI-written summary of each site, generated ahead of time from our own numbers and labelled as such.
-- **Survive the Night:** a simple battery model through the mission window: does a given power system make it through the dark spells? Start from a preset, or adjust the array, loads and battery for planning or for looking back.
-- **Two views and a guide:** Mission (terse, shortcuts in sight) and Explore (the default). In Explore the Guide button opens a panel beside the tools that follows the tab you are on: how to read it, things to try, NASA photographs and charts drawn from the site's own data, where AI is used, and a glossary. For planners, the public and classrooms.
-- **Keyboard shortcuts:** `]` and `[` slip the date, left and right arrows switch tab, `,` and `.` move the time, `J`/`K` change site; `Ctrl` `/` (or `?`) lists them all.
-- **How we built it** (`/how`): the solutions architecture, with diagrams: the design decisions and their trade-offs, the pipeline, the horizon engine, serving at the edge, and how each layer is independently checked.
-- **Data sources page** (`/sources`): every dataset, what the app uses it for, what we did to it, how we checked it, its limits, licence and citation, plus links to download our derived files.
-- **Open in QGIS** (`/qgis`): the same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file, an offline GeoPackage, and where to get QGIS. No map server and no database: static FlatGeobuf and Cloud Optimized GeoTIFF files read by HTTP range requests.
+- **MCP:** each shared project has an MCP address, so Claude, ChatGPT or any MCP client can read the project, rank sites from the published numbers and change what everyone sees. The Share dialog gives the address and the steps.
+
+**For different people**
+- **Two views:** Mission (terse, keyboard shortcuts in sight) and Explore (the default).
+- **The Guide:** in Explore, a panel beside the tools that follows the tab you are on: what it shows, things to try, NASA photographs and charts drawn from the site's own data, where AI is used, a glossary and further reading. For newcomers and classrooms.
+- **Keyboard shortcuts:** `]` and `[` slip the date, left and right arrows switch tab, `,` and `.` move the time, `J`/`K` change site, `I` opens the guide; `Ctrl` `/` (or `?`) lists them all, and the single-key ones can be switched off there.
+- **Open in QGIS** (`/qgis`): the same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file, an offline GeoPackage, and where to get QGIS. No map server and no database.
+
+**Showing its working**
 - **Where it comes from:** an info button beside each view, light and number says which NASA dataset or which of our own definitions is behind it.
-- 12 curated sites: the six NASA PGDA 5 m sites and six more of NASA's Artemis candidate regions.
+- **Data sources** (`/sources`): every dataset, what the app uses it for, what we did to it, how we checked it, its limits, licence and citation, plus links to download our derived files.
+- **How we built it** (`/how`): the architecture with diagrams, the design decisions and their trade-offs, the pipeline, the horizon engine, and how each layer is independently checked.
 
 ## Run it locally
 Needs Node 22+, Python 3.12+, [uv](https://docs.astral.sh/uv/) and ruff.
@@ -40,7 +60,18 @@ npm run test:e2e:watch   # the same, in a visible Chrome window, slowed down so 
 npm run test:e2e:ui      # Playwright's test window: pick tests, step through, replay each action
 npm run review-pdf   # a PDF of every view, tab and state with captions, from a running local copy
 ```
-The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
+The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. The tests: 107 unit tests for the app and Worker, 49 for the pipeline, and 41 end-to-end in a real browser. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
+
+## Find your way around
+| If you want | Look at |
+|---|---|
+| what we built and why, hour by hour | [`stages/02_build/output/build-log.md`](stages/02_build/output/build-log.md) |
+| the idea, the four lights' rules and what we cut | [`_shared/concept.md`](_shared/concept.md) |
+| each dataset: what it is, how we load it, its flaws | [`_datasets/`](_datasets/_index.md) |
+| every pipeline run, with inputs and sizes | [`stages/01_data/output/data-manifest.md`](stages/01_data/output/data-manifest.md) |
+| how the results were checked | [`_shared/validation.md`](_shared/validation.md), and "How we know it's right" below |
+| the code | `web/` (the page), `api/` (the Cloudflare Worker), `pipeline/` (Python and GDAL); each has a `CONTEXT.md` |
+| the submission text | [`stages/03_pitch/output/project-page.md`](stages/03_pitch/output/project-page.md) |
 
 ## Deploy
 ```sh
