@@ -22,6 +22,17 @@ export interface PipelineEnv {
   FLY_REGION?: string;
   /** Tests and local runs point this at a stand-in for https://api.machines.dev. */
   FLY_API_BASE?: string;
+  /** Sites computed per day (UTC) across every project; DEFAULT_DAILY_RUNS when unset. */
+  COMPUTE_DAILY_MAX?: string;
+}
+
+export const DEFAULT_DAILY_RUNS = 20;
+/** The Durable Object that keeps the day's count: a name no project can have. */
+export const RUN_COUNTER = 'run-counter';
+
+export function dailyRuns(env: PipelineEnv): number {
+  const n = Number(env.COMPUTE_DAILY_MAX);
+  return Number.isInteger(n) && n >= 0 ? n : DEFAULT_DAILY_RUNS;
 }
 
 export const pipelineReady = (env: PipelineEnv): boolean =>

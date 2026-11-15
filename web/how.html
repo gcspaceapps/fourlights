@@ -243,8 +243,8 @@ sequenceDiagram
         <p>
           The heavy work never runs in the Worker: it starts the machine and stores what comes back.
           The machine holds no secrets of ours, only a token that is good for one result. One site
-          is computed at a time and a project can compute five, which bounds the cost, and removing
-          one setting switches the feature off without a deploy.
+          is computed at a time, a project can compute three and the whole site twenty a day, which
+          bounds the cost, and removing one setting switches the feature off without a deploy.
         </p>
       </section>
 
@@ -375,8 +375,8 @@ sequenceDiagram
           <dd>
             The site needs no login. The question box and creating a project are rate-limited per
             address at Cloudflare's edge, before the Worker runs. Computing a site is bounded
-            differently: one runs at a time, and a project can compute five. Request sizes, project
-            sizes and the model's output are all capped.
+            differently: one runs at a time, a project can compute three, and the whole site twenty
+            a day. Request sizes, project sizes and the model's output are all capped.
           </dd>
         </dl>
       </section>
@@ -454,7 +454,7 @@ sequenceDiagram
         <dl>
           <dt>Unit tests</dt>
           <dd>
-            122 for the front end and Worker and 49 for the pipeline, run before every commit and
+            123 for the front end and Worker and 49 for the pipeline, run before every commit and
             deploy. The code that computes or draws is the best covered: the light rules 96% of
             lines, the chart and the battery model 99%, the globe's maths 97%, the pipeline's
             geometry 100% and its horizon engine 86%. The page wiring is exercised by the end-to-end

@@ -121,6 +121,23 @@ export class Project extends DurableObject {
     return { ok: true, token, site: { ...site, status: 'computing' } };
   }
 
+  /**
+   * The site-wide count of runs per day. It is kept in one object of this class that is no
+   * project (the Worker names it `RUN_COUNTER`, which is not a uuid, so no route reaches it).
+   * `take` counts a run if the day has room; `give` hands one back when the machine did not start.
+   */
+  async takeRun(day: string, max: number): Promise<boolean> {
+    const used = (await this.ctx.storage.get<number>(`runs:${day}`)) ?? 0;
+    if (used >= max) return false;
+    await this.ctx.storage.put(`runs:${day}`, used + 1);
+    return true;
+  }
+
+  async giveRun(day: string): Promise<void> {
+    const used = (await this.ctx.storage.get<number>(`runs:${day}`)) ?? 0;
+    if (used > 0) await this.ctx.storage.put(`runs:${day}`, used - 1);
+  }
+
   /** True if `token` is the one handed out for this site's current run. */
   async jobValid(siteId: string, token: string): Promise<boolean> {
     const job = await this.ctx.storage.get<Job>(`job:${siteId}`);

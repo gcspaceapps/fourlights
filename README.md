@@ -60,7 +60,7 @@ npm run test:e2e:watch   # the same, in a visible Chrome window, slowed down so 
 npm run test:e2e:ui      # Playwright's test window: pick tests, step through, replay each action
 npm run review-pdf   # a PDF of every view, tab and state with captions, from a running local copy
 ```
-The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. The tests: 122 unit tests for the app and Worker, 49 for the pipeline, and 42 end-to-end in a real browser. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
+The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. The tests: 123 unit tests for the app and Worker, 49 for the pipeline, and 42 end-to-end in a real browser. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
 
 ## Find your way around
 | If you want | Look at |

@@ -512,6 +512,45 @@ describe('computing a project site', () => {
     }
   });
 
+  it('stops at the day’s limit for the whole site, and does not count a run that never started', async () => {
+    const { e, calls, restore } = pipelineEnv();
+    const limited = { ...e, COMPUTE_DAILY_MAX: '2' };
+    try {
+      const ask = async () => {
+        const id = await withProject(limited);
+        return app.request(`/api/projects/${id}/sites/camp/compute`, { method: 'POST' }, limited);
+      };
+      expect((await ask()).status).toBe(202);
+      // Asking for a site that cannot be computed gives the place back.
+      const id = await withProject(limited);
+      expect(
+        (await app.request(`/api/projects/${id}/sites/nope/compute`, { method: 'POST' }, limited))
+          .status,
+      ).toBe(409);
+      expect((await ask()).status).toBe(202);
+      const third = await ask();
+      expect(third.status).toBe(429);
+      expect(((await third.json()) as { error: string }).error).toMatch(/Today's limit/);
+      expect(calls).toHaveLength(2);
+    } finally {
+      restore();
+    }
+    // A machine that would not start does not use up the day.
+    const busy = pipelineEnv(422, 'volume is attached to another machine');
+    const one = { ...busy.e, COMPUTE_DAILY_MAX: '1' };
+    try {
+      for (let i = 0; i < 3; i++) {
+        const id = await withProject(one);
+        expect(
+          (await app.request(`/api/projects/${id}/sites/camp/compute`, { method: 'POST' }, one))
+            .status,
+        ).toBe(502);
+      }
+    } finally {
+      busy.restore();
+    }
+  });
+
   it('marks the site failed when the machine cannot start or reports a failure', async () => {
     const busy = pipelineEnv(422, 'volume is attached to another machine');
     try {

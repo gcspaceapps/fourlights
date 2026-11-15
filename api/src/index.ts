@@ -6,10 +6,12 @@ import type { Project } from './project';
 import { mcpPost, type McpDeps } from './mcp';
 import { MAX_MESSAGE_BYTES } from './project-state';
 import {
+  dailyRuns,
   looksLikeSiteFile,
   MAX_RESULT_BYTES,
   pipelineReady,
   resultKey,
+  RUN_COUNTER,
   startMachine,
   type PipelineEnv,
 } from './pipeline';
@@ -167,8 +169,23 @@ app.post('/api/projects/:id/sites/:site/compute', async (c) => {
   }
   const stub = c.env.PROJECTS.getByName(id);
   const token = `${crypto.randomUUID()}${crypto.randomUUID()}`.replaceAll('-', '');
+  // A run is machine time we pay for: there is a number of them per day for the whole site.
+  const counter = c.env.PROJECTS.getByName(RUN_COUNTER);
+  const day = new Date().toISOString().slice(0, 10);
+  if (!(await counter.takeRun(day, dailyRuns(c.env)))) {
+    return c.json(
+      {
+        ok: false,
+        error: "Today's limit for computing sites has been reached. Try again tomorrow (UTC).",
+      },
+      429,
+    );
+  }
   const started = await stub.startCompute(site, token);
-  if (!started.ok) return c.json(started, 409);
+  if (!started.ok) {
+    await counter.giveRun(day);
+    return c.json(started, 409);
+  }
   const { id: sid, name, lat, lon_e } = started.site;
   const problem = await startMachine(c.env, {
     project: id,
@@ -177,6 +194,7 @@ app.post('/api/projects/:id/sites/:site/compute', async (c) => {
     origin: new URL(c.req.url).origin,
   });
   if (problem) {
+    await counter.giveRun(day);
     await stub.finishCompute(site, token, 'failed');
     return c.json({ ok: false, error: problem }, 502);
   }
