@@ -43,6 +43,7 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 - **3D map.** A Moon you can turn and zoom, opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured for the landing shown.
 - **Plain-English questions and site reviews.** A box where you can type "Launch slips 3 days from 19 April. Which sites still work?", and a short written summary of each site.
 - **Share Project, and drive it from an AI assistant.** Name a project and get a link: everyone who opens it sees the same site, date, slip and window live. Each shared project also has an MCP address, so an AI assistant can read the project, rank sites from the published numbers and change what everyone sees.
+- **Add your own site.** Add any point near the pole to a shared project and press "Compute this site": in about two minutes it has its own real skyline, lights, chart and planner row, for everyone on the project. The Worker starts our pipeline in a container on a Fly.io machine and stores the result; the same container runs on any machine with Docker or Podman.
 - **Open in QGIS.** QGIS is free, open-source desktop mapping software (a geographic information system, or GIS) used by surveyors, scientists and planners around the world. The same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file. No map server and no database.
 
 **How it works.** A Python pipeline reads NASA's LOLA elevation models, from 5 m per pixel at the site out to 240 m per pixel 650 km away, and for each site finds the highest terrain in each of 720 half-degree directions, in true 3D geometry on the Moon's sphere. It pulls the Sun's and Earth's positions for every hour of 2028 and 2029 from JPL Horizons. The results are small files, about half a megabyte per site. The browser compares the two and computes the lights, so the app is instant and runs from one Cloudflare Worker serving static files (shared projects add a Durable Object, and the larger QGIS rasters sit in R2).
@@ -67,7 +68,7 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 - The six Artemis-region sites are placed at the highest summit within 8 km of the region's centre, which is not necessarily where a mission would land.
 - The battery presets are round illustrative numbers, not real vehicles.
 
-**What we would do next.** Custom coordinates in the browser (today a new site is one pipeline command), a scored grid to find new sites, the 3D Moon lit from the real Sun direction, and the true skyline across the Sun's and Earth's discs.
+**What we would do next.** A scored grid to find new sites, the 3D Moon lit from the real Sun direction, and the true skyline across the Sun's and Earth's discs.
 
 **How we built it.** The repository is laid out so a coding agent can walk it: numbered stages with a contract and an output folder each, shared facts in one place, one card per dataset. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours. In the app, the short "Site review" paragraph for each site is written by a language model on Cloudflare Workers AI (Llama 3.3 70B) from numbers we computed, and is labelled as AI-written; every number in it is checked against those numbers. The "ask in plain English" box uses the same model only to turn a typed question into the planner's settings; it never produces the answer. There are no AI-generated images, video or audio in the project.
 
@@ -92,7 +93,7 @@ _Live form (read Sun 15 Nov, about 10:05): this field is not free text. It is a 
 | JPL Horizons: Sun and Earth positions (NASA JPL) | https://ssd.jpl.nasa.gov/horizons/ |
 | NAIF SPICE kernels: DE440s, Moon frames, DSN stations (NASA JPL) | https://naif.jpl.nasa.gov/ |
 | Artemis III candidate landing regions (USGS, for NASA) | https://doi.org/10.5066/P1MEQ6UK |
-| NASA Image and Video Library: six photographs | https://images.nasa.gov |
+| NASA Image and Video Library: nine photographs | https://images.nasa.gov |
 | DSN Telecommunications Link Design Handbook 810-005, module 301 (NASA JPL) | https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf |
 
 _The same list in prose, for field 5 or the README:_
@@ -103,7 +104,7 @@ _The app has its own data-sources page with the same information in more depth: 
 - **JPL Horizons** (NASA JPL Solar System Dynamics), https://ssd.jpl.nasa.gov/horizons/ : the Sun's and Earth's direction from each site for every hour of 2028 and 2029, and the Moon's elevation from the DSN stations as a check.
 - **NAIF SPICE kernels** (NASA JPL), https://naif.jpl.nasa.gov/ : an independent check on Horizons, and the DSN station positions for Canberra Link.
 - **Artemis candidate landing regions** (USGS, for NASA), https://doi.org/10.5066/P1MEQ6UK : the centres of six of our sites.
-- **NASA Image and Video Library**, https://images.nasa.gov : six photographs. Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493) and the Apollo 11 lunar module (AS11-40-5927) as examples of vehicle classes; the Clementine south-pole mosaic (PIA00001), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) and Deep Space Station 43 (PIA23797) in the Guide.
+- **NASA Image and Video Library**, https://images.nasa.gov : nine photographs. Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493) and the Apollo 11 lunar module (AS11-40-5927) as examples of vehicle classes; the Clementine south-pole mosaic (PIA00001), Earth over the lunar horizon from Apollo 8 (AS08-14-2383), Deep Space Station 43 (PIA23797), the south pole from LRO's Wide Angle Camera (PIA13523), an artist's rendering of the Lunar Reconnaissance Orbiter (PIA18163) and Alan Bean fuelling Apollo 12's generator (AS12-46-6790) in the Guide.
 
 ## 8. Space Agency Partner Data and Other References
 _Live form (read Sun 15 Nov, about 10:05): also **Link Text + Link Url** pairs, and optional. No Space Agency Partner data is used. Pairs to enter (every URL returned 200 on Sun 15 Nov):_
@@ -120,6 +121,7 @@ _Live form (read Sun 15 Nov, about 10:05): also **Link Text + Link Url** pairs, 
 | Hono | https://hono.dev/ |
 | Vite | https://vite.dev/ |
 | Cloudflare Workers, Durable Objects, R2 and Workers AI | https://developers.cloudflare.com/workers/ |
+| Fly.io (runs the pipeline container for added sites) | https://fly.io/ |
 | Phosphor Icons (MIT licence) | https://phosphoricons.com/ |
 | Ice Rover (pre-existing work by Steve, not part of this entry) | https://icerover.refactor.red |
 
@@ -134,4 +136,4 @@ No Space Agency Partner data is used; the data is from NASA and USGS (listed und
 - Acton, C. H. (1996). Ancillary data services of NASA's Navigation and Ancillary Information Facility. Planetary and Space Science 44, 65–70. (SPICE)
 - USGS Astrogeology (2024). Lunar Grid Reference System navigational grids for the Artemis III candidate landing regions. https://doi.org/10.5066/P1MEQ6UK
 - DSN Telecommunications Link Design Handbook 810-005, module 301 (elevation limits). https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf
-- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, QGIS, Hono, Vite, three.js, Cloudflare Workers, Durable Objects, R2 and Workers AI. Icons: Phosphor Icons (MIT licence).
+- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, QGIS, Hono, Vite, three.js, Cloudflare Workers, Durable Objects, R2 and Workers AI, and Fly.io for the hosted pipeline container. Icons: Phosphor Icons (MIT licence).
