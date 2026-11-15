@@ -29,7 +29,7 @@ import {
 import { pointingAt, pointingCsv, renderPointing } from './pointing';
 import { segmented, syncSegmented } from './segmented';
 import { key, setupShortcuts, type Shortcut } from './shortcuts';
-import { activeTab, refreshTabs, setupTabs, showTab, stepTab } from './tabs';
+import { activeTab, nameTabGroup, refreshTabs, setupTabs, showTab, stepTab } from './tabs';
 import { at, type SiteData, type SiteSummary } from './types';
 import { setupShare } from './share';
 import {
@@ -459,8 +459,15 @@ function chooseSite(id: string, turnMap = true): void {
 }
 
 /** Highlight the selected site in every view (the dropdown in the chart is its source of truth). */
+/** The tab bar names the selected site over the tabs that are about it. */
+function nameSiteTabs(): void {
+  const name = sites.find((x) => x.id === ui.site.value)?.name;
+  nameTabGroup('Selected site', name ?? 'Selected site');
+}
+
 function showSelected(): void {
   const id = ui.site.value;
+  nameSiteTabs();
   for (const el of document.querySelectorAll<HTMLElement>('tr[data-site]')) {
     el.classList.toggle('selected', el.dataset.site === id);
   }
@@ -1254,6 +1261,7 @@ setupTabs($('tabs'), readHash().get('tab'), (slug) => {
   writeHash();
   mapTab.setActive(slug === 'map');
 });
+nameSiteTabs();
 mapTab.setActive(activeTab() === 'map');
 for (const sel of [
   ui.planDays,

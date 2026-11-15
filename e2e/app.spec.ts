@@ -254,12 +254,22 @@ test.describe('views, theme and help', () => {
     await expect(page.locator('.legend')).toBeVisible();
     await expect(page.locator('.intro')).toBeHidden();
     await expect(page.locator('#learn-ai')).toBeHidden();
-    await page.getByText('Mission', { exact: true }).click();
+    await page.locator('.view-switch').getByText('Mission', { exact: true }).click();
     await expect(page.locator('.legend')).toBeHidden();
     await expect(page.locator('.keys-strip')).toBeVisible();
     expect(page.url()).toContain('v=mission');
-    await page.getByText('Learn', { exact: true }).click();
+    await page.locator('.view-switch').getByText('Learn', { exact: true }).click();
     await expect(page.locator('.intro')).toBeVisible();
+    // The tab bar groups the tabs and names the selected site over the ones that are about it.
+    await expect(page.locator('#tabs .tab-group')).toHaveText([
+      'Learn',
+      'All sites',
+      'Peak near Shackleton',
+      'Learn',
+    ]);
+    await expect(page.getByRole('tab', { name: 'Sun-Path Chart' })).toHaveAccessibleDescription(
+      'Peak near Shackleton',
+    );
     // Each teaching panel is its own tab, and only exists in the Learn view.
     await showTab(page, 'Where AI is used');
     await expect(page.locator('#learn-ai')).toBeVisible();

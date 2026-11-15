@@ -1,4 +1,6 @@
 // Tabs: each `[data-tab="Label"]` element in the page is a panel; one shows at a time.
+// `data-tab-group` on a panel puts its tab under a small heading in the tab bar ("All sites",
+// "Selected site", "Learn"), so it is clear which tabs follow the selected site.
 // Panels marked `v-learn` only exist in the Learn view. Left and right arrow keys step through
 // the tabs (wired in main.ts); the active tab lives in the URL hash as `tab=<slug>`.
 
@@ -37,21 +39,54 @@ export function setupTabs(
   onChange: (slug: string) => void,
 ): void {
   changed = onChange;
+  let lastGroup = '';
+  /** Where the next tab goes: the bar itself, or the run of tabs that share a group. */
+  let run: HTMLElement = nav;
+  let heading: HTMLElement | null = null;
   tabs = [...document.querySelectorAll<HTMLElement>('[data-tab]')].map((panel, i) => {
     const label = panel.dataset.tab ?? `Tab ${i + 1}`;
     const slug = slugOf(label);
+    const group = panel.dataset.tabGroup ?? '';
+    const groupSlug = slugOf(group);
+    if (group !== lastGroup) {
+      run = nav;
+      heading = null;
+      if (group) {
+        // A group's heading and its tabs stay together when the bar wraps. Neither the run nor
+        // the heading is a tab: each tab names its group to assistive technology through
+        // aria-describedby instead.
+        run = document.createElement('div');
+        run.className = `tab-run${panel.classList.contains('v-learn') ? ' v-learn' : ''}`;
+        run.dataset.group = groupSlug;
+        run.setAttribute('role', 'presentation');
+        heading = document.createElement('span');
+        heading.className = 'tab-group';
+        heading.dataset.group = groupSlug;
+        heading.id = `tab-group-${groupSlug}-${i}`;
+        heading.textContent = group;
+        heading.setAttribute('aria-hidden', 'true');
+        run.appendChild(heading);
+        nav.appendChild(run);
+      }
+    }
+    lastGroup = group;
+    const describedBy = heading;
     const button = document.createElement('button');
     button.type = 'button';
     button.role = 'tab';
     button.id = `tab-${slug}`;
     button.textContent = label;
     button.setAttribute('aria-controls', `panel-${slug}`);
+    if (group) {
+      button.dataset.group = groupSlug;
+      if (describedBy) button.setAttribute('aria-describedby', describedBy.id);
+    }
     panel.id ||= `panel-${slug}`;
     panel.setAttribute('role', 'tabpanel');
     panel.setAttribute('aria-labelledby', button.id);
     button.addEventListener('click', () => showTab(slug));
     if (panel.classList.contains('v-learn')) button.classList.add('v-learn');
-    nav.appendChild(button);
+    run.appendChild(button);
     return { slug, label, panel, button };
   });
   // Tab buttons for Learn-only panels follow the same view rules as the panels.
@@ -78,6 +113,15 @@ export function showTab(slug: string, notify = true, focus = false): void {
   }
   if (focus) target.button.focus();
   if (notify) changed(active);
+}
+
+/** Change the words of a group's heading in the tab bar (the selected site's name, say). */
+export function nameTabGroup(group: string, text: string): void {
+  for (const el of document.querySelectorAll<HTMLElement>(
+    `.tab-group[data-group="${slugOf(group)}"]`,
+  )) {
+    el.textContent = text;
+  }
 }
 
 /** Step to the next or previous available tab, wrapping round. */

@@ -221,39 +221,115 @@ h2 {
 }
 
 /* Tabs: one panel at a time; Learn-only tabs follow the view rules above. */
+/* The tab bar: real tab shapes sitting on the panel they open, in groups with a heading and a
+   colour each, so "what am I looking at" and "is it about every site or this one" are answered
+   at a glance. */
 .tabs {
   display: flex;
-  gap: 0.25rem;
-  overflow-x: auto;
-  border-bottom: 1px solid var(--border, currentColor);
-  margin-bottom: 0.5rem;
+  flex-wrap: wrap; /* every tab stays in sight: on a phone, or with Learn's extra tabs, they wrap */
+  align-items: flex-end;
+  gap: 0.4rem 0.25rem;
+  border-bottom: 2px solid var(--border, currentColor);
+  margin: 1rem 0 0.5rem;
+  padding: 0 0.25rem;
+}
+
+/* A group's heading and its tabs wrap together. */
+.tabs .tab-run {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.4rem 0.25rem;
+  margin-right: 0.6rem;
+}
+
+/* The Learn-only groups go when their tabs do. */
+:root:not([data-view='learn']) .tabs .tab-run.v-learn {
+  display: none;
+}
+
+:root[data-view='learn'] .tabs .tab-run.v-learn {
+  display: flex;
+}
+
+.tabs [data-group='all-sites'] {
+  --group: var(--earth);
+}
+
+.tabs [data-group='selected-site'] {
+  --group: var(--sun);
+}
+
+.tabs [data-group='learn'] {
+  --group: var(--go-edge);
+}
+
+.tabs .tab-group {
+  flex: none;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0.1rem 0 0;
+  padding-bottom: 0.15rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tabs .tab-group::before {
+  content: '';
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 2px;
+  background: var(--group, var(--muted));
 }
 
 .tabs button {
   flex: none;
-  background: none;
-  border: 0;
-  border-bottom: 3px solid transparent;
+  position: relative;
+  bottom: -2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-top: 3px solid transparent;
+  border-bottom: 2px solid var(--border);
+  border-radius: 0.5rem 0.5rem 0 0;
   color: var(--muted);
   font: inherit;
-  padding: 0.6rem 0.9rem;
+  padding: 0.45rem 0.8rem;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .tabs button:hover {
   color: var(--text);
+  border-top-color: var(--group, var(--border));
 }
 
+/* The open tab joins its panel: page background, no bottom edge, its group's colour on top. */
 .tabs button[aria-selected='true'] {
+  background: var(--bg);
+  border-bottom-color: var(--bg);
+  border-top-color: var(--group, var(--accent));
   color: var(--text);
-  border-bottom-color: var(--accent, currentColor);
   font-weight: 600;
 }
 
 .tabs button:focus-visible {
   outline: 2px solid var(--accent, currentColor);
   outline-offset: -2px;
+}
+
+.view-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .tab-off {
@@ -1625,12 +1701,17 @@ section > .window {
   width: 100%;
 }
 
+/* What every tab is showing: the site, the landing and the window, as one settings band */
 .selected-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 0.75rem;
   margin: 1rem 0 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
   font-size: var(--fs-sm);
   color: var(--muted);
 }

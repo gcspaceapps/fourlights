@@ -37,6 +37,7 @@
               <span class="theme-icon" data-icon="keyboard" aria-hidden="true"></span>
               <kbd>Ctrl</kbd> <kbd>/</kbd>
             </button>
+            <span class="view-label" aria-hidden="true">View</span>
             <div class="view-switch" role="radiogroup" aria-label="Who is this view for?">
               <label
                 ><input
@@ -115,7 +116,12 @@
       </div>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
 
-      <section class="learn v-learn" data-tab="Start here" aria-labelledby="learn-start">
+      <section
+        class="learn v-learn"
+        data-tab="Start here"
+        data-tab-group="Learn"
+        aria-labelledby="learn-start"
+      >
         <h2 id="learn-start">Start here: why the south pole is different</h2>
         <div class="learn-grid">
           <div>
@@ -230,7 +236,7 @@
         </p>
       </section>
 
-      <div data-tab="Planner">
+      <div data-tab="Planner" data-tab-group="All sites">
         <section aria-labelledby="planner-title">
           <h2
             id="planner-title"
@@ -292,7 +298,7 @@
         </section>
       </div>
 
-      <section data-tab="Map" aria-labelledby="map-title" id="map-tab">
+      <section data-tab="Map" data-tab-group="All sites" aria-labelledby="map-title" id="map-tab">
         <h2
           id="map-title"
           data-info="A 3D Moon you can turn and zoom. Imagery and elevation colours are NASA's LRO WAC mosaic and LOLA colour-shaded elevation from NASA Moon Trek, served through our own tile route. The polar shading is made by us with GDAL from NASA's LOLA elevation model LDEM_75S_240M (PDS). Site positions come from NASA Goddard's 5 m site models and the USGS grids for the Artemis candidate regions."
@@ -386,7 +392,12 @@
         </div>
       </section>
 
-      <section class="needs-data" data-tab="Sun-Path Chart" aria-labelledby="chart-title">
+      <section
+        class="needs-data"
+        data-tab="Sun-Path Chart"
+        data-tab-group="Selected site"
+        aria-labelledby="chart-title"
+      >
         <p class="nodata-note" role="status"></p>
         <h2
           id="chart-title"
@@ -519,7 +530,12 @@
         <p class="window" id="window"></p>
       </section>
 
-      <section class="needs-data" data-tab="Survive the Night" aria-labelledby="battery-title">
+      <section
+        class="needs-data"
+        data-tab="Survive the Night"
+        data-tab-group="Selected site"
+        aria-labelledby="battery-title"
+      >
         <p class="nodata-note" role="status"></p>
         <h2
           id="battery-title"
@@ -574,7 +590,12 @@
         <p class="window" id="battery-summary" aria-live="polite"></p>
       </section>
 
-      <section class="site-info needs-data" data-tab="About this site" aria-labelledby="site-title">
+      <section
+        class="site-info needs-data"
+        data-tab="About this site"
+        data-tab-group="Selected site"
+        aria-labelledby="site-title"
+      >
         <p class="nodata-note" role="status"></p>
         <h2
           id="site-title"
@@ -589,7 +610,12 @@
         <dl id="site-info"></dl>
       </section>
 
-      <section class="learn v-learn" data-tab="Where AI is used" aria-labelledby="learn-ai">
+      <section
+        class="learn v-learn"
+        data-tab="Where AI is used"
+        data-tab-group="Learn"
+        aria-labelledby="learn-ai"
+      >
         <h2 id="learn-ai">Where AI is used on this page, and where it isn't</h2>
         <div class="learn-grid">
           <div>
@@ -663,7 +689,12 @@
         </p>
       </section>
 
-      <section class="learn v-learn" data-tab="Try and glossary" aria-labelledby="learn-try">
+      <section
+        class="learn v-learn"
+        data-tab="Try and glossary"
+        data-tab-group="Learn"
+        aria-labelledby="learn-try"
+      >
         <h2 id="learn-try">Things to try</h2>
         <ol>
           <li>
