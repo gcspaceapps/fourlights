@@ -9,6 +9,8 @@
 // moves too fast for that, so it is stored a moment after the last move, by an alarm.
 import { DurableObject } from 'cloudflare:workers';
 import {
+  COMPUTE_STALE_MS,
+  computeRefusal,
   DEFAULT_DATA,
   DEFAULT_VIEW,
   MAX_MESSAGE_BYTES,
@@ -19,6 +21,7 @@ import {
   type Event,
   type ProjectSite,
   type ProjectState,
+  type SiteStatus,
   type ViewState,
 } from './project-state';
 
@@ -32,6 +35,15 @@ export interface ProjectSnapshot {
 }
 
 export type CommandResult = { ok: true; changed: boolean } | { ok: false; error: string };
+
+/** A pipeline run for one site: the token its result must carry, and when it was asked for. */
+interface Job {
+  token: string;
+  started: number;
+}
+
+export type ComputeStart =
+  { ok: true; token: string; site: ProjectSite } | { ok: false; error: string };
 
 type Out =
   | ({ t: 'snapshot'; peers: number } & ProjectSnapshot)
@@ -86,6 +98,58 @@ export class Project extends DurableObject {
   /** A command from outside a browser (an AI agent's tool, a script): everyone connected sees it. */
   async command(cmd: unknown): Promise<CommandResult> {
     return this.run(cmd, null);
+  }
+
+  // ─────────────── a site's own data (pipeline.ts) ───────────────
+
+  /**
+   * Mark a site as being computed and hand back a one-time token; the run's result is accepted
+   * only with it. Everyone connected sees the site's status change.
+   */
+  async startCompute(siteId: string, token: string): Promise<ComputeStart> {
+    if (!this.state) return { ok: false, error: 'No such project.' };
+    const refusal = computeRefusal(this.state.sites, siteId);
+    if (refusal) return { ok: false, error: refusal };
+    const job = await this.ctx.storage.get<Job>(`job:${siteId}`);
+    const site = this.state.sites.find((s) => s.id === siteId);
+    if (!site) return { ok: false, error: 'No such site in this project.' };
+    if (site.status === 'computing' && job && Date.now() - job.started < COMPUTE_STALE_MS) {
+      return { ok: false, error: 'This site is already being computed.' };
+    }
+    await this.ctx.storage.put<Job>(`job:${siteId}`, { token, started: Date.now() });
+    await this.setStatus(siteId, 'computing');
+    return { ok: true, token, site: { ...site, status: 'computing' } };
+  }
+
+  /** True if `token` is the one handed out for this site's current run. */
+  async jobValid(siteId: string, token: string): Promise<boolean> {
+    const job = await this.ctx.storage.get<Job>(`job:${siteId}`);
+    return !!job && !!token && job.token === token;
+  }
+
+  /** The run reported back: the site is ready, or it failed. The token is spent either way. */
+  async finishCompute(
+    siteId: string,
+    token: string,
+    status: 'ready' | 'failed',
+    approx?: boolean,
+  ): Promise<boolean> {
+    if (!this.state || !(await this.jobValid(siteId, token))) return false;
+    await this.ctx.storage.delete(`job:${siteId}`);
+    await this.setStatus(siteId, status, approx);
+    return true;
+  }
+
+  private async setStatus(siteId: string, status: SiteStatus, approx?: boolean): Promise<void> {
+    if (!this.state || !this.state.sites.some((s) => s.id === siteId)) return;
+    const sites = this.state.sites.map((s) =>
+      s.id === siteId
+        ? { ...s, status, ...(status === 'ready' && approx !== undefined ? { approx } : {}) }
+        : s,
+    );
+    this.state = { ...this.state, sites };
+    await this.saveProject();
+    this.broadcast({ t: 'sites', sites }, null);
   }
 
   // ─────────────── WebSockets ───────────────

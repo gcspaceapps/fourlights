@@ -133,15 +133,23 @@ describe('how we built it', () => {
     const e2e = readdirSync('e2e')
       .filter((f) => f.endsWith('.spec.ts'))
       .reduce((n, f) => n + (read(`e2e/${f}`).match(/^\s*test\(/gm) ?? []).length, 0);
-    expect(how).toContain(`${e2e} Playwright tests`);
-    expect(read('README.md')).toContain(`${e2e} end-to-end`);
+    // Numbers are compared, not whole pages, so a failure says which count is stale.
+    const quoted = (text: string, pattern: RegExp): number => Number(pattern.exec(text)?.[1]);
+    const readme = read('README.md');
+    expect(quoted(how, /(\d+) Playwright tests/), 'end-to-end tests on the how page').toBe(e2e);
+    expect(quoted(readme, /(\d+) end-to-end/), 'end-to-end tests in the README').toBe(e2e);
 
     const unit = ['web/tests', 'api/tests']
       .flatMap((dir) => readdirSync(dir).map((f) => `${dir}/${f}`))
       .filter((f) => f.endsWith('.test.ts'))
       .reduce((n, f) => n + (read(f).match(/^\s*it\(/gm) ?? []).length, 0);
-    expect(how).toContain(`${unit} for the front end and Worker`);
-    expect(read('README.md')).toContain(`${unit} unit tests for the app and Worker`);
+    expect(quoted(how, /(\d+) for the front end and Worker/), 'unit tests on the how page').toBe(
+      unit,
+    );
+    expect(
+      quoted(readme, /(\d+) unit tests for the app and Worker/),
+      'unit tests in the README',
+    ).toBe(unit);
   });
 
   it('no longer says the site is behind a password', () => {

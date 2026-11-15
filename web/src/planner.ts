@@ -9,6 +9,7 @@ import { loadPlannerSummary, loadSite } from './data';
 import { verdict, type Verdict } from './lights';
 import { buildSummary, cellAt, type PlannerSummary } from './summary';
 import type { SiteSummary } from './types';
+import { noDataYet } from './usersites';
 
 /** Shown in a row name and the answer for a site with no 5 m terrain model under it. */
 export const APPROX_TAG = 'approx. terrain';
@@ -234,7 +235,7 @@ export function renderPlanner(o: PlannerOptions): void {
       td.textContent = '…';
       return td;
     });
-    if (s.user) {
+    if (noDataYet(s)) {
       // Added by the visitor: no data yet, so nothing to fetch. If it is published later it
       // arrives through sites.json like any other site.
       tr.classList.add('user');

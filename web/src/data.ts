@@ -37,10 +37,21 @@ export function loadPlannerSummary(): Promise<PlannerSummary | null> {
   return planner;
 }
 
+/** Sites whose file is not under /data/sites/: a shared project's own computed sites. */
+const siteUrls = new Map<string, string>();
+
+/** Say where a site's file is (or, with null, that it is a published one again). */
+export function setSiteUrl(id: string, url: string | null): void {
+  if ((siteUrls.get(id) ?? null) === url) return;
+  if (url) siteUrls.set(id, url);
+  else siteUrls.delete(id);
+  siteCache.delete(id);
+}
+
 export function loadSite(id: string): Promise<SiteData> {
   let p = siteCache.get(id);
   if (!p) {
-    p = getJson<SiteData>(`/data/sites/${encodeURIComponent(id)}.json`);
+    p = getJson<SiteData>(siteUrls.get(id) ?? `/data/sites/${encodeURIComponent(id)}.json`);
     siteCache.set(id, p);
     p.catch(() => siteCache.delete(id));
   }

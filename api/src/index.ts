@@ -5,9 +5,17 @@ import { fromBucket, sliceAsset } from './ranges';
 import type { Project } from './project';
 import { mcpPost, type McpDeps } from './mcp';
 import { MAX_MESSAGE_BYTES } from './project-state';
+import {
+  looksLikeSiteFile,
+  MAX_RESULT_BYTES,
+  pipelineReady,
+  resultKey,
+  startMachine,
+  type PipelineEnv,
+} from './pipeline';
 import { ASK_MODEL, MAX_QUESTION_CHARS, parseIntent, systemPrompt, type SiteName } from './intent';
 
-type Env = {
+type Env = PipelineEnv & {
   ASSETS: Fetcher;
   /** Workers AI, used only to turn a typed question into planner settings (/api/ask). */
   AI: Ai;
@@ -15,7 +23,10 @@ type Env = {
   SITE_PASSWORD?: string;
   /** One Durable Object per shared project, named by its uuid (project.ts). */
   PROJECTS: DurableObjectNamespace<Project>;
-  /** The QGIS pack's three 20 m rasters, too big to be static assets (ranges.ts). */
+  /**
+   * The QGIS pack's three 20 m rasters, too big to be static assets (ranges.ts), and the site
+   * files computed for shared projects (pipeline.ts), under `projects/`.
+   */
   QGIS_BUCKET?: R2Bucket;
 };
 
@@ -139,6 +150,84 @@ app.get('/api/projects/:id/ws', (c) => {
   const id = c.req.param('id');
   if (!UUID.test(id)) return c.json({ ok: false, error: 'Not a project id.' }, 400);
   return c.env.PROJECTS.getByName(id).fetch(c.req.raw);
+});
+
+// ── A project's own site gets real data, computed outside Cloudflare (pipeline.ts). ──
+const SITE_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
+const bearer = (header: string | undefined): string =>
+  /^Bearer (.+)$/.exec(header ?? '')?.[1] ?? '';
+
+app.post('/api/projects/:id/sites/:site/compute', async (c) => {
+  const { id, site } = c.req.param();
+  if (!UUID.test(id) || !SITE_ID.test(site)) {
+    return c.json({ ok: false, error: 'Not a project or site id.' }, 400);
+  }
+  if (!pipelineReady(c.env) || !c.env.QGIS_BUCKET) {
+    return c.json({ ok: false, error: 'Computing a site is not switched on here.' }, 503);
+  }
+  const stub = c.env.PROJECTS.getByName(id);
+  const token = `${crypto.randomUUID()}${crypto.randomUUID()}`.replaceAll('-', '');
+  const started = await stub.startCompute(site, token);
+  if (!started.ok) return c.json(started, 409);
+  const { id: sid, name, lat, lon_e } = started.site;
+  const problem = await startMachine(c.env, {
+    project: id,
+    site: { id: sid, name, lat, lon_e },
+    token,
+    origin: new URL(c.req.url).origin,
+  });
+  if (problem) {
+    await stub.finishCompute(site, token, 'failed');
+    return c.json({ ok: false, error: problem }, 502);
+  }
+  return c.json({ ok: true, status: 'computing' }, 202);
+});
+
+app.put('/api/pipeline/:id/:site', async (c) => {
+  const { id, site } = c.req.param();
+  const token = bearer(c.req.header('authorization'));
+  if (!UUID.test(id) || !SITE_ID.test(site) || !token) return c.json({ ok: false }, 400);
+  const stub = c.env.PROJECTS.getByName(id);
+  if (!c.env.QGIS_BUCKET || !(await stub.jobValid(site, token))) {
+    return c.json({ ok: false, error: 'No run is waiting for this result.' }, 403);
+  }
+  const text = await c.req.text();
+  if (text.length > MAX_RESULT_BYTES) return c.json({ ok: false, error: 'Too large.' }, 413);
+  let file: unknown = null;
+  try {
+    file = JSON.parse(text);
+  } catch {
+    // falls through to the 400 below
+  }
+  if (!looksLikeSiteFile(file, site)) {
+    return c.json({ ok: false, error: 'Not a site file for this site.' }, 400);
+  }
+  await c.env.QGIS_BUCKET.put(resultKey(id, site), text, {
+    httpMetadata: { contentType: 'application/json' },
+  });
+  // The pipeline says whether 5 m terrain lies under the point; without that, call it approximate.
+  const approx = (file as { index?: { approx?: unknown } }).index?.approx !== false;
+  await stub.finishCompute(site, token, 'ready', approx);
+  return c.json({ ok: true });
+});
+
+app.post('/api/pipeline/:id/:site/failed', async (c) => {
+  const { id, site } = c.req.param();
+  const token = bearer(c.req.header('authorization'));
+  if (!UUID.test(id) || !SITE_ID.test(site) || !token) return c.json({ ok: false }, 400);
+  const done = await c.env.PROJECTS.getByName(id).finishCompute(site, token, 'failed');
+  return c.json({ ok: done }, done ? 200 : 403);
+});
+
+app.get('/api/projects/:id/sites/:file{[a-z0-9-]+\\.json}', async (c) => {
+  const id = c.req.param('id');
+  const site = c.req.param('file').replace(/\.json$/, '');
+  if (!UUID.test(id)) return c.json({ ok: false, error: 'Not a project id.' }, 400);
+  const object = await c.env.QGIS_BUCKET?.get(resultKey(id, site));
+  if (!object) return c.json({ ok: false, error: 'No data for this site.' }, 404);
+  return new Response(object.body, {
+    headers: { 'content-type': 'application/json', 'cache-control': 'private, max-age=300' },
+  });
 });
 
 // ── MCP: an AI agent drives a project through the same Durable Object (mcp.ts). ──

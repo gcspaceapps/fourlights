@@ -109,8 +109,9 @@ flowchart LR
     WK["Hono Worker<br/>pages, data, API"]
     AI["Workers AI<br/>question to settings only"]
     DO["Durable Object<br/>one per shared project"]
-    R2["R2 bucket<br/>three large rasters"]
+    R2["R2 bucket<br/>large rasters, computed sites"]
   end
+  FL["Hosted machine<br/>the pipeline in a container,<br/>for a site someone adds"]
   BR["Browser<br/>four lights, planner, chart, map"]
   AG["AI assistant<br/>through MCP"]
   QG["QGIS<br/>reads the layers in place"]
@@ -130,6 +131,8 @@ flowchart LR
   R2 --> WK
   AG --> WK
   WK --> QG
+  WK -.-> FL
+  FL -.-> WK
         </pre>
       </section>
 
@@ -140,8 +143,9 @@ flowchart LR
           <dd>
             A site's horizon takes one to two minutes and about 1.5 GB of memory. No request should
             wait for that, and Cloudflare's free plan allows a Worker 10 ms of CPU. So horizons are
-            computed once per site, offline. The cost: the app covers 12 curated sites, not any
-            point on the Moon.
+            computed once per site, offline. The cost: the app ships with 12 curated sites. A site
+            someone adds is computed the same way, by the same code, on a machine the Worker starts
+            for it (see <a href="#pipeline">The pipeline</a>).
           </dd>
           <dt>Static files, no database</dt>
           <dd>
@@ -207,6 +211,40 @@ flowchart TD
         <p>
           Reproducibility is designed in: dependencies are pinned, every input file has a recorded
           checksum, and the downloads were verified against NASA's servers, not just our mirror.
+        </p>
+        <h3>Where it runs</h3>
+        <p>
+          The same code runs in three places and gives the same files. On our own machines it built
+          the 12 curated sites, and that stays the reference and the fallback: it needs nothing but
+          the repository and NASA's files. In a container (one command, Docker or Podman) it runs on
+          any machine with nothing else installed: built that way, Shackleton rim comes out
+          identical to the published file. And on a hosted machine it computes a site that someone
+          adds to a shared project, with no one at a keyboard.
+        </p>
+        <pre class="mermaid">
+sequenceDiagram
+  participant B as Browser
+  participant W as Worker
+  participant D as Durable Object (the project)
+  participant F as Hosted machine (pipeline container)
+  participant R as R2 storage
+  B->>W: Compute this site
+  W->>D: mark the site "computing", keep a one-time token
+  D-->>B: status, to everyone on the project
+  W->>F: start a machine: the point, the token, where to send the result
+  Note over F: NASA terrain on a volume. Horizon, ephemerides, publish. About 90 seconds
+  F->>W: the site file, with the token
+  W->>R: store it for this project
+  W->>D: mark the site "ready"
+  D-->>B: status, to everyone on the project
+  B->>W: GET the site file
+  Note over B: lights, chart and planner row computed locally, as for any site
+        </pre>
+        <p>
+          The heavy work never runs in the Worker: it starts the machine and stores what comes back.
+          The machine holds no secrets of ours, only a token that is good for one result. One site
+          is computed at a time and a project can compute five, which bounds the cost, and removing
+          one setting switches the feature off without a deploy.
         </p>
       </section>
 
@@ -415,7 +453,7 @@ sequenceDiagram
         <dl>
           <dt>Unit tests</dt>
           <dd>
-            115 for the front end and Worker and 49 for the pipeline, run before every commit and
+            122 for the front end and Worker and 49 for the pipeline, run before every commit and
             deploy. The code that computes or draws is the best covered: the light rules 96% of
             lines, the chart and the battery model 99%, the globe's maths 97%, the pipeline's
             geometry 100% and its horizon engine 86%. The page wiring is exercised by the end-to-end
@@ -423,7 +461,7 @@ sequenceDiagram
           </dd>
           <dt>End-to-end tests</dt>
           <dd>
-            41 Playwright tests drive the real page in Chrome against a local Worker: the demo
+            42 Playwright tests drive the real page in Chrome against a local Worker: the demo
             scenario and the cost of a slip, every control and shortcut, the data pages, a shared
             project in two browsers, the files QGIS reads, and the password gate on a second Worker
             instance.
@@ -450,7 +488,10 @@ sequenceDiagram
         <h2 id="stack">Stack</h2>
         <dl>
           <dt>Precompute</dt>
-          <dd>Python, NumPy, rasterio and GDAL, pyproj, spiceypy; GRASS GIS for a cross-check.</dd>
+          <dd>
+            Python, NumPy, rasterio and GDAL, pyproj, spiceypy; GRASS GIS for a cross-check.
+            Packaged as a container image (Docker or Podman).
+          </dd>
           <dt>Front end</dt>
           <dd>
             TypeScript and Vite, no framework; hand-written SVG charts; about 27 kB of script over
@@ -460,7 +501,7 @@ sequenceDiagram
           <dd>
             Cloudflare Workers with static assets, Hono, Workers AI, a Durable Object per shared
             project, R2, a rate-limiting rule and a custom domain. The Model Context Protocol for AI
-            assistants.
+            assistants. A Fly.io machine runs the pipeline container for added sites.
           </dd>
           <dt>GIS</dt>
           <dd>QGIS, GDAL, FlatGeobuf, Cloud Optimized GeoTIFF and GeoPackage.</dd>

@@ -60,7 +60,7 @@ npm run test:e2e:watch   # the same, in a visible Chrome window, slowed down so 
 npm run test:e2e:ui      # Playwright's test window: pick tests, step through, replay each action
 npm run review-pdf   # a PDF of every view, tab and state with captions, from a running local copy
 ```
-The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. The tests: 115 unit tests for the app and Worker, 49 for the pipeline, and 41 end-to-end in a real browser. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
+The published data for all 12 sites is in the repo (`web/public/data/`), so the app runs without the pipeline. The tests: 122 unit tests for the app and Worker, 49 for the pipeline, and 42 end-to-end in a real browser. `.dev.vars` (gitignored) can set `SITE_PASSWORD` to switch on the password gate locally.
 
 ## Find your way around
 | If you want | Look at |
@@ -102,6 +102,8 @@ The same thing in one command, from the repo root: `./ops/data` (every site) or 
 ```
 
 No Python or Node on the machine? `./ops/data-docker` takes the same arguments and runs them in a container (Docker or Podman; image from `pipeline/Dockerfile`).
+
+In the app, a site you add to a shared project can be computed without any of this: press "Compute this site" and a hosted machine runs the same container for that point (about two minutes), then the lights, chart and planner row fill in for everyone on the project. The local command above stays the reference and the fallback.
 
 ## How we know it's right
 - The horizon engine is checked against a brute-force version written with different maths (pyproj and spherical trigonometry): identical on 8 sectors across all six elevation models.

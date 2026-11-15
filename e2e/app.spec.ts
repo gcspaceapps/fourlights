@@ -517,12 +517,12 @@ test.describe('data sources page', () => {
 });
 
 test.describe('how we built it', () => {
-  test('renders its three architecture diagrams and links back', async ({ page }) => {
+  test('renders its four architecture diagrams and links back', async ({ page }) => {
     await open(page);
     await page.getByRole('link', { name: 'How we built it' }).click();
     await expect(page).toHaveURL(/\/how/);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('How we built it');
-    await expect(page.locator('pre.mermaid svg')).toHaveCount(3);
+    await expect(page.locator('pre.mermaid svg')).toHaveCount(4);
     await expect(page.locator('pre.mermaid').first()).toContainText('Horizon engine');
     for (const id of [
       'overview',

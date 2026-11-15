@@ -7,6 +7,7 @@ import { chartIcon } from './icons';
 import type { View } from './globe/math';
 import type { PlannedResult } from './planner';
 import type { SiteSummary } from './types';
+import { noDataYet } from './usersites';
 
 const WORDS = { green: 'works', amber: 'marginal', red: 'no power' } as const;
 const SYMBOLS = { green: '●', amber: '▲', red: '✕', none: '○' } as const;
@@ -116,7 +117,7 @@ export function setupMap(
         lat: s.lat,
         lon: s.lon_e,
         verdict: r?.verdict ?? null,
-        text: s.user ? `${s.name}: your site, no data yet` : siteText(s, r),
+        text: noDataYet(s) ? `${s.name}: your site, no data yet` : siteText(s, r),
       };
     }),
   ];
@@ -154,7 +155,7 @@ export function setupMap(
     const rows = sites.map((s) => {
       const r = results.find((x) => x.id === s.id);
       const v = r?.verdict ?? null;
-      const word = v ? WORDS[v] : s.user ? 'your site, no data yet' : 'no result';
+      const word = v ? WORDS[v] : noDataYet(s) ? 'your site, no data yet' : 'no result';
       return {
         id: s.id,
         name: s.name,
@@ -162,7 +163,7 @@ export function setupMap(
         // The chip beside the name: the verdict's symbol and colour, and the usable days.
         days: v && r ? r.usableDays.toFixed(1) : '',
         tip: v && r ? `${word}, ${r.usableDays.toFixed(1)} usable days` : word,
-        label: s.user ? `${s.name}: your site, no data yet` : siteText(s, r),
+        label: noDataYet(s) ? `${s.name}: your site, no data yet` : siteText(s, r),
         mine: !!s.user,
       };
     });

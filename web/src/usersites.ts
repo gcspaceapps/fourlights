@@ -81,6 +81,9 @@ export function saveUserSites(sites: SiteSummary[]): void {
   }
 }
 
+/** True for a visitor's site that has no computed data to draw (yet). */
+export const noDataYet = (s: SiteSummary | undefined): boolean => !!s?.user && s.status !== 'ready';
+
 /** Published sites first; a user site whose id has since been published is dropped. */
 export function mergeSites(published: SiteSummary[], mine: SiteSummary[]): SiteSummary[] {
   const ids = new Set(published.map((s) => s.id));

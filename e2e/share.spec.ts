@@ -154,3 +154,39 @@ test('a project is found only by its ID', async ({ page, baseURL }) => {
   await ready(page);
   await expect(page.locator('#ask-note')).toContainText('does not exist');
 });
+
+test('a project site with no data offers to compute it, and says so when that is switched off', async ({
+  page,
+  baseURL,
+}) => {
+  const made = await page.request.post(`${baseURL}/api/projects`, {
+    data: {
+      name: 'Compute check',
+      sites: [
+        { name: 'Ridge Camp', lat: -89.45, lon_e: -137.3 },
+        { name: 'Far North', lat: -70, lon_e: 10 },
+      ],
+    },
+  });
+  const { project } = (await made.json()) as { project: { id: string } };
+  await page.goto(`${baseURL}/#project=${project.id}`);
+  await ready(page);
+
+  await page.locator('#site').selectOption('ridge-camp');
+  // The note stands in for the chart, so it is on the site's own tabs.
+  await tab(page, 'sun-path-chart').click();
+  const note = page.locator('.nodata-note:visible').first();
+  await expect(note).toContainText('Ridge Camp is a site you added, at 89.45°S, 137.30°W');
+  const compute = note.getByRole('button', { name: /Compute this site/ });
+  await expect(compute).toBeVisible();
+  // The test Worker has no compute service set up: the page passes on what the server says.
+  await compute.click();
+  await expect(note).toContainText('not switched on here');
+  const res = await page.request.get(`${baseURL}/api/projects/${project.id}/sites/ridge-camp.json`);
+  expect(res.status()).toBe(404);
+
+  // Outside the terrain models there is nothing to compute, so no button.
+  await page.locator('#site').selectOption('far-north');
+  await expect(note).toContainText('reach from the south pole to 80°S');
+  await expect(note.getByRole('button')).toHaveCount(0);
+});

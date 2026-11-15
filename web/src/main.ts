@@ -11,9 +11,9 @@ import { infoTip, lightIcon, upgradeIcons, upgradeInfoTips, type LightName } fro
 import { guideOpen, setGuide, setupGuide, showGuide } from './guide';
 import { renderEarthBob, renderSunYear } from './learn';
 import { setupMap } from './map';
-import { loadUserSites, makeUserSite, mergeSites, saveUserSites } from './usersites';
+import { loadUserSites, makeUserSite, mergeSites, noDataYet, saveUserSites } from './usersites';
 import { answerText, renderPlanner, type PlannedResult } from './planner';
-import { loadReviews, loadSite, loadSites } from './data';
+import { loadReviews, loadSite, loadSites, setSiteUrl } from './data';
 import {
   COMMS_MARGIN_DEG,
   DEFAULT_HEIGHT_M,
@@ -361,11 +361,10 @@ function render(): void {
 
 async function selectSite(id: string): Promise<void> {
   const mine = sites.find((x) => x.id === id);
-  noData = !!mine?.user;
+  noData = noDataYet(mine);
   document.documentElement.dataset.nodata = String(noData);
-  if (mine?.user) {
-    const note = `${mine.name} is a site you added, at ${Math.abs(mine.lat).toFixed(2)}°${mine.lat < 0 ? 'S' : 'N'}, ${Math.abs(mine.lon_e).toFixed(2)}°${mine.lon_e < 0 ? 'W' : 'E'}. It has no data yet: the lights, chart and battery need its terrain horizon, which we compute ahead of time. Once it is published it will fill in here by itself.`;
-    for (const el of document.querySelectorAll('.nodata-note')) el.textContent = note;
+  if (mine && noData) {
+    showNoData(mine);
     writeHash();
     return;
   }
@@ -402,6 +401,59 @@ async function selectSite(id: string): Promise<void> {
     ...heights.map((h) => new Option(String(h), String(h), false, h === keep)),
   );
   render();
+}
+
+/** How long a site's own run takes, as the page says it. */
+const COMPUTE_TIME = 'about two minutes';
+
+/**
+ * The note shown in place of the lights, chart and battery for a site with no data: what the site
+ * is, and, in a shared project, a button that computes it (api/src/pipeline.ts).
+ */
+function showNoData(mine: SiteSummary, problem?: string): void {
+  const where = `${Math.abs(mine.lat).toFixed(2)}°${mine.lat < 0 ? 'S' : 'N'}, ${Math.abs(mine.lon_e).toFixed(2)}°${mine.lon_e < 0 ? 'W' : 'E'}`;
+  const intro = `${mine.name} is a site you added, at ${where}.`;
+  let text: string;
+  let button = false;
+  if (mine.status === 'computing') {
+    text = `${intro} Its skyline is being computed from NASA's terrain now: ${COMPUTE_TIME}. The lights, chart and battery will fill in here by themselves.`;
+  } else if (!project) {
+    text = `${intro} It has no data yet: the lights, chart and battery need its terrain horizon, which is computed from NASA's terrain. Start a shared project (Share Project) to compute it for this site.`;
+  } else if (mine.lat > -80) {
+    text = `${intro} It has no data, and cannot have: the terrain models we use reach from the south pole to 80°S.`;
+  } else {
+    text = `${intro} ${mine.status === 'failed' ? 'The last attempt to compute it did not finish.' : 'It has no data yet: the lights, chart and battery need its terrain horizon.'}`;
+    button = true;
+  }
+  for (const el of document.querySelectorAll('.nodata-note')) {
+    el.replaceChildren(text, problem ? ` ${problem}` : '');
+    if (!button) continue;
+    const go = document.createElement('button');
+    go.type = 'button';
+    go.className = 'compute-site';
+    go.textContent = `Compute this site (${COMPUTE_TIME})`;
+    go.addEventListener('click', () => void computeSite(mine, go));
+    el.append(' ', go);
+  }
+}
+
+/** Ask for a project site's own data. Its status then arrives like any other project change. */
+async function computeSite(mine: SiteSummary, button: HTMLButtonElement): Promise<void> {
+  if (!project) return;
+  button.disabled = true;
+  button.textContent = 'Starting…';
+  let problem = 'The request did not get through. Check the connection and try again.';
+  try {
+    const res = await fetch(`/api/projects/${project.id}/sites/${mine.id}/compute`, {
+      method: 'POST',
+    });
+    if (res.ok) return;
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    if (body?.error) problem = body.error;
+  } catch {
+    // the message above stands
+  }
+  if (ui.site.value === mine.id) showNoData(sites.find((s) => s.id === mine.id) ?? mine, problem);
 }
 
 function fillSiteOptions(): void {
@@ -483,9 +535,11 @@ function showSelected(): void {
   }
   mapTab.setSelected(id);
   const r = lastResults.find((x) => x.id === id);
-  const mine = sites.find((x) => x.id === id)?.user;
-  const words = mine
-    ? 'your site, no data yet'
+  const mine = sites.find((x) => x.id === id);
+  const words = noDataYet(mine)
+    ? mine?.status === 'computing'
+      ? 'your site, being computed'
+      : 'your site, no data yet'
     : r?.verdict
       ? `${{ green: 'works', amber: 'marginal', red: 'no power' }[r.verdict]}, ${r.usableDays.toFixed(1)} usable days for this landing`
       : '';
@@ -621,11 +675,23 @@ let follow = ((): boolean => {
 })();
 
 const fromProject = (list: ProjectSite[]): SiteSummary[] =>
-  list.map((s) => ({
-    ...makeUserSite(s.name, s.lat, s.lon_e, []),
-    id: s.id,
-    source: 'Added to this shared project',
-  }));
+  list.map((s) => {
+    // A computed site's file lives with the project, not under /data/sites/.
+    setSiteUrl(
+      s.id,
+      s.status === 'ready' && project ? `/api/projects/${project.id}/sites/${s.id}.json` : null,
+    );
+    return {
+      ...makeUserSite(s.name, s.lat, s.lon_e, []),
+      id: s.id,
+      source:
+        s.status === 'ready'
+          ? 'Added to this shared project; computed for it from the same NASA terrain'
+          : 'Added to this shared project',
+      ...(s.status ? { status: s.status } : {}),
+      ...(s.status === 'ready' && s.approx === false ? { approx: false } : {}),
+    };
+  });
 const mySites = (): SiteSummary[] => (project ? fromProject(projectSites) : loadUserSites());
 
 function basePreset(): PowerPreset | undefined {

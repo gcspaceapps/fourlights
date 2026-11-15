@@ -17,12 +17,43 @@ export const MAX_PROJECT_NAME = 60;
 export const MAX_PEERS = 20;
 export const MAX_MESSAGE_BYTES = 8192;
 
-/** A site added to the project. Only a name and a position, like a browser-only user site. */
+/**
+ * Where a site's own data stands. Absent: only a name and a position. `computing`: the pipeline is
+ * building its skyline (pipeline.ts). `ready`: its site file is stored and the page can load it.
+ * `failed`: the run did not finish; it can be asked for again.
+ */
+export type SiteStatus = 'computing' | 'ready' | 'failed';
+
+/** A site added to the project: a name and a position, and its own data once that is computed. */
 export interface ProjectSite {
   id: string;
   name: string;
   lat: number;
   lon_e: number;
+  /** Set only by the Durable Object (never by a command): see `SiteStatus`. */
+  status?: SiteStatus;
+  /** For a `ready` site: false when 5 m terrain lies under it, as the pipeline reported. */
+  approx?: boolean;
+}
+
+/** The terrain models the pipeline reads cover 80°S to the pole. */
+export const COMPUTE_MAX_LAT = -80;
+/** Computed sites a project may hold: each is a minute and a half of a rented machine. */
+export const MAX_COMPUTED = 5;
+/** A run that has not reported back after this long may be asked for again. */
+export const COMPUTE_STALE_MS = 30 * 60_000;
+
+/** Why this site cannot be computed now, or null if it can. */
+export function computeRefusal(sites: ProjectSite[], id: string): string | null {
+  const site = sites.find((s) => s.id === id);
+  if (!site) return 'No such site in this project.';
+  if (site.lat > COMPUTE_MAX_LAT) {
+    return `Only sites south of ${-COMPUTE_MAX_LAT}°S can be computed: that is where the terrain models reach.`;
+  }
+  if (site.status === 'ready') return 'This site already has its data.';
+  const others = sites.filter((s) => s.id !== id && s.status && s.status !== 'failed').length;
+  if (others >= MAX_COMPUTED) return `A project can compute up to ${MAX_COMPUTED} sites.`;
+  return null;
 }
 
 export interface Camera {

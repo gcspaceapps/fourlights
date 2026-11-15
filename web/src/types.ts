@@ -25,8 +25,13 @@ export interface SiteSummary {
   point_rule: string;
   /** True when no 5 m terrain lies under the site; the UI labels it. */
   approx: boolean;
-  /** Added by the visitor in this browser: a name and a position, no computed data yet. */
+  /** Added by the visitor (or to a shared project): a name and a position. */
   user?: boolean;
+  /**
+   * A shared project's site whose own data is being or has been computed (api/src/pipeline.ts).
+   * `ready` means its site file can be loaded, so it is drawn like a published site.
+   */
+  status?: 'computing' | 'ready' | 'failed';
 }
 
 /** The whole of `/data/sites.json`. */

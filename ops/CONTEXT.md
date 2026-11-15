@@ -9,3 +9,5 @@
 **Rules:** scripts wrap the `npm run` commands rather than replace them; `package.json` stays the source of truth. Production deploys follow the deploy rule in `../AGENTS.md`. The full add-a-site steps are in `../stages/01_data/CONTEXT.md`.
 
 **`./ops/data-docker`:** `./ops/data` inside a container (image from `pipeline/Dockerfile`), for a machine with only Docker or Podman. Same arguments, same files changed in the checkout. Details in `pipeline/CONTEXT.md`, "In a container".
+
+**`./ops/site-job <id> "<Name>" <lat> <lon_e>`:** what a hosted machine runs for one site added to a shared project: `./ops/data add ...`, then sends the site file to `RESULT_URL` with `RESULT_TOKEN` (or reports the failure). Not for running by hand except to test the loop; see `pipeline/CONTEXT.md`, "Where it runs".

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# One site for a shared project, on a hosted machine: build it, then send the site file back to the
+# app. The Worker starts this (api/src/pipeline.ts) with RESULT_URL and RESULT_TOKEN set; it runs
+# inside the image from pipeline/Dockerfile.
+#
+#   ./ops/site-job <id> "<Name>" <lat> <lon_e>
+#
+# It is ./ops/data add ..., so the site gets exactly what the curated sites get. If anything
+# fails, the app is told, so the page does not wait for ever.
+set -uo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+py="$PWD/pipeline/.venv/bin/python"
+id="${1:?usage: ./ops/site-job <id> \"<Name>\" <lat> <lon_e>}"
+
+if ./ops/data add "$@" && "$py" -m four_lights.deliver "$id"; then
+  exit 0
+fi
+"$py" -m four_lights.deliver "$id" --failed
+exit 1

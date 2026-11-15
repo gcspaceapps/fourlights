@@ -2341,6 +2341,10 @@ footer p {
 }
 
 /* A site we have no data for yet (added by the visitor): its tabs say so instead of a chart. */
+.nodata-note .compute-site {
+  margin: 0.4rem 0 0;
+  display: block;
+}
 .nodata-note {
   display: none;
   margin: 0 0 1rem;

@@ -64,6 +64,8 @@ Source of truth: `../../_shared/stack.md`. TypeScript types: `web/src/types.ts`.
 6. After a run that changes a site's horizon or `planner.json`, rebuild the QGIS pack so its layers match the app: `make -C pipeline qgis-pack`, check it with `qgis-verify` (`../../pipeline/CONTEXT.md`, "The QGIS pack"), and commit `web/public/qgis/` with the data.
 
 ## Adding a site
+This section is the reference way, on our own machine, and the fallback that always works. The same run also goes in a container (`./ops/data-docker`), and a site someone adds to a shared project in the app can be computed on a hosted machine with no one at a keyboard (`pipeline/CONTEXT.md`, "Where it runs"); that hosted site belongs to its project and is not one of the published sites.
+
 One command at the repo root: `./ops/data add <id> "<Name>" <lat> <lon_e>` (kebab-case id; planetocentric latitude from −90 to −80; east longitude in (−180, 180]). It appends the site to `pipeline/sites.extra.json` (tracked; the only hand-editable input, and the way to remove a site again), then runs the same horizon → ephemerides → publish steps as the curated 12 and refreshes `planner.json`. The site is the given point, snapped to its pixel centre in the finest DEM that covers it; `source` is `Added point (lat, lon)` and `approx` is set as for any other site. North of 80°S is refused because the outer ring (`LDEM_75S_240M`) ends at 75°S.
 
 Then, before it ships:

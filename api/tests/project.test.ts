@@ -2,14 +2,17 @@
 // a fake storage and fake sockets (no network, no workerd), and the Worker's /api/projects routes.
 import { describe, expect, it } from 'vitest';
 import app from '../src/index';
+import { looksLikeSiteFile, machineConfig, resultKey } from '../src/pipeline';
 import { Project } from '../src/project';
 import {
   DEFAULT_DATA,
   DEFAULT_SITE,
+  MAX_COMPUTED,
   MAX_SITES,
   cleanData,
   cleanSites,
   cleanView,
+  computeRefusal,
   makeSite,
   newProject,
   reduce,
@@ -163,6 +166,7 @@ function room(store = new Map<string, unknown>()) {
     storage: {
       get: (k: string) => Promise.resolve(store.get(k)),
       put: (k: string, v: unknown) => Promise.resolve(void store.set(k, structuredClone(v))),
+      delete: (k: string) => Promise.resolve(store.delete(k)),
       getAlarm: () => Promise.resolve(alarm),
       setAlarm: (t: number) => Promise.resolve(void (alarm = t)),
     },
@@ -322,5 +326,229 @@ describe('Worker /api/projects', () => {
     expect((await app.request('/api/projects/not-a-uuid', {}, e)).status).toBe(400);
     expect((await app.request(`/api/projects/${ID}`, {}, e)).status).toBe(404);
     expect((await post(`/api/projects/${ID}/commands`, { t: 'set' }, e)).status).toBe(400);
+  });
+});
+
+// ── a project's own site gets real data (pipeline.ts) ──
+describe('computing a project site', () => {
+  const site = (id: string, lat: number, status?: 'computing' | 'ready' | 'failed') => ({
+    id,
+    name: id,
+    lat,
+    lon_e: 10,
+    ...(status ? { status } : {}),
+  });
+
+  it('refuses a site that is missing, north of 80°S, already done, or one too many', () => {
+    const sites = [site('camp', -88), site('equator', 0), site('done', -85, 'ready')];
+    expect(computeRefusal(sites, 'camp')).toBeNull();
+    expect(computeRefusal(sites, 'nope')).toMatch(/No such site/);
+    expect(computeRefusal(sites, 'equator')).toMatch(/80°S/);
+    expect(computeRefusal(sites, 'done')).toMatch(/already has its data/);
+    const full = [
+      site('camp', -88),
+      ...Array.from({ length: MAX_COMPUTED }, (_, i) => site(`s${i}`, -85, 'ready')),
+    ];
+    expect(computeRefusal(full, 'camp')).toMatch(/up to/);
+    // A failed run does not use up a place, and may be asked for again.
+    expect(computeRefusal([site('camp', -88, 'failed'), site('x', -85, 'failed')], 'camp')).toBe(
+      null,
+    );
+  });
+
+  it('a command cannot set a site’s status: only the run can', () => {
+    const made = makeSite({ name: 'Camp', lat: -88, lon_e: 3, status: 'ready' } as never, []);
+    expect(made).toEqual({ id: 'camp', name: 'Camp', lat: -88, lon_e: 3 });
+    expect(
+      cleanSites([{ name: 'Camp', lat: -88, lon_e: 3, status: 'ready' }])[0],
+    ).not.toHaveProperty('status');
+  });
+
+  it('the Durable Object marks the site, takes the result only with the token, and tells everyone', async () => {
+    const { obj, join } = room();
+    await obj.create(ID, { name: 'Review', sites: [{ name: 'Camp', lat: -88, lon_e: 3 }] });
+    const a = await join();
+    expect(await obj.startCompute('nope', 't1')).toMatchObject({ ok: false });
+    expect(await obj.startCompute('camp', 't1')).toMatchObject({
+      ok: true,
+      site: { id: 'camp', status: 'computing' },
+    });
+    expect((a.last('sites')?.sites as { status?: string }[])[0]?.status).toBe('computing');
+    // A second ask while it runs is refused; a wrong token is not accepted.
+    expect(await obj.startCompute('camp', 't2')).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/already being computed/) as string,
+    });
+    expect(await obj.jobValid('camp', 't2')).toBe(false);
+    expect(await obj.finishCompute('camp', 'wrong', 'ready')).toBe(false);
+    expect(await obj.finishCompute('camp', 't1', 'ready')).toBe(true);
+    expect(obj.snapshot()?.sites[0]?.status).toBe('ready');
+    expect((a.last('sites')?.sites as { status?: string }[])[0]?.status).toBe('ready');
+    // The token is spent.
+    expect(await obj.finishCompute('camp', 't1', 'failed')).toBe(false);
+    expect(obj.snapshot()?.sites[0]?.status).toBe('ready');
+  });
+
+  it('tells the machine which site, where the data lives and where to send the result', () => {
+    const cfg = machineConfig(
+      { FLY_IMAGE: 'registry.example/app:1', FLY_VOLUME: 'vol_1' },
+      {
+        project: ID,
+        site: { id: 'camp', name: 'Base Camp', lat: -88.5, lon_e: 3 },
+        token: 'secret',
+        origin: 'https://example.test',
+      },
+    ) as { region: string; config: Record<string, unknown> };
+    expect(cfg.region).toBe('syd');
+    expect(cfg.config).toMatchObject({
+      image: 'registry.example/app:1',
+      auto_destroy: true,
+      restart: { policy: 'no' },
+      mounts: [{ volume: 'vol_1', path: '/app/data' }],
+      init: { entrypoint: ['./ops/site-job'], cmd: ['camp', 'Base Camp', '-88.5', '3'] },
+      env: { RESULT_URL: `https://example.test/api/pipeline/${ID}/camp`, RESULT_TOKEN: 'secret' },
+    });
+    expect(looksLikeSiteFile({ id: 'camp', horizons: [], times: {} }, 'camp')).toBe(true);
+    expect(looksLikeSiteFile({ id: 'other', horizons: [], times: {} }, 'camp')).toBe(false);
+    expect(looksLikeSiteFile('nope', 'camp')).toBe(false);
+  });
+
+  /** The Worker with the pipeline switched on: a fake Fly API and a fake bucket. */
+  function pipelineEnv(flyStatus = 200, flyBody = '{}') {
+    const calls: { url: string; auth: string; body: Record<string, unknown> }[] = [];
+    const objects = new Map<string, string>();
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = ((url: string, init: RequestInit) => {
+      calls.push({
+        url,
+        auth: (init.headers as Record<string, string>).authorization ?? '',
+        body: JSON.parse(init.body as string) as Record<string, unknown>,
+      });
+      return Promise.resolve(new Response(flyBody, { status: flyStatus }));
+    }) as never;
+    const e = {
+      ...env(),
+      FLY_API_TOKEN: 'fly-token',
+      FLY_APP: 'the-app',
+      FLY_IMAGE: 'registry.example/app:1',
+      FLY_VOLUME: 'vol_1',
+      QGIS_BUCKET: {
+        put: (k: string, v: string) => Promise.resolve(void objects.set(k, v)),
+        get: (k: string) =>
+          Promise.resolve(objects.has(k) ? { body: objects.get(k) as string } : null),
+      },
+    };
+    return { e, calls, objects, restore: () => void (globalThis.fetch = realFetch) };
+  }
+  const withProject = async (e: ReturnType<typeof env>): Promise<string> => {
+    const made = await post(
+      '/api/projects',
+      { name: 'Review', sites: [{ name: 'Camp', lat: -88, lon_e: 3 }] },
+      e,
+    );
+    return ((await made.json()) as { project: { id: string } }).project.id;
+  };
+
+  it('is switched off until the Fly settings are there', async () => {
+    const e = env();
+    const id = await withProject(e);
+    const res = await app.request(`/api/projects/${id}/sites/camp/compute`, { method: 'POST' }, e);
+    expect(res.status).toBe(503);
+    const after = (await (await app.request(`/api/projects/${id}`, {}, e)).json()) as {
+      project: { sites: { id: string; status?: string }[] };
+    };
+    expect(after.project.sites).toEqual([expect.objectContaining({ id: 'camp' })]);
+    expect(after.project.sites[0]?.status).toBeUndefined();
+  });
+
+  it('starts a machine, stores the file it sends back, and serves it to the project', async () => {
+    const { e, calls, objects, restore } = pipelineEnv();
+    try {
+      const id = await withProject(e);
+      const res = await app.request(
+        `/api/projects/${id}/sites/camp/compute`,
+        { method: 'POST' },
+        e,
+      );
+      expect(res.status).toBe(202);
+      expect(calls).toHaveLength(1);
+      expect(calls[0]?.url).toBe('https://api.machines.dev/v1/apps/the-app/machines');
+      expect(calls[0]?.auth).toBe('Bearer fly-token');
+      const cfg = calls[0]?.body.config as { env: { RESULT_URL: string; RESULT_TOKEN: string } };
+      expect(cfg.env.RESULT_URL).toBe(`http://localhost/api/pipeline/${id}/camp`);
+      const put = (token: string, body: unknown) =>
+        app.request(
+          `/api/pipeline/${id}/camp`,
+          {
+            method: 'PUT',
+            headers: { authorization: `Bearer ${token}` },
+            body: JSON.stringify(body),
+          },
+          e,
+        );
+      const file = { id: 'camp', horizons: [], times: { n: 0 } };
+      // No data yet; a wrong token, and a file for another site, are refused.
+      expect((await app.request(`/api/projects/${id}/sites/camp.json`, {}, e)).status).toBe(404);
+      expect((await put('wrong', file)).status).toBe(403);
+      expect((await put(cfg.env.RESULT_TOKEN, { ...file, id: 'other' })).status).toBe(400);
+      expect(objects.size).toBe(0);
+      expect((await put(cfg.env.RESULT_TOKEN, { ...file, index: { approx: false } })).status).toBe(
+        200,
+      );
+      expect([...objects.keys()]).toEqual([resultKey(id, 'camp')]);
+      const got = await app.request(`/api/projects/${id}/sites/camp.json`, {}, e);
+      expect(await got.json()).toMatchObject(file);
+      const project = (await (await app.request(`/api/projects/${id}`, {}, e)).json()) as {
+        project: { sites: { status?: string; approx?: boolean }[] };
+      };
+      expect(project.project.sites[0]).toMatchObject({ status: 'ready', approx: false });
+      // The token cannot be used twice, and a finished site is not computed again.
+      expect((await put(cfg.env.RESULT_TOKEN, file)).status).toBe(403);
+      expect(
+        (await app.request(`/api/projects/${id}/sites/camp/compute`, { method: 'POST' }, e)).status,
+      ).toBe(409);
+    } finally {
+      restore();
+    }
+  });
+
+  it('marks the site failed when the machine cannot start or reports a failure', async () => {
+    const busy = pipelineEnv(422, 'volume is attached to another machine');
+    try {
+      const id = await withProject(busy.e);
+      const url = `/api/projects/${id}/sites/camp/compute`;
+      const res = await app.request(url, { method: 'POST' }, busy.e);
+      expect(res.status).toBe(502);
+      expect(((await res.json()) as { error: string }).error).toMatch(/Another site is being/);
+      const state = async () =>
+        (
+          (await (await app.request(`/api/projects/${id}`, {}, busy.e)).json()) as {
+            project: { sites: { status?: string }[] };
+          }
+        ).project.sites[0]?.status;
+      expect(await state()).toBe('failed');
+    } finally {
+      busy.restore();
+    }
+    const run = pipelineEnv();
+    try {
+      const id = await withProject(run.e);
+      await app.request(`/api/projects/${id}/sites/camp/compute`, { method: 'POST' }, run.e);
+      const token = (run.calls[0]?.body.config as { env: { RESULT_TOKEN: string } }).env
+        .RESULT_TOKEN;
+      const failed = await app.request(
+        `/api/pipeline/${id}/camp/failed`,
+        { method: 'POST', headers: { authorization: `Bearer ${token}` } },
+        run.e,
+      );
+      expect(failed.status).toBe(200);
+      // A failed site may be asked for again.
+      expect(
+        (await app.request(`/api/projects/${id}/sites/camp/compute`, { method: 'POST' }, run.e))
+          .status,
+      ).toBe(202);
+    } finally {
+      run.restore();
+    }
   });
 });
