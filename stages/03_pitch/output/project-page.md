@@ -36,7 +36,7 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 
 **What it does.**
 - **Slip Planner.** Sites down the side, landing dates across, usable days in each cell: the hours in the mission window with the Sun up and a link to Earth, divided by 24. Green works, amber is marginal, red has no power. The stay can be 7, 14 or 30 days. One button slips the date a day, the plan stays pinned, and a sentence above the grid states what the slip cost.
-- **Sun-Path Chart.** Stand at a site and look around: the 360° skyline from LOLA terrain, with the Sun's and Earth's paths over the mission window and a time slider. The four lights show the state at that moment, for an observer 1 m or 5 m above the ground.
+- **Sun-Path Chart.** Stand at a site and look around: the 360° skyline from LOLA terrain, with the Sun's and Earth's paths over the mission window and a time slider. The four lights show the state at that moment, for an observer 1, 2 or 5 m above the ground.
 - **Canberra Link.** The Comms light also needs one of the Deep Space Network's 70 m stations (Goldstone, Canberra or Madrid) to have the Moon at least 10° up, and names the station carrying the link.
 - **Survive the Night.** A simple battery model through the mission window: does a given power system make it through the dark spells?
 - **Pointing numbers.** The Sun's and Earth's azimuth and elevation at any hour, the terrain height in that direction and the clearance, with a CSV download of the whole mission window, for aiming solar panels and antennas.
