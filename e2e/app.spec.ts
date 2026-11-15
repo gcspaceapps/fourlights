@@ -247,36 +247,68 @@ test.describe('button groups', () => {
 });
 
 test.describe('views, theme and help', () => {
-  test('Mission hides the explanations, Learn adds the teaching panels', async ({ page }) => {
+  test('Mission hides the explanations, Learn adds the guide panel', async ({ page }) => {
     await open(page);
     // Explore keeps the question and the tools; the longer introduction is for Learn.
     await expect(page.locator('.tagline')).toBeVisible();
     await expect(page.locator('.legend')).toBeVisible();
     await expect(page.locator('.intro')).toBeHidden();
-    await expect(page.locator('#learn-ai')).toBeHidden();
+    await expect(page.locator('#guide')).toBeHidden();
     await page.locator('.view-switch').getByText('Mission', { exact: true }).click();
     await expect(page.locator('.legend')).toBeHidden();
     await expect(page.locator('.keys-strip')).toBeVisible();
+    await expect(page.locator('#guide')).toBeHidden();
     expect(page.url()).toContain('v=mission');
     await page.locator('.view-switch').getByText('Learn', { exact: true }).click();
     await expect(page.locator('.intro')).toBeVisible();
-    // The tab bar groups the tabs and names the selected site over the ones that are about it.
+    // The same five tabs in every view, grouped, with the selected site named over its own.
+    await expect(page.getByRole('tab')).toHaveCount(5);
     await expect(page.locator('#tabs .tab-group')).toHaveText([
-      'Learn',
       'All sites',
       'Peak near Shackleton',
-      'Learn',
     ]);
     await expect(page.getByRole('tab', { name: 'Sun-Path Chart' })).toHaveAccessibleDescription(
       'Peak near Shackleton',
     );
-    // Each teaching panel is its own tab, and only exists in the Learn view.
-    await showTab(page, 'Where AI is used');
-    await expect(page.locator('#learn-ai')).toBeVisible();
-    await showTab(page, 'Start here');
-    await expect(page.locator('#learn-start')).toBeVisible();
     await page.reload();
-    await expect(page.locator('#learn-start')).toBeVisible(); // remembered
+    await expect(page.locator('#guide')).toBeVisible(); // the view is remembered
+  });
+
+  test('the Learn guide follows the tab, and folds away', async ({ page }) => {
+    await open(page, '#v=learn');
+    const guide = page.locator('#guide');
+    const shown = guide.locator('section[data-guide]:visible');
+    await expect(page.locator('#guide-title')).toHaveText('Guide: Planner');
+    await expect(shown).toHaveCount(1);
+    await expect(shown).toContainText('On this tab: the Slip Planner');
+    await expect(shown).toContainText('Slip the launch.');
+    // The help and the things to try change with the tab.
+    for (const [tab, heading, activity] of [
+      ['Map', 'On this tab: the Map', 'Compare two sites.'],
+      ['Sun-Path Chart', 'What the four lights mean', 'Stand taller.'],
+      ['Survive the Night', 'On this tab: Survive the Night', 'Size a battery.'],
+      ['About this site', 'On this tab: About this site', 'Check the writer.'],
+    ] as const) {
+      await showTab(page, tab);
+      await expect(page.locator('#guide-title')).toHaveText(`Guide: ${tab}`);
+      await expect(shown).toHaveCount(1);
+      await expect(shown).toContainText(heading);
+      await expect(shown).toContainText(activity);
+    }
+    // The background, the AI notes and the glossary are there on every tab, closed until asked.
+    await expect(page.locator('#guide-ai h3').first()).toBeHidden();
+    await page.locator('#learn-ai').click();
+    await expect(guide).toContainText('It did get something wrong');
+    await page.locator('#learn-words').click();
+    await expect(guide.locator('.glossary')).toContainText('Libration');
+    // Folded away it leaves the page to the tool, and stays folded after a reload.
+    await page.locator('#guide-toggle').click();
+    await expect(page.locator('#guide-body')).toBeHidden();
+    await expect(page.locator('#guide-toggle')).toHaveText('Show the guide');
+    await page.reload();
+    await expect(page.locator('#guide-body')).toBeHidden();
+    await page.locator('#guide-toggle').click();
+    await expect(page.locator('#guide-body')).toBeVisible();
   });
 
   test('the theme switch forces light and dark', async ({ page }) => {
@@ -529,10 +561,11 @@ test.describe('Open in QGIS', () => {
 test.describe('Learn view pictures', () => {
   test('shows NASA photographs and two charts drawn from the site data', async ({ page }) => {
     await open(page, '#v=learn');
-    // The pictures sit in the tab they explain.
+    // The introduction's pictures and charts are in the guide, behind "New here?".
+    await page.locator('#learn-start').click();
     for (const [tab, file] of [
-      ['Start here', 'south-pole-clementine.jpg'],
-      ['Start here', 'earthrise-apollo-8.jpg'],
+      ['Planner', 'south-pole-clementine.jpg'],
+      ['Planner', 'earthrise-apollo-8.jpg'],
       ['Sun-Path Chart', 'dss-43-canberra.jpg'],
     ] as const) {
       await showTab(page, tab);
@@ -543,7 +576,6 @@ test.describe('Learn view pictures', () => {
         .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0))
         .toBe(true);
     }
-    await showTab(page, 'Start here');
     await expect(page.locator('#learn-sun path.sun-line')).toHaveCount(1);
     await expect(page.locator('#learn-earth path.earth-line')).toHaveCount(1);
     await expect(page.locator('#learn-earth path.terrain-line')).toHaveCount(1);

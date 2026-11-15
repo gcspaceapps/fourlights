@@ -8,6 +8,7 @@ import {
 } from './battery';
 import { renderChart } from './chart';
 import { infoTip, lightIcon, upgradeIcons, upgradeInfoTips, type LightName } from './icons';
+import { setupGuide, showGuide } from './guide';
 import { renderEarthBob, renderSunYear } from './learn';
 import { setupMap } from './map';
 import { loadUserSites, makeUserSite, mergeSites, saveUserSites } from './usersites';
@@ -271,12 +272,20 @@ function render(): void {
     light('Comms', now.comms, commsDetail(now)),
   );
   renderPointing(ui.pointing, pointingAt(site, profile, cursor));
-  ui.window.textContent = `Usable days in this ${days}-day window (sunlight with a link to Earth): ${w.usableDays.toFixed(1)}`;
+  // The headline figure, then what it measures.
+  const figure = document.createElement('span');
+  figure.className = 'figure';
+  figure.textContent = w.usableDays.toFixed(1);
+  const meaning = document.createElement('span');
+  meaning.className = 'detail';
+  meaning.textContent = `time with sunlight and a link to Earth, of this ${days}-day window`;
+  ui.window.replaceChildren(figure, ' usable days');
   ui.window.appendChild(
     infoTip(
       'Our measure: the hours in the mission window with the Comms light on, each counted by the share of the Sun in view (half the disc showing counts as half an hour), divided by 24.',
     ),
   );
+  ui.window.appendChild(meaning);
 
   const preset = currentPowerSystem();
   if (preset) {
@@ -1047,6 +1056,7 @@ function setView(v: View, remember = true): void {
     r.checked = r.value === v;
   }
   refreshTabs();
+  syncGuide();
   if (remember) {
     try {
       localStorage.setItem('view', v);
@@ -1257,10 +1267,19 @@ const share = setupShare({
 });
 
 setupViews();
+/** The Learn view's guide shows the help for the tab that is open. */
+function syncGuide(): void {
+  const slug = activeTab();
+  showGuide(slug, document.getElementById(`tab-${slug}`)?.textContent ?? '');
+}
+
+setupGuide();
 setupTabs($('tabs'), readHash().get('tab'), (slug) => {
   writeHash();
   mapTab.setActive(slug === 'map');
+  syncGuide();
 });
+syncGuide();
 nameSiteTabs();
 mapTab.setActive(activeTab() === 'map');
 for (const sel of [

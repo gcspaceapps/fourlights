@@ -288,18 +288,6 @@ const TABS = {
     label: 'About this site',
     text: 'Facts about the selected site: where it is, which elevation models its skyline was computed from, and a short written review of the site drawn from our own numbers.',
   },
-  'start-here': {
-    label: 'Start here',
-    text: 'Learn view only. A plain-language introduction: why the Sun never climbs at the south pole, why Earth sits on the horizon too, why anyone wants to land there and why the south pole and not the north, with NASA photographs and two small charts drawn from the site data.',
-  },
-  'where-ai-is-used': {
-    label: 'Where AI is used',
-    text: 'Learn view only. Says exactly where a language model is used on the page (understanding a typed question, writing the site reviews) and where it is not (every number and verdict), including a case where it got something wrong, and questions for a class to discuss.',
-  },
-  'try-and-glossary': {
-    label: 'Try and glossary',
-    text: 'Learn view only. A list of things to try on the page and a glossary of the words used.',
-  },
 };
 const MAIN = ['planner', 'map', 'sun-path-chart', 'survive-the-night', 'about-this-site'];
 const VIEWS = [
@@ -318,8 +306,8 @@ const VIEWS = [
   {
     id: 'learn',
     label: 'Learn view',
-    text: 'For students and newcomers: the same tools with longer explanations, plus three teaching tabs.',
-    tabs: ['start-here', ...MAIN, 'where-ai-is-used', 'try-and-glossary'],
+    text: 'For students and newcomers: the same tools, with a guide panel on the right that explains the tab you are on and suggests things to try.',
+    tabs: MAIN,
   },
 ];
 
@@ -1356,10 +1344,10 @@ function smallStates() {
         run: (page) => moonReady(page),
       },
       {
-        title: `${name}: Learn, Start here`,
-        steps: [`In a ${size} window, choose Learn in the header; the Start here tab opens.`],
+        title: `${name}: Learn view with the guide`,
+        steps: [`In a ${size} window, choose Learn in the header.`],
         viewport,
-        path: '/#v=learn&tab=start-here',
+        path: '/#v=learn&tab=planner',
       },
       {
         title: `${name}: Share dialog`,
@@ -1374,11 +1362,11 @@ function smallStates() {
     ...device('Phone', PHONE),
     ...device('Tablet', TABLET),
     {
-      title: 'Projector: Learn, Start here',
+      title: 'Projector: Learn view with the guide',
       text: 'As a classroom projector at 1280 x 720 would show it.',
-      steps: ['In a 1280 x 720 window, choose Learn in the header; the Start here tab opens.'],
+      steps: ['In a 1280 x 720 window, choose Learn in the header.'],
       viewport: PROJECTOR,
-      path: '/#v=learn&tab=start-here',
+      path: '/#v=learn&tab=planner',
     },
     {
       title: 'Projector: Sun-Path Chart',
@@ -1411,7 +1399,7 @@ const CHANGES = [
     'every full-page picture',
   ],
   [
-    'Learn, Start here: a fourth card, "Why the south pole, and not the north".',
+    'Learn view with the guide: a fourth card, "Why the south pole, and not the north".',
     'A3 (Start here), 10',
   ],
   [

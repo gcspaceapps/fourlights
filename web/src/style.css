@@ -221,6 +221,155 @@ h2 {
 }
 
 /* Tabs: one panel at a time; Learn-only tabs follow the view rules above. */
+/* Learn view: the tabs' content with the guide panel beside it. In the other views the guide
+   does not exist and the content takes the full width. */
+:root[data-view='learn'] main {
+  max-width: 100rem;
+}
+
+:root[data-view='learn'] .workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 23rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Folded away, the guide is only its button, above the content on the right. */
+:root[data-view='learn'][data-guide-state='closed'] .workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.guide {
+  position: sticky;
+  top: 0.75rem;
+  max-height: calc(100vh - 1.5rem);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--go-edge);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.6rem 0.9rem 0.9rem;
+}
+
+:root[data-guide-state='closed'] .guide {
+  position: static;
+  order: -1;
+  justify-self: end;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+:root[data-guide-state='closed'] .guide-body,
+:root[data-guide-state='closed'] .guide-head h2 {
+  display: none;
+}
+
+.guide-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.guide-head h2 {
+  margin: 0;
+  font-size: var(--fs-lg);
+}
+
+.guide-head button {
+  min-height: 2rem;
+  padding: 0 0.7rem;
+  font-size: var(--fs-sm);
+}
+
+/* The guide reuses the teaching styles (.learn) without their own box. */
+.guide-body.learn {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  max-width: none;
+}
+
+.guide-body h3 {
+  margin: 1rem 0 0.35rem;
+  font-size: var(--fs-base);
+}
+
+.guide-body p,
+.guide-body li,
+.guide-body dd,
+.guide-body dt {
+  font-size: var(--fs-sm);
+}
+
+.guide-body ol,
+.guide-body ul {
+  padding-left: 1.2rem;
+  margin: 0.25rem 0;
+}
+
+.guide-body section[hidden] {
+  display: none;
+}
+
+.guide-more {
+  margin: 0.6rem 0;
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+}
+
+.guide-more summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* In the panel's one narrow column pictures and cards stack, and nothing floats. */
+.guide-body .learn-grid,
+.guide-body .learn-figs {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.guide-body .learn-side {
+  float: none;
+  width: auto;
+  margin: 0.5rem 0 !important;
+}
+
+.guide-body .glossary {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.1rem;
+}
+
+.guide-body .glossary dt {
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+.guide-body .glossary dd {
+  margin: 0;
+}
+
+/* No room beside the page: the guide sits above the content, and scrolls with it. */
+@media (max-width: 64rem) {
+  :root[data-view='learn'] .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .guide {
+    position: static;
+    order: -1;
+    max-height: none;
+  }
+
+  :root[data-guide-state='closed'] .guide {
+    justify-self: start;
+  }
+}
+
 /* The tab bar: real tab shapes sitting on the panel they open, in groups with a heading and a
    colour each, so "what am I looking at" and "is it about every site or this one" are answered
    at a glance. */
@@ -815,23 +964,77 @@ circle.marker.hidden {
 }
 
 /* Pointing: the raw azimuth and elevation numbers */
-.pointing {
+/* Under the lights: a small report. The numbers for the hour on the slider on the left, the
+   result for the whole mission window and its download on the right. */
+.report {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1rem 2rem;
   margin: 1rem 0;
+  padding: 0.9rem 1.1rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.report h3 {
+  margin: 0 0 0.5rem;
+}
+
+.report-window {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding-left: 2rem;
+  border-left: 1px solid var(--border);
+}
+
+.report-window h3,
+.report-window .window {
+  margin: 0;
+}
+
+.report-window .figure {
+  font-size: 2rem;
+  line-height: 1;
+  font-family: var(--mono);
+}
+
+@media (max-width: 52rem) {
+  .report {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-window {
+    padding: 0.9rem 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
 }
 
 .pointing-table {
+  width: 100%;
   border-collapse: collapse;
   font-family: var(--mono);
-  font-size: var(--fs-sm);
-  margin-bottom: 0.6rem;
+  font-size: var(--fs-base);
 }
 
 .pointing-table th,
 .pointing-table td {
-  padding: 0.35rem 1.25rem 0.35rem 0;
+  padding: 0.45rem 0 0.45rem 1rem;
   border-bottom: 1px solid var(--border);
   text-align: right;
   white-space: nowrap;
+}
+
+.pointing-table tbody tr:last-child th,
+.pointing-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pointing-table th:first-child {
+  padding-left: 0;
 }
 
 .pointing-table thead th {

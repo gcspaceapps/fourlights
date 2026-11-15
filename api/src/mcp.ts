@@ -27,14 +27,11 @@ const DAY_MS = 86_400_000;
 
 /** The page's tabs (slug = lower-cased label with dashes, see web/src/tabs.ts). */
 const TABS: Record<string, { label: string; learn: boolean }> = {
-  'start-here': { label: 'Start here', learn: true },
   planner: { label: 'Planner', learn: false },
   map: { label: 'Map', learn: false },
   'sun-path-chart': { label: 'Sun-Path Chart', learn: false },
   'survive-the-night': { label: 'Survive the Night', learn: false },
   'about-this-site': { label: 'About this site', learn: false },
-  'where-ai-is-used': { label: 'Where AI is used', learn: true },
-  'try-and-glossary': { label: 'Try and glossary', learn: true },
 };
 
 const VERDICTS: Record<string, string> = { g: 'works', a: 'marginal', r: 'no power' };
@@ -335,8 +332,7 @@ const TOOLS: Tool[] = [
       Object.entries(TABS)
         .map(([slug, t]) => `${slug} ("${t.label}")`)
         .join(', ') +
-      '. "start-here", "where-ai-is-used" and "try-and-glossary" only exist in the Learn view, ' +
-      'so choosing one also switches to Learn.',
+      '. The tabs are the same in every view (Mission, Explore, Learn); use set_view for the view.',
     inputSchema: schema(
       { tab: { type: 'string', enum: Object.keys(TABS), description: 'The tab slug.' } },
       ['tab'],

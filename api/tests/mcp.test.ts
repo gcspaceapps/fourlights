@@ -170,12 +170,14 @@ describe('changing the project', () => {
     expect((await call(deps, 'set_selection', { slip: 1.5 })).error).toBe(true);
   });
 
-  it('switches tabs by slug or label, and goes to Learn for a Learn-only tab', async () => {
+  it('switches tabs by slug or label, and refuses a tab that does not exist', async () => {
     const { deps, get } = setup();
     await call(deps, 'switch_tab', { tab: 'Sun-Path Chart' });
     expect(get().view.tab).toBe('sun-path-chart');
-    await call(deps, 'switch_tab', { tab: 'try-and-glossary' });
-    expect(get().view).toMatchObject({ tab: 'try-and-glossary', mode: 'learn' });
+    await call(deps, 'switch_tab', { tab: 'survive-the-night' });
+    expect(get().view).toMatchObject({ tab: 'survive-the-night', mode: 'explore' });
+    // The Learn view's teaching tabs became its guide panel: they are not tabs any more.
+    expect((await call(deps, 'switch_tab', { tab: 'try-and-glossary' })).error).toBe(true);
     expect((await call(deps, 'switch_tab', { tab: 'nowhere' })).error).toBe(true);
   });
 

@@ -41,7 +41,7 @@ Tell an AI agent to use the Four Lights MCP and give it a project uuid; it then 
 | `site_summary` | one site on one date: usable days, sunlit %, longest dark, power verdict, its written review |
 | `rank_sites` | every published site for a date and window, best first |
 | `set_selection` | site, landing date, slip from the plan in days (a date with no slip is a new plan), window (7/14/30), observer height (1/2/5) |
-| `switch_tab` | show a tab by slug or label; a Learn-only tab also switches to Learn |
+| `switch_tab` | show a tab by slug or label (the five tabs are the same in every view; the Learn view's teaching content is its guide panel, not tabs) |
 | `set_view` | mode, chart centre and time cursor, Moon layer, graticule |
 | `add_site` · `remove_site` | add a site by name and lat/lon (it becomes the selection); remove one of the project's own |
 

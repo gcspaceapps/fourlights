@@ -115,641 +115,759 @@
         <span id="plan-note" class="plan-note" role="status"></span>
       </div>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
-
-      <section
-        class="learn v-learn"
-        data-tab="Start here"
-        data-tab-group="Learn"
-        aria-labelledby="learn-start"
-      >
-        <h2 id="learn-start">Start here: why the south pole is different</h2>
-        <div class="learn-grid">
-          <div>
-            <h3>The Sun never climbs</h3>
-            <p>
-              The Moon's axis is tilted only about 1.5°, so at its poles the Sun never rises high or
-              sets for long: it circles the horizon once every 29.5 Earth days, always within a
-              degree or two of it. A hill in the way means night. A high rim can stay sunlit for
-              months.
-            </p>
-          </div>
-          <div>
-            <h3>Earth sits on the horizon too</h3>
-            <p>
-              Radio travels in straight lines, so a lander needs Earth in view to talk home. From
-              the pole Earth hangs low in one part of the sky and bobs up and down by about 6°
-              either way over 27 days. This is called <strong>libration</strong>: the Moon's tilt
-              and its orbit make it nod toward and away from us. Our data includes it, because
-              Earth's position comes from NASA's JPL Horizons for every hour. Terrain can hide Earth
-              for a fortnight at a time.
-            </p>
-          </div>
-          <div>
-            <h3>Why go there at all</h3>
-            <p>
-              Crater floors near the pole have not seen sunlight for billions of years and are among
-              the coldest places measured in the Solar System. Water ice has been detected there.
-              The best sites sit on bright high ground next to that permanent shadow.
-            </p>
-          </div>
-          <div>
-            <h3>Why the south pole, and not the north</h3>
-            <p>
-              Both poles have the low Sun and craters in permanent shadow. The south has more
-              shadowed ground, in bigger and deeper craters, because it sits on the rim of the
-              <strong>South Pole–Aitken basin</strong>, the largest and oldest impact basin known on
-              the Moon. That rough ground puts sunlit ridges right beside the shadow, and the
-              basin's ancient rock is a science prize of its own. The south also has the direct
-              evidence: in 2009 NASA's LCROSS mission crashed a spent rocket stage into Cabeus
-              crater there and found water in the plume it threw up. All of NASA's Artemis candidate
-              landing regions are near the south pole.
-            </p>
-          </div>
-        </div>
-        <div class="learn-figs">
-          <figure>
-            <img
-              src="/img/south-pole-clementine.jpg"
-              width="560"
-              height="560"
-              loading="lazy"
-              alt="The Moon's south polar region seen from above: a disc of craters with deep black shadow at the centre"
-            />
-            <figcaption>
-              The south pole from above, built from about 1,500 photographs. The black areas at the
-              centre are crater floors the low Sun never reaches. Photo: NASA/JPL/USGS, Clementine
-              mosaic PIA00001.
-            </figcaption>
-          </figure>
-          <figure>
-            <svg id="learn-sun" role="img" aria-labelledby="learn-sun-cap"></svg>
-            <figcaption id="learn-sun-cap">
-              From our data, for the site in the chart below: the Sun's height above level through a
-              year. It never gets more than a couple of degrees from the horizon. The slow rise and
-              fall is the polar summer and winter; the monthly wave is the Sun circling the sky once
-              every 29.5 days.
-            </figcaption>
-          </figure>
-          <figure>
-            <img
-              src="/img/earthrise-apollo-8.jpg"
-              width="640"
-              height="480"
-              loading="lazy"
-              alt="The blue and white Earth, half lit, hanging just above the grey horizon of the Moon"
-            />
-            <figcaption>
-              Earth about five degrees above the lunar horizon, photographed by the Apollo 8 crew in
-              1968. From the south pole, Earth sits about this low all the time. Photo: NASA,
-              AS08-14-2383.
-            </figcaption>
-          </figure>
-          <figure>
-            <svg id="learn-earth" role="img" aria-labelledby="learn-earth-cap"></svg>
-            <figcaption id="learn-earth-cap">
-              From our data, for the same site: Earth's height above level over 60 days (blue), and
-              the height of the terrain in Earth's direction (grey). The wave is libration, about 27
-              days from peak to peak. When blue drops below grey, Earth is hidden and there is no
-              radio link.
-            </figcaption>
-          </figure>
-        </div>
-
-        <p class="more">
-          Learn more:
-          <a href="https://science.nasa.gov/moon/" target="_blank" rel="noopener">NASA: the Moon</a>
-          ·
-          <a
-            href="https://science.nasa.gov/moon/moon-water-and-ices/"
-            target="_blank"
-            rel="noopener"
-            >water and ice on the Moon</a
-          >
-          ·
-          <a href="https://www.nasa.gov/humans-in-space/artemis/" target="_blank" rel="noopener"
-            >the Artemis missions</a
-          >
-          ·
-          <a href="https://science.nasa.gov/mission/lro/" target="_blank" rel="noopener"
-            >Lunar Reconnaissance Orbiter</a
-          >, whose laser altimeter measured the terrain used here
-        </p>
-      </section>
-
-      <div data-tab="Planner" data-tab-group="All sites">
-        <section aria-labelledby="planner-title">
-          <h2
-            id="planner-title"
-            data-info="Computed in your browser from each site's terrain horizon (NASA LRO LOLA elevation models) and the Sun's and Earth's direction for every hour of 2028 and 2029 (NASA JPL Horizons), for an observer 2 m above the ground. The green, amber and red rules are our own definitions."
-          >
-            Slip Planner
-          </h2>
-          <p class="legend">
-            Each cell is the <strong>usable days</strong> for a landing on that date: time with
-            sunlight and a link to Earth. <span class="key-green">● works</span>
-            <span class="key-amber">▲ marginal</span>
-            <span
-              class="key-red"
-              data-info="Works: Power on and at least half the window usable. Marginal: Power on, less usable. No power: the Sun is in view less than 70% of the window on average, or fully hidden for more than 48 hours."
-              >✕ no power</span
-            >
-          </p>
-          <div class="planner-tools">
-            <div class="slip-buttons" role="group" aria-label="Move the planned landing">
-              <button type="button" id="slip-back">− 1 day</button>
-              <button type="button" id="slip-on">Slip + 1 day</button>
-            </div>
-            <form class="ask" id="ask">
-              <label
-                for="ask-q"
-                data-info="A language model on Cloudflare Workers AI (Llama 3.3 70B) returns only a date, a slip, a window and a site. The server checks each one, then the planner computes the answer. The model never sees or produces the numbers."
-                >Or ask in plain English</label
+      <div class="workspace">
+        <div class="workspace-main">
+          <div data-tab="Planner" data-tab-group="All sites">
+            <section aria-labelledby="planner-title">
+              <h2
+                id="planner-title"
+                data-info="Computed in your browser from each site's terrain horizon (NASA LRO LOLA elevation models) and the Sun's and Earth's direction for every hour of 2028 and 2029 (NASA JPL Horizons), for an observer 2 m above the ground. The green, amber and red rules are our own definitions."
               >
-              <div class="ask-row">
-                <input
-                  type="text"
-                  id="ask-q"
-                  maxlength="200"
-                  placeholder="Launch slips 3 days from 19 April. Which sites still work?"
-                  autocomplete="off"
-                />
-                <button type="submit">Ask</button>
-              </div>
-            </form>
-          </div>
-          <p class="ask-note v-explore" id="ask-note" aria-live="polite">
-            An AI model (Cloudflare Workers AI) only turns your words into the settings above; the
-            answer is computed by the planner.
-          </p>
-          <p class="answer" id="answer" aria-live="polite"></p>
-          <div class="table-scroll" tabindex="0" aria-label="Slip Planner table (scrolls sideways)">
-            <table class="planner" id="planner"></table>
-          </div>
-          <p class="cell-why" id="cell-why">
-            Point at a cell, or reach it with the Tab key, to see why it passes or fails; choose it
-            to open its chart.
-          </p>
-          <p class="planner-foot v-explore">
-            The column marked <strong>planned</strong> is the plan. Slip the landing and the
-            highlighted column moves while the plan stays, so the answer says what the slip cost.
-            <span class="approx">approx. terrain</span> marks a site with no 5 m terrain model under
-            it.
-          </p>
-        </section>
-      </div>
-
-      <section data-tab="Map" data-tab-group="All sites" aria-labelledby="map-title" id="map-tab">
-        <h2
-          id="map-title"
-          data-info="A 3D Moon you can turn and zoom. Imagery and elevation colours are NASA's LRO WAC mosaic and LOLA colour-shaded elevation from NASA Moon Trek, served through our own tile route. The polar shading is made by us with GDAL from NASA's LOLA elevation model LDEM_75S_240M (PDS). Site positions come from NASA Goddard's 5 m site models and the USGS grids for the Artemis candidate regions."
-        >
-          Map: where the sites are
-        </h2>
-        <div class="globe-layout">
-          <figure class="globe">
-            <div class="globe-frame">
-              <div
-                class="globe-stage"
-                id="globe-view"
-                role="img"
-                aria-label="3D view of the Moon with the 12 candidate landing sites marked near its south pole. Use the site list for the same information with keyboard controls."
-              ></div>
-              <div class="globe-over globe-over-layers" id="globe-controls">
-                <label
-                  >Layer
-                  <select id="globe-layer">
-                    <option value="wac">Imagery (WAC)</option>
-                    <option value="lola">Elevation (LOLA)</option>
-                    <option value="hillshade" selected>Polar shading</option>
-                  </select></label
+                Slip Planner
+              </h2>
+              <p class="legend">
+                Each cell is the <strong>usable days</strong> for a landing on that date: time with
+                sunlight and a link to Earth. <span class="key-green">● works</span>
+                <span class="key-amber">▲ marginal</span>
+                <span
+                  class="key-red"
+                  data-info="Works: Power on and at least half the window usable. Marginal: Power on, less usable. No power: the Sun is in view less than 70% of the window on average, or fully hidden for more than 48 hours."
+                  >✕ no power</span
                 >
-                <label class="check"
-                  ><input type="checkbox" id="globe-grid" checked /> Grid lines</label
-                >
-              </div>
-              <div class="globe-over globe-over-view" role="group" aria-label="View">
-                <button type="button" id="globe-moon">Whole Moon</button>
-                <button type="button" id="globe-pole">South pole</button>
-              </div>
-              <div class="globe-over globe-over-zoom" role="group" aria-label="Zoom">
-                <button type="button" id="globe-zoom-in" aria-label="Zoom in">+</button>
-                <button type="button" id="globe-zoom-out" aria-label="Zoom out">−</button>
-              </div>
-            </div>
-            <div class="globe-tip" id="globe-tip" hidden></div>
-            <p class="globe-fallback" id="globe-fallback" role="status" hidden></p>
-            <p class="globe-readout" id="globe-readout">Cursor: move over the Moon</p>
-            <p class="globe-layer-note v-explore" id="globe-layer-note" aria-live="polite"></p>
-            <figcaption id="map-desc" class="v-explore">
-              Drag to turn the Moon, scroll or pinch to zoom, right-drag (or Ctrl-drag) to tilt.
-              Each site is coloured and shaped for the planned landing in the Slip Planner: click a
-              marker to select that site (it stays highlighted in every tab); Open chart in the list
-              goes to its Sun-Path Chart. Earth is toward 0°E. The dashed circles are 84°, 86° and
-              88°S, and the cross is the pole.
-            </figcaption>
-          </figure>
-          <div class="globe-side">
-            <div class="globe-controls">
-              <button type="button" id="globe-add" aria-pressed="false">
-                Add a site on the map
-              </button>
-              <form class="globe-add" id="globe-add-form" hidden>
-                <p id="globe-add-help">
-                  Click the Moon to place it, or type a position. Your sites are notes on this map,
-                  kept in this browser only: no lights are computed for them.
-                </p>
-                <label>Name <input id="globe-add-name" required maxlength="40" /></label>
-                <label
-                  >Latitude (°, south is negative)
-                  <input id="globe-add-lat" type="number" step="any" min="-90" max="90" required />
-                </label>
-                <label
-                  >Longitude (°E)
-                  <input
-                    id="globe-add-lon"
-                    type="number"
-                    step="any"
-                    min="-180"
-                    max="180"
-                    required
-                  />
-                </label>
-                <div class="globe-buttons">
-                  <button type="submit">Save site</button>
-                  <button type="button" id="globe-add-cancel">Cancel</button>
+              </p>
+              <div class="planner-tools">
+                <div class="slip-buttons" role="group" aria-label="Move the planned landing">
+                  <button type="button" id="slip-back">− 1 day</button>
+                  <button type="button" id="slip-on">Slip + 1 day</button>
                 </div>
-              </form>
+                <form class="ask" id="ask">
+                  <label
+                    for="ask-q"
+                    data-info="A language model on Cloudflare Workers AI (Llama 3.3 70B) returns only a date, a slip, a window and a site. The server checks each one, then the planner computes the answer. The model never sees or produces the numbers."
+                    >Or ask in plain English</label
+                  >
+                  <div class="ask-row">
+                    <input
+                      type="text"
+                      id="ask-q"
+                      maxlength="200"
+                      placeholder="Launch slips 3 days from 19 April. Which sites still work?"
+                      autocomplete="off"
+                    />
+                    <button type="submit">Ask</button>
+                  </div>
+                </form>
+              </div>
+              <p class="ask-note v-explore" id="ask-note" aria-live="polite">
+                An AI model (Cloudflare Workers AI) only turns your words into the settings above;
+                the answer is computed by the planner.
+              </p>
+              <p class="answer" id="answer" aria-live="polite"></p>
+              <div
+                class="table-scroll"
+                tabindex="0"
+                aria-label="Slip Planner table (scrolls sideways)"
+              >
+                <table class="planner" id="planner"></table>
+              </div>
+              <p class="cell-why" id="cell-why">
+                Point at a cell, or reach it with the Tab key, to see why it passes or fails; choose
+                it to open its chart.
+              </p>
+              <p class="planner-foot v-explore">
+                The column marked <strong>planned</strong> is the plan. Slip the landing and the
+                highlighted column moves while the plan stays, so the answer says what the slip
+                cost. <span class="approx">approx. terrain</span> marks a site with no 5 m terrain
+                model under it.
+              </p>
+            </section>
+          </div>
+
+          <section
+            data-tab="Map"
+            data-tab-group="All sites"
+            aria-labelledby="map-title"
+            id="map-tab"
+          >
+            <h2
+              id="map-title"
+              data-info="A 3D Moon you can turn and zoom. Imagery and elevation colours are NASA's LRO WAC mosaic and LOLA colour-shaded elevation from NASA Moon Trek, served through our own tile route. The polar shading is made by us with GDAL from NASA's LOLA elevation model LDEM_75S_240M (PDS). Site positions come from NASA Goddard's 5 m site models and the USGS grids for the Artemis candidate regions."
+            >
+              Map: where the sites are
+            </h2>
+            <div class="globe-layout">
+              <figure class="globe">
+                <div class="globe-frame">
+                  <div
+                    class="globe-stage"
+                    id="globe-view"
+                    role="img"
+                    aria-label="3D view of the Moon with the 12 candidate landing sites marked near its south pole. Use the site list for the same information with keyboard controls."
+                  ></div>
+                  <div class="globe-over globe-over-layers" id="globe-controls">
+                    <label
+                      >Layer
+                      <select id="globe-layer">
+                        <option value="wac">Imagery (WAC)</option>
+                        <option value="lola">Elevation (LOLA)</option>
+                        <option value="hillshade" selected>Polar shading</option>
+                      </select></label
+                    >
+                    <label class="check"
+                      ><input type="checkbox" id="globe-grid" checked /> Grid lines</label
+                    >
+                  </div>
+                  <div class="globe-over globe-over-view" role="group" aria-label="View">
+                    <button type="button" id="globe-moon">Whole Moon</button>
+                    <button type="button" id="globe-pole">South pole</button>
+                  </div>
+                  <div class="globe-over globe-over-zoom" role="group" aria-label="Zoom">
+                    <button type="button" id="globe-zoom-in" aria-label="Zoom in">+</button>
+                    <button type="button" id="globe-zoom-out" aria-label="Zoom out">−</button>
+                  </div>
+                </div>
+                <div class="globe-tip" id="globe-tip" hidden></div>
+                <p class="globe-fallback" id="globe-fallback" role="status" hidden></p>
+                <p class="globe-readout" id="globe-readout">Cursor: move over the Moon</p>
+                <p class="globe-layer-note v-explore" id="globe-layer-note" aria-live="polite"></p>
+                <figcaption id="map-desc" class="v-explore">
+                  Drag to turn the Moon, scroll or pinch to zoom, right-drag (or Ctrl-drag) to tilt.
+                  Each site is coloured and shaped for the planned landing in the Slip Planner:
+                  click a marker to select that site (it stays highlighted in every tab); Open chart
+                  in the list goes to its Sun-Path Chart. Earth is toward 0°E. The dashed circles
+                  are 84°, 86° and 88°S, and the cross is the pole.
+                </figcaption>
+              </figure>
+              <div class="globe-side">
+                <div class="globe-controls">
+                  <button type="button" id="globe-add" aria-pressed="false">
+                    Add a site on the map
+                  </button>
+                  <form class="globe-add" id="globe-add-form" hidden>
+                    <p id="globe-add-help">
+                      Click the Moon to place it, or type a position. Your sites are notes on this
+                      map, kept in this browser only: no lights are computed for them.
+                    </p>
+                    <label>Name <input id="globe-add-name" required maxlength="40" /></label>
+                    <label
+                      >Latitude (°, south is negative)
+                      <input
+                        id="globe-add-lat"
+                        type="number"
+                        step="any"
+                        min="-90"
+                        max="90"
+                        required
+                      />
+                    </label>
+                    <label
+                      >Longitude (°E)
+                      <input
+                        id="globe-add-lon"
+                        type="number"
+                        step="any"
+                        min="-180"
+                        max="180"
+                        required
+                      />
+                    </label>
+                    <div class="globe-buttons">
+                      <button type="submit">Save site</button>
+                      <button type="button" id="globe-add-cancel">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+                <ul class="globe-legend" aria-label="Legend">
+                  <li class="green"><span class="sym" aria-hidden="true">●</span> works</li>
+                  <li class="amber"><span class="sym" aria-hidden="true">▲</span> marginal</li>
+                  <li class="red"><span class="sym" aria-hidden="true">✕</span> no power</li>
+                  <li class="none"><span class="sym" aria-hidden="true">○</span> no result</li>
+                </ul>
+                <h3 class="globe-list-title" id="globe-list-title">Sites</h3>
+                <ul class="globe-sites" id="globe-sites" aria-labelledby="globe-list-title"></ul>
+              </div>
             </div>
-            <ul class="globe-legend" aria-label="Legend">
-              <li class="green"><span class="sym" aria-hidden="true">●</span> works</li>
-              <li class="amber"><span class="sym" aria-hidden="true">▲</span> marginal</li>
-              <li class="red"><span class="sym" aria-hidden="true">✕</span> no power</li>
-              <li class="none"><span class="sym" aria-hidden="true">○</span> no result</li>
-            </ul>
-            <h3 class="globe-list-title" id="globe-list-title">Sites</h3>
-            <ul class="globe-sites" id="globe-sites" aria-labelledby="globe-list-title"></ul>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section
-        class="needs-data"
-        data-tab="Sun-Path Chart"
-        data-tab-group="Selected site"
-        aria-labelledby="chart-title"
-      >
-        <p class="nodata-note" role="status"></p>
-        <h2
-          id="chart-title"
-          data-info="Skyline: the highest terrain in each half-degree of direction, computed by us from NASA LOLA elevation models, 5 m per pixel at the site out to 240 m per pixel about 650 km away. Sun and Earth: the apparent positions of their centres from NASA JPL Horizons (ephemeris DE441), every hour, checked against NASA NAIF SPICE."
-        >
-          Sun-Path Chart
-        </h2>
-        <form class="controls" id="controls">
-          <label
-            >Observer height (m)
-            <select id="height"></select
-          ></label>
-          <label>
-            Centre on
-            <select id="centre">
-              <option value="0">North</option>
-              <option value="90">East</option>
-              <option value="180">South (pole)</option>
-              <option value="270">West</option>
-            </select>
-          </label>
-        </form>
-
-        <figure class="chart">
-          <div
-            class="chart-scroll"
-            tabindex="0"
-            aria-label="Panorama (scrolls sideways on small screens)"
+          <section
+            class="needs-data"
+            data-tab="Sun-Path Chart"
+            data-tab-group="Selected site"
+            aria-labelledby="chart-title"
           >
-            <svg id="chart" role="img" aria-labelledby="chart-desc"></svg>
-          </div>
-          <figcaption id="chart-desc" class="v-explore">
-            The site's terrain horizon (grey) from LOLA elevation data, with the
-            <span class="key sun">Sun</span> and <span class="key earth">Earth</span> tracks over
-            the mission window (a dot every 24 h) and their positions at the time below.
-          </figcaption>
-        </figure>
-
-        <div class="slider">
-          <label for="time">Time in window</label>
-          <input type="range" id="time" min="0" value="0" step="1" />
-          <output id="time-label" for="time"></output>
-        </div>
-
-        <ul class="lights" id="lights" aria-live="polite"></ul>
-        <div class="learn v-learn">
-          <h3>How to read this chart</h3>
-          <ul>
-            <li>
-              Imagine standing at the site and turning all the way round. Left to right is the
-              direction you face (north, east, south, west); up and down is how high above level
-              ground you look, in degrees. Your fist at arm's length covers about 10°.
-            </li>
-            <li>
-              The grey shape is the real skyline: the highest ground in each direction, measured by
-              a laser on NASA's Lunar Reconnaissance Orbiter.
-            </li>
-            <li>
-              The gold line is the Sun's path over the mission and the blue line is Earth's. Where a
-              line passes behind the grey it fades: that body is hidden from the site. Drag the time
-              slider and watch.
-            </li>
-            <li>
-              At the south pole, "north" is every direction away from the pole, and south is the
-              pole itself.
-            </li>
-          </ul>
-        </div>
-
-        <div class="learn v-learn">
-          <h3>What the four lights mean</h3>
-          <figure class="learn-side">
-            <img
-              src="/img/dss-43-canberra.jpg"
-              width="640"
-              height="480"
-              loading="lazy"
-              alt="A huge white dish antenna on a pedestal, with a crane beside it and hills behind"
-            />
-            <figcaption>
-              Deep Space Station 43 near Canberra: 70 m across, the largest steerable dish in the
-              Southern Hemisphere. One of the three stations the Comms light checks. Photo:
-              NASA/JPL-Caltech, PIA23797.
-            </figcaption>
-          </figure>
-          <ul>
-            <li><strong>Sun:</strong> can you see any of the Sun right now?</li>
-            <li><strong>Earth:</strong> can you see Earth right now?</li>
-            <li>
-              <strong>Power:</strong> over the whole stay, is there enough sunlight to run on solar
-              panels, with no night too long for the batteries?
-            </li>
-            <li>
-              <strong>Comms:</strong> is Earth clear of the hills, and is one of NASA's three big
-              dish stations (in California, Spain and Australia) facing the Moon?
-            </li>
-          </ul>
-          <p class="more">
-            Learn more:
-            <a
-              href="https://www.nasa.gov/communicating-with-missions/dsn/"
-              target="_blank"
-              rel="noopener"
-              >the Deep Space Network</a
+            <p class="nodata-note" role="status"></p>
+            <h2
+              id="chart-title"
+              data-info="Skyline: the highest terrain in each half-degree of direction, computed by us from NASA LOLA elevation models, 5 m per pixel at the site out to 240 m per pixel about 650 km away. Sun and Earth: the apparent positions of their centres from NASA JPL Horizons (ephemeris DE441), every hour, checked against NASA NAIF SPICE."
             >
-            ·
-            <a href="https://eyes.nasa.gov/dsn/dsn.html" target="_blank" rel="noopener"
-              >DSN Now: which dish is talking to which spacecraft, live</a
+              Sun-Path Chart
+            </h2>
+            <form class="controls" id="controls">
+              <label
+                >Observer height (m)
+                <select id="height"></select
+              ></label>
+              <label>
+                Centre on
+                <select id="centre">
+                  <option value="0">North</option>
+                  <option value="90">East</option>
+                  <option value="180">South (pole)</option>
+                  <option value="270">West</option>
+                </select>
+              </label>
+            </form>
+
+            <figure class="chart">
+              <div
+                class="chart-scroll"
+                tabindex="0"
+                aria-label="Panorama (scrolls sideways on small screens)"
+              >
+                <svg id="chart" role="img" aria-labelledby="chart-desc"></svg>
+              </div>
+              <figcaption id="chart-desc" class="v-explore">
+                The site's terrain horizon (grey) from LOLA elevation data, with the
+                <span class="key sun">Sun</span> and <span class="key earth">Earth</span> tracks
+                over the mission window (a dot every 24 h) and their positions at the time below.
+              </figcaption>
+            </figure>
+
+            <div class="slider">
+              <label for="time">Time in window</label>
+              <input type="range" id="time" min="0" value="0" step="1" />
+              <output id="time-label" for="time"></output>
+            </div>
+
+            <ul class="lights" id="lights" aria-live="polite"></ul>
+
+            <div class="report">
+              <div class="report-now">
+                <h3
+                  id="pointing-title"
+                  data-info="The raw numbers behind the lights, at the time on the slider. Azimuth is clockwise from true north at the site; elevation is above the local level (negative means below it). Both are for the body's centre, from NASA JPL Horizons. 'Terrain there' is the highest ground in that direction from the LOLA elevation models, for the chosen observer height. Clearance is elevation minus terrain."
+                >
+                  Sun and Earth at this hour
+                </h3>
+                <div class="table-scroll">
+                  <table
+                    class="pointing-table"
+                    id="pointing"
+                    aria-labelledby="pointing-title"
+                  ></table>
+                </div>
+              </div>
+              <div class="report-window">
+                <h3>Over this mission window</h3>
+                <p class="window" id="window"></p>
+                <button type="button" id="pointing-csv">
+                  Download the hourly values for this window (CSV)
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="needs-data"
+            data-tab="Survive the Night"
+            data-tab-group="Selected site"
+            aria-labelledby="battery-title"
+          >
+            <p class="nodata-note" role="status"></p>
+            <h2
+              id="battery-title"
+              data-info="A simple hour-by-hour energy balance of our own, driven by the Sun light above: in sunlight the array runs the day load and charges the battery with the surplus; in the dark the battery runs the survival load. It starts full at landing. No thermal model, no panel pointing, no battery ageing."
             >
-            ·
-            <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener"
-              >JPL Horizons</a
-            >, where the Sun and Earth positions come from
-          </p>
-        </div>
-        <div class="pointing">
-          <h3
-            id="pointing-title"
-            data-info="The raw numbers behind the lights, at the time on the slider. Azimuth is clockwise from true north at the site; elevation is above the local level (negative means below it). Both are for the body's centre, from NASA JPL Horizons. 'Terrain there' is the highest ground in that direction from the LOLA elevation models, for the chosen observer height. Clearance is elevation minus terrain."
-          >
-            Pointing
-          </h3>
-          <div class="table-scroll">
-            <table class="pointing-table" id="pointing" aria-labelledby="pointing-title"></table>
-          </div>
-          <button type="button" id="pointing-csv">
-            Download the hourly values for this window (CSV)
-          </button>
-        </div>
-        <p class="window" id="window"></p>
-      </section>
+              Survive the Night
+            </h2>
+            <div class="controls">
+              <label
+                ><span
+                  data-info="Illustrative round numbers chosen by us to show the idea. They are not taken from any real lander, rover or published specification."
+                  >Power system (illustrative)</span
+                >
+                <select id="preset"></select
+              ></label>
+            </div>
+            <figure class="preset-photo v-explore">
+              <img id="preset-img" width="480" height="360" alt="" />
+              <figcaption>
+                <span id="preset-cap"></span>
+                <span class="credit" id="preset-credit"></span>
+                The numbers here are round illustrative values, not this vehicle's.
+              </figcaption>
+            </figure>
+            <details class="customise" id="customise">
+              <summary
+                data-info="For planning and for looking back: change the vehicle and see whether it would have made it through this window at this site. Starts from the chosen preset; nothing here changes the four lights or the planner."
+              >
+                Adjust the power system
+              </summary>
+              <div class="controls">
+                <label
+                  >Solar array (W) <input type="number" id="p-array" min="0" step="50"
+                /></label>
+                <label
+                  >Load in sunlight (W) <input type="number" id="p-day" min="0" step="10"
+                /></label>
+                <label
+                  >Survival load in the dark (W) <input type="number" id="p-dark" min="1" step="5"
+                /></label>
+                <label
+                  >Battery (kWh) <input type="number" id="p-batt" min="0.1" step="0.5"
+                /></label>
+                <button type="button" id="p-reset">Reset to preset</button>
+              </div>
+            </details>
+            <figure class="chart">
+              <div class="chart-scroll">
+                <svg id="battery" role="img" aria-labelledby="battery-desc"></svg>
+              </div>
+              <figcaption id="battery-desc" class="v-explore">
+                Battery state of charge through the mission window, starting full at landing. Shaded
+                bands are the hours the Sun is behind the terrain. The orange line is the hour set
+                on the Sun-Path Chart's time slider. A simple energy balance with round-number
+                presets, not a real vehicle's power system.
+              </figcaption>
+            </figure>
+            <p class="window" id="battery-summary" aria-live="polite"></p>
+          </section>
 
-      <section
-        class="needs-data"
-        data-tab="Survive the Night"
-        data-tab-group="Selected site"
-        aria-labelledby="battery-title"
-      >
-        <p class="nodata-note" role="status"></p>
-        <h2
-          id="battery-title"
-          data-info="A simple hour-by-hour energy balance of our own, driven by the Sun light above: in sunlight the array runs the day load and charges the battery with the surplus; in the dark the battery runs the survival load. It starts full at landing. No thermal model, no panel pointing, no battery ageing."
-        >
-          Survive the Night
-        </h2>
-        <div class="controls">
-          <label
-            ><span
-              data-info="Illustrative round numbers chosen by us to show the idea. They are not taken from any real lander, rover or published specification."
-              >Power system (illustrative)</span
+          <section
+            class="site-info needs-data"
+            data-tab="About this site"
+            data-tab-group="Selected site"
+            aria-labelledby="site-title"
+          >
+            <p class="nodata-note" role="status"></p>
+            <h2
+              id="site-title"
+              data-info="Position, ground height and terrain come from the NASA LOLA files named below; the site point follows the rule shown. The whole-period figures are computed in your browser from the same data as the chart."
             >
-            <select id="preset"></select
-          ></label>
+              About this site
+            </h2>
+            <div class="review v-explore" id="review" hidden>
+              <p id="review-text"></p>
+              <p class="review-note" id="review-note"></p>
+            </div>
+            <dl id="site-info"></dl>
+          </section>
         </div>
-        <figure class="preset-photo v-explore">
-          <img id="preset-img" width="480" height="360" alt="" />
-          <figcaption>
-            <span id="preset-cap"></span>
-            <span class="credit" id="preset-credit"></span>
-            The numbers here are round illustrative values, not this vehicle's.
-          </figcaption>
-        </figure>
-        <details class="customise" id="customise">
-          <summary
-            data-info="For planning and for looking back: change the vehicle and see whether it would have made it through this window at this site. Starts from the chosen preset; nothing here changes the four lights or the planner."
-          >
-            Adjust the power system
-          </summary>
-          <div class="controls">
-            <label>Solar array (W) <input type="number" id="p-array" min="0" step="50" /></label>
-            <label>Load in sunlight (W) <input type="number" id="p-day" min="0" step="10" /></label>
-            <label
-              >Survival load in the dark (W) <input type="number" id="p-dark" min="1" step="5"
-            /></label>
-            <label>Battery (kWh) <input type="number" id="p-batt" min="0.1" step="0.5" /></label>
-            <button type="button" id="p-reset">Reset to preset</button>
+        <aside class="guide v-learn" id="guide" aria-labelledby="guide-title">
+          <div class="guide-head">
+            <h2 id="guide-title">Guide<span id="guide-where"></span></h2>
+            <button type="button" id="guide-toggle" aria-expanded="true" aria-controls="guide-body">
+              Hide
+            </button>
           </div>
-        </details>
-        <figure class="chart">
-          <div class="chart-scroll">
-            <svg id="battery" role="img" aria-labelledby="battery-desc"></svg>
-          </div>
-          <figcaption id="battery-desc" class="v-explore">
-            Battery state of charge through the mission window, starting full at landing. Shaded
-            bands are the hours the Sun is behind the terrain. The orange line is the hour set on
-            the Sun-Path Chart's time slider. A simple energy balance with round-number presets, not
-            a real vehicle's power system.
-          </figcaption>
-        </figure>
-        <p class="window" id="battery-summary" aria-live="polite"></p>
-      </section>
+          <div class="guide-body learn" id="guide-body">
+            <details class="guide-more" id="guide-start">
+              <summary id="learn-start">New here? Why the south pole is different</summary>
 
-      <section
-        class="site-info needs-data"
-        data-tab="About this site"
-        data-tab-group="Selected site"
-        aria-labelledby="site-title"
-      >
-        <p class="nodata-note" role="status"></p>
-        <h2
-          id="site-title"
-          data-info="Position, ground height and terrain come from the NASA LOLA files named below; the site point follows the rule shown. The whole-period figures are computed in your browser from the same data as the chart."
-        >
-          About this site
-        </h2>
-        <div class="review v-explore" id="review" hidden>
-          <p id="review-text"></p>
-          <p class="review-note" id="review-note"></p>
-        </div>
-        <dl id="site-info"></dl>
-      </section>
+              <div class="learn-grid">
+                <div>
+                  <h3>The Sun never climbs</h3>
+                  <p>
+                    The Moon's axis is tilted only about 1.5°, so at its poles the Sun never rises
+                    high or sets for long: it circles the horizon once every 29.5 Earth days, always
+                    within a degree or two of it. A hill in the way means night. A high rim can stay
+                    sunlit for months.
+                  </p>
+                </div>
+                <div>
+                  <h3>Earth sits on the horizon too</h3>
+                  <p>
+                    Radio travels in straight lines, so a lander needs Earth in view to talk home.
+                    From the pole Earth hangs low in one part of the sky and bobs up and down by
+                    about 6° either way over 27 days. This is called <strong>libration</strong>: the
+                    Moon's tilt and its orbit make it nod toward and away from us. Our data includes
+                    it, because Earth's position comes from NASA's JPL Horizons for every hour.
+                    Terrain can hide Earth for a fortnight at a time.
+                  </p>
+                </div>
+                <div>
+                  <h3>Why go there at all</h3>
+                  <p>
+                    Crater floors near the pole have not seen sunlight for billions of years and are
+                    among the coldest places measured in the Solar System. Water ice has been
+                    detected there. The best sites sit on bright high ground next to that permanent
+                    shadow.
+                  </p>
+                </div>
+                <div>
+                  <h3>Why the south pole, and not the north</h3>
+                  <p>
+                    Both poles have the low Sun and craters in permanent shadow. The south has more
+                    shadowed ground, in bigger and deeper craters, because it sits on the rim of the
+                    <strong>South Pole–Aitken basin</strong>, the largest and oldest impact basin
+                    known on the Moon. That rough ground puts sunlit ridges right beside the shadow,
+                    and the basin's ancient rock is a science prize of its own. The south also has
+                    the direct evidence: in 2009 NASA's LCROSS mission crashed a spent rocket stage
+                    into Cabeus crater there and found water in the plume it threw up. All of NASA's
+                    Artemis candidate landing regions are near the south pole.
+                  </p>
+                </div>
+              </div>
+              <div class="learn-figs">
+                <figure>
+                  <img
+                    src="/img/south-pole-clementine.jpg"
+                    width="560"
+                    height="560"
+                    loading="lazy"
+                    alt="The Moon's south polar region seen from above: a disc of craters with deep black shadow at the centre"
+                  />
+                  <figcaption>
+                    The south pole from above, built from about 1,500 photographs. The black areas
+                    at the centre are crater floors the low Sun never reaches. Photo: NASA/JPL/USGS,
+                    Clementine mosaic PIA00001.
+                  </figcaption>
+                </figure>
+                <figure>
+                  <svg id="learn-sun" role="img" aria-labelledby="learn-sun-cap"></svg>
+                  <figcaption id="learn-sun-cap">
+                    From our data, for the selected site: the Sun's height above level through a
+                    year. It never gets more than a couple of degrees from the horizon. The slow
+                    rise and fall is the polar summer and winter; the monthly wave is the Sun
+                    circling the sky once every 29.5 days.
+                  </figcaption>
+                </figure>
+                <figure>
+                  <img
+                    src="/img/earthrise-apollo-8.jpg"
+                    width="640"
+                    height="480"
+                    loading="lazy"
+                    alt="The blue and white Earth, half lit, hanging just above the grey horizon of the Moon"
+                  />
+                  <figcaption>
+                    Earth about five degrees above the lunar horizon, photographed by the Apollo 8
+                    crew in 1968. From the south pole, Earth sits about this low all the time.
+                    Photo: NASA, AS08-14-2383.
+                  </figcaption>
+                </figure>
+                <figure>
+                  <svg id="learn-earth" role="img" aria-labelledby="learn-earth-cap"></svg>
+                  <figcaption id="learn-earth-cap">
+                    From our data, for the same site: Earth's height above level over 60 days
+                    (blue), and the height of the terrain in Earth's direction (grey). The wave is
+                    libration, about 27 days from peak to peak. When blue drops below grey, Earth is
+                    hidden and there is no radio link.
+                  </figcaption>
+                </figure>
+              </div>
 
-      <section
-        class="learn v-learn"
-        data-tab="Where AI is used"
-        data-tab-group="Learn"
-        aria-labelledby="learn-ai"
-      >
-        <h2 id="learn-ai">Where AI is used on this page, and where it isn't</h2>
-        <div class="learn-grid">
-          <div>
-            <h3>Not for the answers</h3>
-            <p>
-              The skylines, the Sun and Earth positions, the four lights and the planner are
-              ordinary calculation on NASA data. The same inputs always give the same answer, and
-              you can check each step. No AI model is involved.
-            </p>
-          </div>
-          <div>
-            <h3>For writing the site reviews</h3>
-            <p>
-              A language model works by predicting which words are likely to come next. That makes
-              it good at writing a clear sentence and bad at guaranteeing the sentence is true. So
-              we give it only a table of facts we computed for the site, and a separate program
-              checks every number in what it writes. Drafts that fail are thrown away.
-            </p>
-          </div>
-          <div>
-            <h3>For understanding your question</h3>
-            <p>
-              When you type a question, the model's only job is to pull out four settings: a date, a
-              slip in days, a mission length and a site. The server checks each one is allowed, and
-              then the planner does the calculating. The model never sees the data.
-            </p>
-          </div>
-        </div>
-        <h3>It did get something wrong</h3>
-        <p>
-          While building this, one review said a site's terrain data was "approximate" when it was
-          not. Every number in the paragraph was right, so the number check passed it. We added a
-          second check for that word, and on the next run it rejected six drafts. The lesson: a
-          model's mistakes can be in the words between the numbers, and you only catch what you
-          think to check for.
-        </p>
-        <h3>Try it</h3>
-        <ul>
-          <li>
-            Ask the question box something unrelated, such as "what is the capital of France?" It
-            should refuse, because that is not a date, a slip, a window or a site.
-          </li>
-          <li>
-            Ask "we are delayed a week". Notice that it keeps your current date and adds seven days:
-            the model supplied the 7, and the planner did the rest.
-          </li>
-          <li>
-            Read a site review beside the figures under "About this site". Can you find anything the
-            review says that the figures do not support?
-          </li>
-        </ul>
-        <h3>To discuss</h3>
-        <ul>
-          <li>Why let a model write the summary but not calculate the sunlight?</li>
-          <li>What else could go wrong in a written summary that a number check would miss?</li>
-          <li>Would you trust a landing decision made by a language model? What would it take?</li>
-        </ul>
-        <p class="more">
-          The model is Llama 3.3 (70 billion parameters), an openly published model from Meta, run
-          on Cloudflare Workers AI. Learn more:
-          <a
-            href="https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/"
-            target="_blank"
-            rel="noopener"
-            >about this model</a
-          >
-          ·
-          <a href="https://developers.cloudflare.com/workers-ai/" target="_blank" rel="noopener"
-            >Workers AI</a
-          >
-        </p>
-      </section>
+              <p class="more">
+                Learn more:
+                <a href="https://science.nasa.gov/moon/" target="_blank" rel="noopener"
+                  >NASA: the Moon</a
+                >
+                ·
+                <a
+                  href="https://science.nasa.gov/moon/moon-water-and-ices/"
+                  target="_blank"
+                  rel="noopener"
+                  >water and ice on the Moon</a
+                >
+                ·
+                <a
+                  href="https://www.nasa.gov/humans-in-space/artemis/"
+                  target="_blank"
+                  rel="noopener"
+                  >the Artemis missions</a
+                >
+                ·
+                <a href="https://science.nasa.gov/mission/lro/" target="_blank" rel="noopener"
+                  >Lunar Reconnaissance Orbiter</a
+                >, whose laser altimeter measured the terrain used here
+              </p>
+            </details>
 
-      <section
-        class="learn v-learn"
-        data-tab="Try and glossary"
-        data-tab-group="Learn"
-        aria-labelledby="learn-try"
-      >
-        <h2 id="learn-try">Things to try</h2>
-        <ol>
-          <li>
-            <strong>Slip the launch.</strong> In the Slip Planner, press "Slip + 1 day" three times.
-            Which sites change colour? Open one that went red and find the night that caused it.
-          </li>
-          <li>
-            <strong>Stand taller.</strong> In the Sun-Path Chart, change the observer height from 1
-            m to 5 m. Why does a few metres change the skyline nearby but not the far ridges?
-          </li>
-          <li>
-            <strong>Compare two sites.</strong> Look at Shackleton rim and Haworth for the same
-            week. One has more sunlight, the other sees Earth more. Which would you choose for a
-            solar-powered rover, and which for a radio relay?
-          </li>
-          <li>
-            <strong>Size a battery.</strong> Under Survive the Night, open "Adjust the power system"
-            and find the smallest battery that gets the small lander through the longest night of
-            the week.
-          </li>
-          <li>
-            <strong>Find the best fortnight.</strong> Set the mission window to 14 days and slide
-            through the year. When is the best time to land at Connecting Ridge?
-          </li>
-        </ol>
-        <h2>Words used here</h2>
-        <dl class="glossary">
-          <dt>Azimuth</dt>
-          <dd>The direction you face, in degrees clockwise from north.</dd>
-          <dt>Elevation</dt>
-          <dd>How high something is above level ground, in degrees. The horizon is 0°.</dd>
-          <dt>Horizon profile (skyline)</dt>
-          <dd>The elevation of the highest ground in every direction from one spot.</dd>
-          <dt>Libration</dt>
-          <dd>
-            The slow nodding of the Moon as seen from Earth, which makes Earth bob up, down and
-            sideways in the Moon's sky over about 27 days. It is built into the Earth positions used
-            here.
-          </dd>
-          <dt>Mission window</dt>
-          <dd>The days a lander is working on the surface, starting at the landing date.</dd>
-          <dt>Usable days</dt>
-          <dd>Time in the mission window with both sunlight and a radio link to Earth.</dd>
-          <dt>Deep Space Network (DSN)</dt>
-          <dd>
-            NASA's three stations of large radio dishes, spaced round the Earth so one can always
-            face deep space.
-          </dd>
-          <dt>LOLA</dt>
-          <dd>
-            The Lunar Orbiter Laser Altimeter, which has measured the Moon's shape with billions of
-            laser shots.
-          </dd>
-        </dl>
-      </section>
+            <section data-guide="planner" aria-labelledby="guide-planner">
+              <h3 id="guide-planner">On this tab: the Slip Planner</h3>
+              <p>
+                Each row is a landing site and each column is a landing date. The number in a cell
+                is the <strong>usable days</strong>: the time in the mission window with both
+                sunlight and a radio link to Earth. A green circle works, an amber triangle is
+                marginal and a red cross has no power.
+              </p>
+              <p>
+                The column marked <strong>planned</strong> is the plan. Slip the landing and the
+                highlighted column moves while the plan stays put, so the sentence above the table
+                says what the slip cost.
+              </p>
+              <h3>Try it</h3>
+              <ol>
+                <li>
+                  <strong>Slip the launch.</strong> Press "Slip + 1 day" three times. Which sites
+                  change colour? Open one that went red and find the night that caused it.
+                </li>
+                <li>
+                  <strong>Find the best fortnight.</strong> Set the mission window to 14 days and
+                  slide through the year. When is the best time to land at Connecting Ridge?
+                </li>
+                <li>
+                  <strong>Ask it.</strong> Type "we are delayed a week" in the question box. Notice
+                  that it keeps your current date and adds seven days: the model supplied the 7, and
+                  the planner did the rest.
+                </li>
+                <li>
+                  <strong>Ask it something else.</strong> Try "what is the capital of France?" It
+                  should refuse, because that is not a date, a slip, a window or a site.
+                </li>
+              </ol>
+            </section>
+
+            <section data-guide="map" aria-labelledby="guide-map">
+              <h3 id="guide-map">On this tab: the Map</h3>
+              <p>
+                A Moon you can turn and zoom, built from the photographs and laser height
+                measurements of NASA's Lunar Reconnaissance Orbiter. Each marker is a landing site,
+                coloured and shaped like its planner cell for the landing shown. The dashed circles
+                are 84°, 86° and 88° south, the cross is the pole, and Earth is toward 0°E.
+              </p>
+              <p>
+                The three layers show the same ground in different ways: <strong>Imagery</strong> is
+                real photographs, <strong>Elevation</strong> is height shown as colour, and
+                <strong>Polar shading</strong> is the terrain lit evenly from several directions, so
+                every ridge shows. The line under the map says more about the one in use.
+              </p>
+              <h3>Try it</h3>
+              <ol>
+                <li>
+                  <strong>Compare two sites.</strong> Find Shackleton rim and Haworth, then look at
+                  each for the same week. One has more sunlight, the other sees Earth more. Which
+                  would you choose for a solar-powered rover, and which for a radio relay?
+                </li>
+                <li>
+                  <strong>Look into the shadow.</strong> Switch between the three layers over the
+                  craters at the pole. In which layers can you see the crater floors, and why are
+                  they black in the photographs?
+                </li>
+              </ol>
+            </section>
+
+            <section data-guide="sun-path-chart" aria-labelledby="guide-chart">
+              <h3 id="guide-chart">On this tab: how to read the Sun-Path Chart</h3>
+
+              <ul>
+                <li>
+                  Imagine standing at the site and turning all the way round. Left to right is the
+                  direction you face (north, east, south, west); up and down is how high above level
+                  ground you look, in degrees. Your fist at arm's length covers about 10°.
+                </li>
+                <li>
+                  The grey shape is the real skyline: the highest ground in each direction, measured
+                  by a laser on NASA's Lunar Reconnaissance Orbiter.
+                </li>
+                <li>
+                  The gold line is the Sun's path over the mission and the blue line is Earth's.
+                  Where a line passes behind the grey it fades: that body is hidden from the site.
+                  Drag the time slider and watch.
+                </li>
+                <li>
+                  At the south pole, "north" is every direction away from the pole, and south is the
+                  pole itself.
+                </li>
+              </ul>
+              <h3>What the four lights mean</h3>
+
+              <figure class="learn-side">
+                <img
+                  src="/img/dss-43-canberra.jpg"
+                  width="640"
+                  height="480"
+                  loading="lazy"
+                  alt="A huge white dish antenna on a pedestal, with a crane beside it and hills behind"
+                />
+                <figcaption>
+                  Deep Space Station 43 near Canberra: 70 m across, the largest steerable dish in
+                  the Southern Hemisphere. One of the three stations the Comms light checks. Photo:
+                  NASA/JPL-Caltech, PIA23797.
+                </figcaption>
+              </figure>
+              <ul>
+                <li><strong>Sun:</strong> can you see any of the Sun right now?</li>
+                <li><strong>Earth:</strong> can you see Earth right now?</li>
+                <li>
+                  <strong>Power:</strong> over the whole stay, is there enough sunlight to run on
+                  solar panels, with no night too long for the batteries?
+                </li>
+                <li>
+                  <strong>Comms:</strong> is Earth clear of the hills, and is one of NASA's three
+                  big dish stations (in California, Spain and Australia) facing the Moon?
+                </li>
+              </ul>
+              <p class="more">
+                Learn more:
+                <a
+                  href="https://www.nasa.gov/communicating-with-missions/dsn/"
+                  target="_blank"
+                  rel="noopener"
+                  >the Deep Space Network</a
+                >
+                ·
+                <a href="https://eyes.nasa.gov/dsn/dsn.html" target="_blank" rel="noopener"
+                  >DSN Now: which dish is talking to which spacecraft, live</a
+                >
+                ·
+                <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener"
+                  >JPL Horizons</a
+                >, where the Sun and Earth positions come from
+              </p>
+              <h3>Try it</h3>
+              <ol>
+                <li>
+                  <strong>Stand taller.</strong> Change the observer height from 1 m to 5 m. Why
+                  does a few metres change the skyline nearby but not the far ridges?
+                </li>
+                <li>
+                  <strong>Lose the Sun.</strong> Drag the time slider until the Sun light goes off.
+                  Which part of the skyline is the Sun behind?
+                </li>
+              </ol>
+            </section>
+
+            <section data-guide="survive-the-night" aria-labelledby="guide-night">
+              <h3 id="guide-night">On this tab: Survive the Night</h3>
+              <p>
+                A simple energy budget. In sunlight the solar array runs the lander and charges the
+                battery with what is left over; in the dark the battery keeps a smaller survival
+                load going. The chart is the battery's charge through the mission window, starting
+                full at landing. Shaded bands are the hours the Sun is behind the terrain.
+              </p>
+              <p>
+                The numbers for each vehicle are round, illustrative values chosen by us, not a real
+                spacecraft's.
+              </p>
+              <h3>Try it</h3>
+              <ol>
+                <li>
+                  <strong>Size a battery.</strong> Open "Adjust the power system" and find the
+                  smallest battery that gets the small lander through the longest night of the week.
+                </li>
+              </ol>
+            </section>
+
+            <section data-guide="about-this-site" aria-labelledby="guide-about">
+              <h3 id="guide-about">On this tab: About this site</h3>
+              <p>
+                The facts we computed for the selected site, and above them a short review written
+                from those facts by an AI language model. A separate program checked every number in
+                the review against the facts. "Where AI is used", below, explains how and why.
+              </p>
+              <h3>Try it</h3>
+              <ol>
+                <li>
+                  <strong>Check the writer.</strong> Read the review beside the figures. Can you
+                  find anything the review says that the figures do not support?
+                </li>
+              </ol>
+            </section>
+
+            <details class="guide-more" id="guide-ai">
+              <summary id="learn-ai">Where AI is used on this page, and where it isn't</summary>
+
+              <div class="learn-grid">
+                <div>
+                  <h3>Not for the answers</h3>
+                  <p>
+                    The skylines, the Sun and Earth positions, the four lights and the planner are
+                    ordinary calculation on NASA data. The same inputs always give the same answer,
+                    and you can check each step. No AI model is involved.
+                  </p>
+                </div>
+                <div>
+                  <h3>For writing the site reviews</h3>
+                  <p>
+                    A language model works by predicting which words are likely to come next. That
+                    makes it good at writing a clear sentence and bad at guaranteeing the sentence
+                    is true. So we give it only a table of facts we computed for the site, and a
+                    separate program checks every number in what it writes. Drafts that fail are
+                    thrown away.
+                  </p>
+                </div>
+                <div>
+                  <h3>For understanding your question</h3>
+                  <p>
+                    When you type a question, the model's only job is to pull out four settings: a
+                    date, a slip in days, a mission length and a site. The server checks each one is
+                    allowed, and then the planner does the calculating. The model never sees the
+                    data.
+                  </p>
+                </div>
+              </div>
+              <h3>It did get something wrong</h3>
+              <p>
+                While building this, one review said a site's terrain data was "approximate" when it
+                was not. Every number in the paragraph was right, so the number check passed it. We
+                added a second check for that word, and on the next run it rejected six drafts. The
+                lesson: a model's mistakes can be in the words between the numbers, and you only
+                catch what you think to check for.
+              </p>
+              <h3>To discuss</h3>
+              <ul>
+                <li>Why let a model write the summary but not calculate the sunlight?</li>
+                <li>
+                  What else could go wrong in a written summary that a number check would miss?
+                </li>
+                <li>
+                  Would you trust a landing decision made by a language model? What would it take?
+                </li>
+              </ul>
+              <p class="more">
+                The model is Llama 3.3 (70 billion parameters), an openly published model from Meta,
+                run on Cloudflare Workers AI. Learn more:
+                <a
+                  href="https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/"
+                  target="_blank"
+                  rel="noopener"
+                  >about this model</a
+                >
+                ·
+                <a
+                  href="https://developers.cloudflare.com/workers-ai/"
+                  target="_blank"
+                  rel="noopener"
+                  >Workers AI</a
+                >
+              </p>
+            </details>
+
+            <details class="guide-more" id="guide-words">
+              <summary id="learn-words">Words used here</summary>
+              <dl class="glossary">
+                <dt>Azimuth</dt>
+                <dd>The direction you face, in degrees clockwise from north.</dd>
+                <dt>Elevation</dt>
+                <dd>How high something is above level ground, in degrees. The horizon is 0°.</dd>
+                <dt>Horizon profile (skyline)</dt>
+                <dd>The elevation of the highest ground in every direction from one spot.</dd>
+                <dt>Libration</dt>
+                <dd>
+                  The slow nodding of the Moon as seen from Earth, which makes Earth bob up, down
+                  and sideways in the Moon's sky over about 27 days. It is built into the Earth
+                  positions used here.
+                </dd>
+                <dt>Mission window</dt>
+                <dd>The days a lander is working on the surface, starting at the landing date.</dd>
+                <dt>Usable days</dt>
+                <dd>Time in the mission window with both sunlight and a radio link to Earth.</dd>
+                <dt>Deep Space Network (DSN)</dt>
+                <dd>
+                  NASA's three stations of large radio dishes, spaced round the Earth so one can
+                  always face deep space.
+                </dd>
+                <dt>LOLA</dt>
+                <dd>
+                  The Lunar Orbiter Laser Altimeter, which has measured the Moon's shape with
+                  billions of laser shots.
+                </dd>
+              </dl>
+            </details>
+          </div>
+        </aside>
+      </div>
 
       <dialog id="share" aria-labelledby="share-title">
         <h2 id="share-title">Share this project</h2>
