@@ -6,15 +6,15 @@ _Draft written Sat 14 Nov from the build log. One section per form field, in the
 Four Lights
 
 ## 2. High-Level Project Summary
-_Live form (read Sun 15 Nov, about 10:05): plain text box, 1,500 characters; "we suggest a 50-200 word summary". The text below is 198 words, 1,069 characters without the bold marks._
+_Live form (read Sun 15 Nov, about 10:05): plain text box, 1,500 characters; "we suggest a 50-200 word summary". The text below is 197 words, 1,068 characters without the bold marks._
 
 _The form asks: what did you develop, how does it address the challenge, why is it important?_
 
 A launch slips three days. Which lunar south-pole landing site still works?
 
-Near the Moon's south pole the Sun stays within a degree or two of the horizon, so a ridge 100 km away decides whether a lander has power, and a hill decides whether it can see Earth. Four Lights answers the planner's question with real terrain. For 12 candidate sites it works out, hour by hour for 2028 and 2029, where the Sun and Earth sit against each site's skyline from NASA's LOLA elevation data, and reduces that to four lights: **Sun**, **Earth**, **Power** and **Comms**. The Slip Planner shows every site against every landing date as one number, usable days. Slide the date and watch sites go red and green.
+Near the Moon's south pole the Sun stays within a degree or two of the horizon, so a ridge 100 km away decides whether a lander has power, and a hill decides whether it can see Earth. Four Lights answers the planner's question with real terrain. For 12 candidate sites, and any point you add south of 80°S, it works out, hour by hour for 2028 and 2029, where the Sun and Earth sit against each site's skyline from NASA's LOLA elevation data, and reduces that to four lights: **Sun**, **Earth**, **Power** and **Comms**. The Slip Planner shows every site against every landing date as one number, usable days. Slide the date and watch sites go red and green.
 
-In our demo, a landing planned for 19 April 2028 slips to 22 April. Six sites work on the 19th. After the slip, four of them lose power: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B. Peak near Shackleton and Slater Plain still give 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. A slip cuts both ways, which is why a planner needs to see it.
+In our demo, a landing planned for 19 April 2028 slips to 22 April. Six sites work on the 19th. After the slip, four of them lose power: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B. Peak near Shackleton and Slater Plain still give 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. A slip cuts both ways.
 
 ## 3. Link to Project Demo
 _**Decided (Steve, Sun 15 Nov): the 7-slide deck.** One public link, no password, permission or registration; 7 slides at most including the title and intro slides, showing the team name, the members' names and the challenge chosen. Over the limit means no Global Judging. The link is the deck's own site (Steve, Sun 15 Nov), which must have its password off before judges open it; count its slides as a judge would, 7 at most._
@@ -35,18 +35,18 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 **Who it is for.** A mission planner whose launch date has moved and who has to re-pick a site or a date quickly. Educators and the public get the same data with a Guide beside it. The page has two views, Mission (terse, keyboard-driven) and Explore (the default). In Explore, a Guide panel sits beside the tools and follows the tab you are on: why the pole is different, how to read the chart, things to try, NASA photographs and a glossary, for newcomers and classrooms.
 
 **What it does.**
-- **Slip Planner.** Sites down the side, landing dates across, usable days in each cell: the hours in the mission window with the Sun up and a link to Earth, divided by 24. Green works, amber is marginal, red has no power. One button slips the date a day. A sentence above the grid states the answer.
-- **Sun-Path Chart.** Stand at a site and look around: the 360° skyline from LOLA terrain, with the Sun's and Earth's paths over the mission window and a time slider. The four lights show the state at that moment.
+- **Slip Planner.** Sites down the side, landing dates across, usable days in each cell: the hours in the mission window with the Sun up and a link to Earth, divided by 24. Green works, amber is marginal, red has no power. The stay can be 7, 14 or 30 days. One button slips the date a day, the plan stays pinned, and a sentence above the grid states what the slip cost.
+- **Sun-Path Chart.** Stand at a site and look around: the 360° skyline from LOLA terrain, with the Sun's and Earth's paths over the mission window and a time slider. The four lights show the state at that moment, for an observer 1 m or 5 m above the ground.
 - **Canberra Link.** The Comms light also needs one of the Deep Space Network's 70 m stations (Goldstone, Canberra or Madrid) to have the Moon at least 10° up, and names the station carrying the link.
 - **Survive the Night.** A simple battery model through the mission window: does a given power system make it through the dark spells?
 - **Pointing numbers.** The Sun's and Earth's azimuth and elevation at any hour, the terrain height in that direction and the clearance, with a CSV download of the whole mission window, for aiming solar panels and antennas.
 - **3D map.** A Moon you can turn and zoom, opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured for the landing shown.
 - **Plain-English questions and site reviews.** A box where you can type "Launch slips 3 days from 19 April. Which sites still work?", and a short written summary of each site.
 - **Share Project, and drive it from an AI assistant.** Name a project and get a link: everyone who opens it sees the same site, date, slip and window live. Each shared project also has an MCP address, so an AI assistant can read the project, rank sites from the published numbers and change what everyone sees.
-- **Add your own site.** Add any point near the pole to a shared project and press "Compute this site": in about two minutes it has its own real skyline, lights, chart and planner row, for everyone on the project. The Worker starts our pipeline in a container on a Fly.io machine and stores the result; the same container runs on any machine with Docker or Podman.
+- **Add your own site.** Add any point south of 80°S to a shared project, by coordinates or on the map, and press "Compute this site": in about two minutes it has its own real skyline, lights, chart and planner row, for everyone on the project, built by the same pipeline from the same NASA terrain as the 12 curated sites. The Worker starts our pipeline in a container on a Fly.io machine and stores the result; the same container runs on any machine with Docker or Podman.
 - **Open in QGIS.** QGIS is free, open-source desktop mapping software (a geographic information system, or GIS) used by surveyors, scientists and planners around the world. The same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file. No map server and no database.
 
-**How it works.** A Python pipeline reads NASA's LOLA elevation models, from 5 m per pixel at the site out to 240 m per pixel 650 km away, and for each site finds the highest terrain in each of 720 half-degree directions, in true 3D geometry on the Moon's sphere. It pulls the Sun's and Earth's positions for every hour of 2028 and 2029 from JPL Horizons. The results are small files, about half a megabyte per site. The browser compares the two and computes the lights, so the app is instant and runs from one Cloudflare Worker serving static files (shared projects add a Durable Object, and the larger QGIS rasters sit in R2).
+**How it works.** A Python pipeline reads NASA's LOLA elevation models, from 5 m per pixel at the site out to 240 m per pixel 650 km away, and for each site finds the highest terrain in each of 720 half-degree directions, in true 3D geometry on the Moon's sphere. It pulls the Sun's and Earth's positions for every hour of 2028 and 2029 from JPL Horizons. The results are small files, about half a megabyte per site. The browser compares the two and computes the lights, so the app is instant and runs from one Cloudflare Worker serving static files (shared projects add a Durable Object, and the larger QGIS rasters sit in R2). For a site you add, the Worker starts the same pipeline in a container on a hosted machine, which sends back that site's file about two minutes later; the heavy work never runs in the Worker.
 
 **The four lights.**
 - **Sun:** any part of the Sun's disc is above the terrain in its direction; partial sunlight counts in proportion.
@@ -67,6 +67,7 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 - Three sites (Nobile Rim 1, Nobile Rim 2, Peak near Cabeus B) have no 5 m terrain under them and are labelled approximate.
 - The six Artemis-region sites are placed at the highest summit within 8 km of the region's centre, which is not necessarily where a mission would land.
 - The battery presets are round illustrative numbers, not real vehicles.
+- A site you add must be south of 80°S, where the terrain models reach. To keep the hosted machine from being overused, one site is computed at a time, a project can compute five, and the whole site a hundred a day.
 
 **What we would do next.** A scored grid to find new sites, the 3D Moon lit from the real Sun direction, and the true skyline across the Sun's and Earth's discs.
 
@@ -122,10 +123,14 @@ _Live form (read Sun 15 Nov, about 10:05): also **Link Text + Link Url** pairs, 
 | Vite | https://vite.dev/ |
 | Cloudflare Workers, Durable Objects, R2 and Workers AI | https://developers.cloudflare.com/workers/ |
 | Fly.io (runs the pipeline container for added sites) | https://fly.io/ |
+| Mermaid (diagrams on the how-we-built-it page) | https://mermaid.js.org/ |
+| IBM Plex typefaces (SIL Open Font License 1.1) | https://www.ibm.com/plex/ |
 | Phosphor Icons (MIT licence) | https://phosphoricons.com/ |
+| Colaprete et al. (2010), Detection of water in the LCROSS ejecta plume, Science 330 (deck, slide 2) | https://doi.org/10.1126/science.1186986 |
+| Photo: Patrick Stewart, 2019, by Gage Skidmore, CC BY-SA 2.0, cropped (deck, slide 7) | https://commons.wikimedia.org/wiki/File:Patrick_Stewart_(48445083306).jpg |
 | Ice Rover (pre-existing work by Steve, not part of this entry) | https://icerover.refactor.red |
 
-_If the deck is the demo link, add its two extra credits (pitch repo, `05_deliver`): the LCROSS water-ice paper, https://doi.org/10.1126/science.1186986 (opens in a browser; refuses scripts with 403), and the slide-7 photo credit. The same references in prose:_
+_The deck is the demo link, so its two extra credits (the LCROSS water-ice paper, which opens in a browser but refuses scripts with 403, and the slide-7 photo) are in the pairs above. The same references in prose:_
 _One field on the form: partner data, then every resource and tool, including code, text and images._
 
 No Space Agency Partner data is used; the data is from NASA and USGS (listed under NASA Data).
@@ -136,4 +141,5 @@ No Space Agency Partner data is used; the data is from NASA and USGS (listed und
 - Acton, C. H. (1996). Ancillary data services of NASA's Navigation and Ancillary Information Facility. Planetary and Space Science 44, 65–70. (SPICE)
 - USGS Astrogeology (2024). Lunar Grid Reference System navigational grids for the Artemis III candidate landing regions. https://doi.org/10.5066/P1MEQ6UK
 - DSN Telecommunications Link Design Handbook 810-005, module 301 (elevation limits). https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301P.pdf
-- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, QGIS, Hono, Vite, three.js, Cloudflare Workers, Durable Objects, R2 and Workers AI, and Fly.io for the hosted pipeline container. Icons: Phosphor Icons (MIT licence).
+- Software: GDAL, rasterio, pyproj, NumPy, spiceypy, GRASS GIS, QGIS, Hono, Vite, three.js, Cloudflare Workers, Durable Objects, R2 and Workers AI, Mermaid, and Fly.io for the hosted pipeline container. Typefaces: IBM Plex (SIL Open Font License 1.1). Icons: Phosphor Icons (MIT licence).
+- Deck only: Colaprete, A., et al. (2010). Detection of water in the LCROSS ejecta plume. Science 330, 463–468. https://doi.org/10.1126/science.1186986 ; photograph of Patrick Stewart, 2019, by Gage Skidmore, CC BY-SA 2.0, cropped, https://commons.wikimedia.org/wiki/File:Patrick_Stewart_(48445083306).jpg
