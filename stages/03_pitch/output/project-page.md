@@ -6,7 +6,7 @@ _Draft written Sat 14 Nov from the build log. One section per form field, in the
 Four Lights
 
 ## 2. High-Level Project Summary
-_Live form (read Sun 15 Nov 10:25): plain text box, 1,500 characters; "we suggest a 50-200 word summary". The text below is 198 words, 1,069 characters without the bold marks._
+_Live form (read Sun 15 Nov, about 10:05): plain text box, 1,500 characters; "we suggest a 50-200 word summary". The text below is 198 words, 1,069 characters without the bold marks._
 
 _The form asks: what did you develop, how does it address the challenge, why is it important?_
 
@@ -17,7 +17,9 @@ Near the Moon's south pole the Sun stays within a degree or two of the horizon, 
 In our demo, a landing planned for 19 April 2028 slips to 22 April. Six sites work on the 19th. After the slip, four of them lose power: Connecting Ridge, both de Gerlache sites and Peak near Cabeus B. Peak near Shackleton and Slater Plain still give 7.0 usable days. Shackleton rim, which did not work on the 19th, now does. A slip cuts both ways, which is why a planner needs to see it.
 
 ## 3. Link to Project Demo
-_**Decided (Steve, Sun 15 Nov): the 7-slide deck.** One public link, no password, permission or registration; 7 slides at most including the title and intro slides, showing the team name, the members' names and the challenge chosen. Over the limit means no Global Judging. **The public link is still to add.**_
+_**Decided (Steve, Sun 15 Nov): the 7-slide deck.** One public link, no password, permission or registration; 7 slides at most including the title and intro slides, showing the team name, the members' names and the challenge chosen. Over the limit means no Global Judging. The link is the deck's own site (Steve, Sun 15 Nov), which must have its password off before judges open it; count its slides as a judge would, 7 at most._
+
+https://pitch.gcsa.space
 
 ## 4. Link to Final Project
 _The form takes **one** link. Proposed: the live demo, with the repository named in the first line of field 5. Steve and Matt to confirm._
@@ -42,7 +44,7 @@ _The form asks: what does it do, how does it work, what benefits, what do you ho
 - **3D map.** A Moon you can turn and zoom, opening over the south pole in our own LOLA hillshade, with NASA LRO imagery and LOLA elevation as the other layers and the 12 sites coloured for the landing shown.
 - **Plain-English questions and site reviews.** A box where you can type "Launch slips 3 days from 19 April. Which sites still work?", and a short written summary of each site.
 - **Share Project, and drive it from an AI assistant.** Name a project and get a link: everyone who opens it sees the same site, date, slip and window live. Each shared project also has an MCP address, so an AI assistant can read the project, rank sites from the published numbers and change what everyone sees.
-- **Open in QGIS.** The same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file. No map server and no database.
+- **Open in QGIS.** QGIS is free, open-source desktop mapping software (a geographic information system, or GIS) used by surveyors, scientists and planners around the world. The same sites, verdicts, skylines and terrain as map layers that QGIS reads straight from the site, with a ready-made project file. No map server and no database.
 
 **How it works.** A Python pipeline reads NASA's LOLA elevation models, from 5 m per pixel at the site out to 240 m per pixel 650 km away, and for each site finds the highest terrain in each of 720 half-degree directions, in true 3D geometry on the Moon's sphere. It pulls the Sun's and Earth's positions for every hour of 2028 and 2029 from JPL Horizons. The results are small files, about half a megabyte per site. The browser compares the two and computes the lights, so the app is instant and runs from one Cloudflare Worker serving static files (shared projects add a Durable Object, and the larger QGIS rasters sit in R2).
 
@@ -80,7 +82,7 @@ _On the form this is a dropdown of tools plus the text (opening slide, 14 Nov): 
 Yes. We used AI coding tools (Claude) to help write the code, tests and data pipeline; the idea, the design decisions and the checking of results are ours. In the app, the short "Site review" paragraph for each site is written by a language model on Cloudflare Workers AI (Llama 3.3 70B) from numbers we computed, and is labelled as AI-written; every number in it is checked against those numbers. The "ask in plain English" box uses the same model only to turn a typed question into the planner's settings; it never produces the answer. There are no AI-generated images, video or audio in the project.
 
 ## 7. NASA Data
-_Live form (read Sun 15 Nov 10:25): this field is not free text. It is a list of **Link Text + Link Url** pairs ("Add New Link"), so what each dataset is used for has to live in field 5 or on the app's sources page. Pairs to enter, in order:_
+_Live form (read Sun 15 Nov, about 10:05): this field is not free text. It is a list of **Link Text + Link Url** pairs ("Add New Link"), so what each dataset is used for has to live in field 5 or on the app's sources page. Pairs to enter, in order:_
 
 | Link Text | Link Url |
 |---|---|
@@ -105,7 +107,7 @@ _The app has its own data-sources page with the same information in more depth: 
 - **NASA Image and Video Library**, https://images.nasa.gov : six photographs. Surveyor 3 (AS12-48-7121), a VIPER rover prototype (GRC-2021-C-00493) and the Apollo 11 lunar module (AS11-40-5927) as examples of vehicle classes; the Clementine south-pole mosaic (PIA00001), Earth over the lunar horizon from Apollo 8 (AS08-14-2383) and Deep Space Station 43 (PIA23797) in the Learn view.
 
 ## 8. Space Agency Partner Data and Other References
-_Live form (read Sun 15 Nov 10:25): also **Link Text + Link Url** pairs, and optional. No Space Agency Partner data is used. Pairs to enter (every URL returned 200 on Sun 15 Nov):_
+_Live form (read Sun 15 Nov, about 10:05): also **Link Text + Link Url** pairs, and optional. No Space Agency Partner data is used. Pairs to enter (every URL returned 200 on Sun 15 Nov):_
 
 | Link Text | Link Url |
 |---|---|
@@ -114,7 +116,7 @@ _Live form (read Sun 15 Nov 10:25): also **Link Text + Link Url** pairs, and opt
 | Acton (1996), Ancillary data services of NASA's NAIF (SPICE), PSS 44 | https://doi.org/10.1016/0032-0633(95)00107-7 |
 | GDAL | https://gdal.org/ |
 | GRASS GIS | https://grass.osgeo.org/ |
-| QGIS | https://qgis.org/ |
+| QGIS (free, open-source desktop mapping software) | https://qgis.org/ |
 | three.js | https://threejs.org/ |
 | Hono | https://hono.dev/ |
 | Vite | https://vite.dev/ |

@@ -6,11 +6,11 @@ _Prepared Sat 14 Nov. Text for every field is in `../../03_pitch/output/project-
 | Field / check | Where the text is | Status |
 |---|---|---|
 | Project name | project-page.md, "Project name" | draft ready ☐ |
-| High-level summary (form limit: 50 to 200 words) | "High-Level Project Summary" | draft ready, 198 words (Sun 10:15) ☐ |
-| Project demo link (video ≤ 30 s or ≤ 7 slides), public, no login | pitch.md shot list; link goes in project-page.md | **the 7-slide deck (Steve, Sun 15 Nov); it still needs a public link** ☐ |
+| High-level summary (form limit: 50 to 200 words) | "High-Level Project Summary" | draft ready, 198 words (Sun 15 Nov morning) ☐ |
+| Project demo link (video ≤ 30 s or ≤ 7 slides), public, no login | pitch.md shot list; link goes in project-page.md | **the 7-slide deck at https://pitch.gcsa.space (Steve, Sun 15 Nov); the site is still password-gated, so the gate comes off before the link check** ☐ |
 | Final project link (live demo + repo) | "Final project" | ready once public ☐ |
-| Project details | "Detailed Project Description" | draft ready; brought up to the shipped app Sun 10:15 (pointing, 3D Moon, shared projects and MCP, QGIS) ☐ |
-| NASA data used, every dataset linked | "NASA Data" (6 sources; Moon Trek added Sun 10:15) | draft ready ☐ |
+| Project details | "Detailed Project Description" | draft ready; brought up to the shipped app Sun 15 Nov morning (pointing, 3D Moon, shared projects and MCP, QGIS) ☐ |
+| NASA data used, every dataset linked | "NASA Data" (6 sources; Moon Trek added Sun 15 Nov morning) | draft ready ☐ |
 | Space agency partner / other data | "Space agency partner and other data" | draft ready ☐ |
 | AI-use question answered | "Use of Super Intelligence (SI)"; the form also has a dropdown of tools | draft ready ☐ |
 | AI acknowledgement line in README and description | README "How we built it"; project-page "How we built it" | in place ☐ |
@@ -44,8 +44,9 @@ Checked by script on Sat 14 Nov and again Sun 15 Nov 10:05 (all returned 200 unl
 - https://icerover.refactor.red (pre-existing work disclosure)
 - https://www.spaceappschallenge.org/ and the challenge page: **could not be checked by script** (certificate error from the build machine); open them by hand.
 
-## State on Sun 15 Nov, 10:15
-- **"Save Progress" is public, not a private draft.** The live form's own tip says: "Your changes will now be viewable to anyone who visits your page." So nothing goes into the form until we are ready for other teams to read it, and the demo URL not before the gate comes off. The form was opened and read at 10:25 and closed with nothing typed or saved.
+## State on Sun 15 Nov, 10:15 (form saved 10:14)
+- **Form filled and saved, NOT submitted for judging (last saved 10:14 by the form's clock).** Saved text is public on the team page. Every field is in: name, summary, both links (demo https://pitch.gcsa.space, project https://fourlights.gcsa.space), details (with a one-sentence explanation of what QGIS is), three AI-use options (Building it into the project; Coding; Writing), 9 NASA links, 12 other links, and both tick boxes (Steve). The form still reads "Project Requires Submission for Judging". Both links are still password-gated and the repo is private, so they must be opened before Submit for Judging is clicked.
+- **"Save Progress" is public, not a private draft.** The live form's own tip says: "Your changes will now be viewable to anyone who visits your page." So nothing goes into the form until we are ready for other teams to read it, and the demo URL not before the gate comes off. The form was first opened and read at about 10:05 and closed with nothing typed or saved.
 - **The live form's shape** (team page, Project tab, Edit): Project Name; Summary (plain text, 1,500 characters); Project Demonstration (one URL); Project (one URL); Project Details (rich text, images); Use of SI (a multi-select of options, no text box seen); NASA Data and Space Agency Partner & Other Data (each a list of Link Text + Link Url pairs); two tick boxes (Terms, All Work is Original); then Lock, Save Progress, Submit for Judging. The link pairs are laid out ready in project-page.md fields 7 and 8.
 - Repo `gcspaceapps/fourlights`: still **private**. Demo: still gated (401 without the password). README still has the `_URL added on Sunday evening_` placeholder. All three wait for step 2 to 4.
 - The demo numbers on the project page (19 Apr 2028, slip 3 days: six work, four lose power, Peak near Shackleton and Slater Plain at 7.0, Shackleton rim comes good) match the build log's 13:01 Sat row; the Barker figures match its Results table.
