@@ -17,7 +17,7 @@ _Prepared Sat 14 Nov. Text for every field is in `../../03_pitch/output/project-
 | Disclosures: prepared before the start, pre-existing work | "Disclosures" | in place ☐ |
 | No likeness of anyone under 18 | the only person pictured is an Apollo 11 astronaut (NASA AS11-40-5927) | checked ☐ |
 | Every link opens in a private window | list below | ☐ |
-| **Submitted** (URL, time AEST) | | ☐ |
+| **Submitted** (URL, time AEST) | team page, Project tab | **submitted for judging 21:19 Sun 15 Nov** (two confirmation emails from Space Apps) ☑ |
 
 ## Sunday run sheet (AEST)
 1. **By 19:00:** the demo video is recorded and uploaded somewhere public with no login; its link is in project-page.md and pitch.md. Matt's comments are in.
@@ -48,6 +48,9 @@ Checked by script on Sat 14 Nov and again Sun 15 Nov 10:05 (all returned 200 unl
 - **Done:** the repo is public; the demo is open; the README has the live address; QGIS, MCP and computing a site were each checked on the live site this evening (build log).
 - **Links checked without credentials, 20:48:** 39 links from the README, project-page.md and this file. 33 answer 200, as do the demo, the deck (https://pitch.gcsa.space), the repo and the SPICE paper's DOI when its whole address is used. Three could not be confirmed by script and want a look in a private window: https://www.spaceappschallenge.org/ and the challenge page (no answer to an automated client), and the LCROSS paper https://doi.org/10.1126/science.1186986 (403 to an automated client, usual for that publisher).
 - **Left:** the private-window look at those three; the deck re-exported if slide 7 changed since 08:29; the form checked against project-page.md (the saved text is from 10:24 and predates computing a site, Fly.io and the nine photographs) and **submitted by 22:00**; the URL and time written in the table above.
+
+## Result
+- **Submitted for judging at 21:19 Sun 15 Nov.** We pitched in the 3:30pm session and **won the local Best Use of Tech prize**. Global Nominees are announced 3 Dec.
 
 ## State on Sun 15 Nov, 10:15 (form saved 10:14)
 - **Form filled and saved, NOT submitted for judging (last saved 10:24 by the form's clock).** Saved text is public on the team page. Every field is in: name, summary, both links (demo https://pitch.gcsa.space, project https://fourlights.gcsa.space), details (with a one-sentence explanation of what QGIS is), five AI-use options (Research; Building it into the project; Coding; Writing; Presentation, the last two and Research confirmed by Steve), 9 NASA links, 12 other links, and both tick boxes (Steve). The form still reads "Project Requires Submission for Judging". Both links are still password-gated and the repo is private, so they must be opened before Submit for Judging is clicked.
