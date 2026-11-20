@@ -16,7 +16,7 @@ _Prepared Sat 14 Nov. Text for every field is in `../../03_pitch/output/project-
 | AI acknowledgement line in README and description | README "How we built it"; project-page "How we built it" | in place ☐ |
 | Disclosures: prepared before the start, pre-existing work | "Disclosures" | in place ☐ |
 | No likeness of anyone under 18 | the only person pictured is an Apollo 11 astronaut (NASA AS11-40-5927) | checked ☐ |
-| Every link opens in a private window | list below | ☐ |
+| Every link opens in a private window | list below | checked ☑ |
 | **Submitted** (URL, time AEST) | team page, Project tab | **submitted for judging 21:19 Sun 15 Nov** (two confirmation emails from Space Apps) ☑ |
 
 ## Sunday run sheet (AEST)
